@@ -1,8 +1,9 @@
-// Date: 21st of Jun 2025
+// Date: 22st of Jun 2025
 
 // importing
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
+import 'backend/validatePhoneNumber.dart';
 
 // testing this page alone
 void main(List<String> args) {
@@ -25,6 +26,8 @@ class BookingPage extends StatefulWidget {
 // Booking page
 class _BookingPageState extends State<BookingPage> {
   // Testing Data (Region)
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final Map<String, Map<String, List<String>>> hospitalData = {
     'الخرطوم': {
       'بحري': ['مستشفى بحري', 'مستشفى الختمية'],
@@ -94,6 +97,8 @@ class _BookingPageState extends State<BookingPage> {
     the specific department in a specific hospital
   - The current code displayed the abailable doctors in that department in
     in any hospital in Sudan
+
+    *** the problem was from the Testing data (doctor), because the keys (departments) aren't depending on the local hospitals, and hence the values (doctors) aren't depending on the hospitals***
 */
   // git doctors depending on the department
   List<String> get availableDoctors =>
@@ -107,151 +112,176 @@ class _BookingPageState extends State<BookingPage> {
       child: Scaffold(
         appBar: appBar('حجز موعد'), // styles.dart
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // entering name
-              _buildTextField(
-// validate the name with range of characters
-                'الاسم الرباعي',
-                (val) => fullName = val,
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // entering name
+                  _buildTextField(
+                      // validate the name with range of characters
+                      'الاسم الرباعي',
+                      (val) => fullName = val, validator: (val) {
+                    if (val == null || val.isEmpty) return 'الاسم مطلوب';
+                    if (val.length < 4) return 'الاسم قصير جداً';
+                    return null;
+                  }),
+
+                  // entering gender
+                  _buildDropdown(
+                    label: 'النوع',
+                    value: gender,
+                    items: ['ذكر', 'أنثى'],
+                    onChanged: (val) {
+                      setState(() {
+                        gender = val;
+                      });
+                    },
+                  ),
+
+                  // entering age
+                  _buildTextField(
+                    'العمر',
+                    (val) => age = val,
+                    inputType: TextInputType.number,
+                    // validate the age range (0,150)
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'العمر مطلوب';
+                      final num = int.tryParse(val);
+                      if (num == null || num <= 0 || num > 150) {
+                        return 'عمر غير صالح';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  // enter phone number
+                  _buildTextField(
+                    'رقم الهاتف (مثال: 0123456789)',
+                    // validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
+                    (val) => phoneNumber = val,
+                    inputType: TextInputType.phone,
+                    validator: (value) {
+                      if (!validatePhoneNumber(value ?? '')) {
+                        return 'رقم الهاتف غير صالح'; // Invalid phone number
+                      }
+                      return null;
+                    },
+                  ),
+
+                  SizedBox(
+                      height:
+                          20), // dividing between personal info and hospital info
+
+                  // state
+                  _buildDropdown(
+                    label: 'الولاية',
+                    value: selectedState,
+                    items: hospitalData.keys.toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        selectedState = val;
+                        selectedLocality = null;
+                        selectedHospital = null;
+                        selectedDepartment = null;
+                        selectedDoctor = null;
+                      });
+                    },
+                  ),
+
+                  // selection a locality depending on the state
+                  _buildDropdown(
+                    label: 'المحلية',
+                    value: selectedLocality,
+                    items: localities,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedLocality = val;
+                        selectedHospital = null;
+                        selectedDepartment = null;
+                        selectedDoctor = null;
+                      });
+                    },
+                  ),
+
+                  // home details: neighborhod - block
+                  _buildTextField(
+                    'الحي - المربع (مثال: الواحة - 4)',
+                    (val) => address = val,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'العنوان مطلوب';
+                      return null;
+                    },
+                  ),
+
+                  // selecting a hospital depending on the locality
+                  _buildDropdown(
+                    label: 'المستشفى',
+                    value: selectedHospital,
+                    items: hospitals,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedHospital = val;
+                        selectedDepartment = null;
+                        selectedDoctor = null;
+                      });
+                    },
+                  ),
+
+                  // selecting a department depending on the hospital
+                  _buildDropdown(
+                    label: 'القسم',
+                    value: selectedDepartment,
+                    items: availableDepartments,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedDepartment = val;
+                        selectedDoctor = null;
+                      });
+                    },
+                  ),
+
+                  // selecting a doctor depending on the department
+                  _buildDropdown(
+                    label: 'الطبيب',
+                    // look the bugg above (in the doctors testing data)
+                    value: selectedDoctor,
+                    items: availableDoctors,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedDoctor = val;
+                      });
+                    },
+                  ),
+
+                  SizedBox(height: 30),
+
+                  // sending the appoinment
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.check_circle_outline),
+                    label: Text('تأكيد الحجز'),
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.green[700],
+                        minimumSize: Size(10, 10)),
+                    onPressed: () {
+                      /*
+  Validation of a field can be in its text field or here
+  */
+
+                      if (_isFormValid() && _formKey.currentState!.validate()) {
+                        // save info in database
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('تم إرسال الحجز بنجاح 🎉')));
+                      } // if
+                      else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
+                      } // else
+                    },
+                  ),
+                ],
               ),
-
-              // entering gender
-              _buildDropdown(
-                label: 'النوع',
-                value: gender,
-                items: ['ذكر', 'أنثى'],
-                onChanged: (val) {
-                  setState(() {
-                    gender = val;
-                  });
-                },
-              ),
-
-              // entering age
-              _buildTextField(
-                'العمر',
-// validate the age range (0,150)
-                (val) => age = val,
-                inputType: TextInputType.number,
-              ),
-
-              // enter phone number
-              _buildTextField(
-                'رقم الهاتف (مثال: 0123456789)',
-// validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
-                (val) => phoneNumber = val,
-                inputType: TextInputType.phone,
-              ),
-
-              SizedBox(
-                  height:
-                      20), // dividing between personal info and hospital info
-
-              // state
-              _buildDropdown(
-                label: 'الولاية',
-                value: selectedState,
-                items: hospitalData.keys.toList(),
-                onChanged: (val) {
-                  setState(() {
-                    selectedState = val;
-                    selectedLocality = null;
-                    selectedHospital = null;
-                    selectedDepartment = null;
-                    selectedDoctor = null;
-                  });
-                },
-              ),
-
-              // selection a locality depending on the state
-              _buildDropdown(
-                label: 'المحلية',
-                value: selectedLocality,
-                items: localities,
-                onChanged: (val) {
-                  setState(() {
-                    selectedLocality = val;
-                    selectedHospital = null;
-                    selectedDepartment = null;
-                    selectedDoctor = null;
-                  });
-                },
-              ),
-
-              // home details: neighborhod - block
-              _buildTextField(
-                  'الحي - المربع (مثال: الواحة - 4)', (val) => address = val),
-
-              // selecting a hospital depending on the locality
-              _buildDropdown(
-                label: 'المستشفى',
-                value: selectedHospital,
-                items: hospitals,
-                onChanged: (val) {
-                  setState(() {
-                    selectedHospital = val;
-                    selectedDepartment = null;
-                    selectedDoctor = null;
-                  });
-                },
-              ),
-
-              // selecting a department depending on the hospital
-              _buildDropdown(
-                label: 'القسم',
-                value: selectedDepartment,
-                items: availableDepartments,
-                onChanged: (val) {
-                  setState(() {
-                    selectedDepartment = val;
-                    selectedDoctor = null;
-                  });
-                },
-              ),
-
-              // selecting a doctor depending on the department
-              _buildDropdown(
-                label: 'الطبيب',
-// look the bugg above (in the doctors testing data)
-                value: selectedDoctor,
-                items: availableDoctors,
-                onChanged: (val) {
-                  setState(() {
-                    selectedDoctor = val;
-                  });
-                },
-              ),
-
-              SizedBox(height: 30),
-
-              // sending the appoinment
-              ElevatedButton.icon(
-                icon: Icon(Icons.check_circle_outline),
-                label: Text('تأكيد الحجز'),
-                style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.green[700],
-                    minimumSize: Size(10, 10)),
-                onPressed: () {
-/*
-Validation of a field can be in its text field or here
-*/
-
-                  if (_isFormValid()) {
-// save info in database
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('تم إرسال الحجز بنجاح 🎉')));
-                  } // if
-                  else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('يرجى تعبئة جميع الحقول')));
-                  } // else
-                },
-              ),
-            ],
-          ),
-        ),
+            )),
       ),
     );
   } // build fun
@@ -271,22 +301,26 @@ Validation of a field can be in its text field or here
         selectedDoctor != null;
   } // _isFormValid
 
-// build text field must be updated to reseve a validation of each one
-  Widget _buildTextField(String label, Function(String) onChanged,
-      {TextInputType inputType = TextInputType.text}) {
+// build text field has been updated to handle the validation
+  Widget _buildTextField(
+    String label,
+    Function(String) onChanged, {
+    TextInputType inputType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: TextField(
+      child: TextFormField(
         keyboardType: inputType,
         cursorColor: Colors.black,
         decoration: InputDecoration(
           labelText: label,
-//          labelStyle: TextStyle(),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           filled: true,
           fillColor: Colors.grey[100],
         ),
         onChanged: onChanged,
+        validator: validator,
       ),
     );
   }
@@ -315,4 +349,4 @@ Validation of a field can be in its text field or here
       ),
     );
   } // _buildDropdown
-} // _BookingPageTest
+}
