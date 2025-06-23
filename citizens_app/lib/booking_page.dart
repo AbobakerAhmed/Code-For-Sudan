@@ -1,9 +1,13 @@
 // Date: 22st of Jun 2025
 
 // importing
+import 'dart:core';
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'backend/validatePhoneNumber.dart';
+import 'backend/globalVar.dart';
+import 'backend/hospital.dart';
+import 'backend/getHospitals.dart';
 
 // testing this page alone
 void main(List<String> args) {
@@ -27,6 +31,46 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   // Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  List<Hospital> hospitalsData = getHospitalsData([
+    'الخرطوم',
+    'بحري',
+    'مستشفى بحري',
+    {
+      'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
+      'الأطفال': ['د. منى بابكر'],
+      'pediatric': ['dr.ahmad yassin', 'dr.abobaker ahmed'],
+      'dentists': ['dr mufti maamon', 'saja essam']
+    },
+    'الخرطوم',
+    'بحري',
+    'مستشفى الختمية',
+    {
+      'الأنف والأذن': ['د. عمار صالح'],
+    },
+    'الخرطوم',
+    'أم درمان',
+    'مستشفى أم درمان',
+    {
+      'الجراحة': ['د. حسن محمد'],
+      'النساء والتوليد': ['د. إيمان الزين'],
+    },
+    'الجزيرة',
+    'مدني',
+    'مستشفى ود مدني',
+    {
+      'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
+      'الجلدية': ['د. هالة حسن'],
+      'emergency': ['dr. salah mohamed', 'dr. nour aldin ibrahim'],
+      'orthopedic': ['dr. osama ali', 'dr. khalid mustafa']
+    },
+    'الجزيرة',
+    'مدني',
+    'مستشفى الأطفال',
+    {
+      'الأطفال': ['د. منى بابكر'],
+    }
+  ]);
 
   final Map<String, Map<String, List<String>>> hospitalData = {
     'الخرطوم': {
@@ -77,20 +121,52 @@ class _BookingPageState extends State<BookingPage> {
     - The displayed doctors will be depending on the depatment
 
 */
-
   // git localities depending on the state
   List<String> get localities =>
-      selectedState != null ? hospitalData[selectedState!]!.keys.toList() : [];
+      selectedState != null ? g_localities[selectedState!]! : [];
 
-  // git hospitals depending on the locality
-  List<String> get hospitals =>
-      (selectedState != null && selectedLocality != null)
-          ? hospitalData[selectedState!]![selectedLocality!] ?? []
-          : [];
+  // //git hospitals depending on the locality
+  // List<String> get hospitals =>
+  //     (selectedState != null && selectedLocality != null)
+  //         ? hospitalData[selectedState!]![selectedLocality!] ?? []
+  //         : [];
+
+  //git hospitals depending on the locality
+  List<Hospital> hospitals() {
+    List<Hospital> list = [];
+    if (selectedState != null && selectedLocality != null) {
+      for (Hospital hospital in hospitalsData) {
+        if (hospital.hospitalState == selectedState &&
+            hospital.hospitalLocality == selectedLocality) {
+          list.add(hospital);
+        }
+      }
+      return list;
+    } else {
+      return [];
+    }
+  }
+
+  List<String> hospitalsName() {
+    List<String> list = [];
+    for (Hospital hospital in hospitals()) {
+      list.add(hospital.hospitalName!);
+    }
+    return list;
+  }
 
   // git departments depending on the hospital
-  List<String> get availableDepartments =>
-      selectedHospital != null ? departments[selectedHospital!] ?? [] : [];
+  // List<String> get availableDepartments =>
+  //     selectedHospital != null ? departments[selectedHospital!] ?? [] : [];
+
+  List<String> availableDepartments() {
+    for (Hospital hospital in hospitals()) {
+      if (hospital.hospitalName == selectedHospital) {
+        return hospital.hospitalDepartmentToDoctors!.keys.toList();
+      }
+    }
+    return [];
+  }
 
 /*
   - There is a bugge here which is the available doctors must be depending on
@@ -100,9 +176,19 @@ class _BookingPageState extends State<BookingPage> {
 
     *** the problem was from the Testing data (doctor), because the keys (departments) aren't depending on the local hospitals, and hence the values (doctors) aren't depending on the hospitals***
 */
-  // git doctors depending on the department
-  List<String> get availableDoctors =>
-      selectedDepartment != null ? doctors[selectedDepartment!] ?? [] : [];
+//  git doctors depending on the department
+  // List<String> get availableDoctors =>
+  //     selectedDepartment != null ? doctors[selectedDepartment!] ?? [] : [];
+
+  List<String> availableDoctors() {
+    for (Hospital hospital in hospitals()) {
+      if (hospital.hospitalName == selectedHospital) {
+        // Check if the map is not null before accessing it
+        return hospital.hospitalDepartmentToDoctors?[selectedDepartment] ?? [];
+      }
+    }
+    return [];
+  }
 
   // build fun
   @override
@@ -131,7 +217,7 @@ class _BookingPageState extends State<BookingPage> {
                   _buildDropdown(
                     label: 'النوع',
                     value: gender,
-                    items: ['ذكر', 'أنثى'],
+                    items: g_gender,
                     onChanged: (val) {
                       setState(() {
                         gender = val;
@@ -177,7 +263,7 @@ class _BookingPageState extends State<BookingPage> {
                   _buildDropdown(
                     label: 'الولاية',
                     value: selectedState,
-                    items: hospitalData.keys.toList(),
+                    items: g_states,
                     onChanged: (val) {
                       setState(() {
                         selectedState = val;
@@ -218,7 +304,7 @@ class _BookingPageState extends State<BookingPage> {
                   _buildDropdown(
                     label: 'المستشفى',
                     value: selectedHospital,
-                    items: hospitals,
+                    items: hospitalsName(),
                     onChanged: (val) {
                       setState(() {
                         selectedHospital = val;
@@ -232,7 +318,7 @@ class _BookingPageState extends State<BookingPage> {
                   _buildDropdown(
                     label: 'القسم',
                     value: selectedDepartment,
-                    items: availableDepartments,
+                    items: availableDepartments(),
                     onChanged: (val) {
                       setState(() {
                         selectedDepartment = val;
@@ -246,7 +332,7 @@ class _BookingPageState extends State<BookingPage> {
                     label: 'الطبيب',
                     // look the bugg above (in the doctors testing data)
                     value: selectedDoctor,
-                    items: availableDoctors,
+                    items: availableDoctors(),
                     onChanged: (val) {
                       setState(() {
                         selectedDoctor = val;
@@ -291,8 +377,7 @@ class _BookingPageState extends State<BookingPage> {
     return fullName != null &&
         age != null &&
         address != null &&
-        phoneNumber !=
-            null && // we must validate the phone number (10 chars, and start with ...)
+        phoneNumber != null &&
         gender != null &&
         selectedState != null &&
         selectedLocality != null &&
