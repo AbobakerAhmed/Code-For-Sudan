@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'package:url_launcher/url_launcher.dart'; // call api
+import 'backend/hospital.dart';
+import 'backend/globalVar.dart';
+import 'backend/data.dart';
 
 /*
   Emergency Page
@@ -38,24 +41,27 @@ class EmergencyPage extends StatefulWidget {
 
 // EmergencyPage conent
 class _EmergencyPageState extends State<EmergencyPage> {
-// testing data
-  final Map<String, Map<String, List<HospitalEmergency>>> data = {
-    'الخرطوم': {
-      'بحري': [
-        HospitalEmergency(name: 'مستشفى بحري', phone: '0912345678'),
-        HospitalEmergency(name: 'مستشفى الختمية', phone: '0923456789'),
-      ],
-      'أم درمان': [
-        HospitalEmergency(name: 'مستشفى أم درمان', phone: '0934567890'),
-      ],
-    },
-    'الجزيرة': {
-      'مدني': [
-        HospitalEmergency(name: 'مستشفى ود مدني', phone: '0945678901'),
-        HospitalEmergency(name: 'مستشفى الأطفال', phone: '0956789012'),
-      ],
-    },
-  };
+//testing data
+  // final Map<String, Map<String, List<HospitalEmergency>>> data = {
+  //   'الخرطوم': {
+  //     'بحري': [
+  //       HospitalEmergency(name: 'مستشفى بحري', phone: '0912345678'),
+  //       HospitalEmergency(name: 'مستشفى الختمية', phone: '0923456789'),
+  //     ],
+  //     'أم درمان': [
+  //       HospitalEmergency(name: 'مستشفى أم درمان', phone: '0934567890'),
+  //     ],
+  //   },
+  //   'الجزيرة': {
+  //     'مدني': [
+  //       HospitalEmergency(name: 'مستشفى ود مدني', phone: '0945678901'),
+  //       HospitalEmergency(name: 'مستشفى الأطفال', phone: '0956789012'),
+  //     ],
+  //   },
+  // };
+
+  //getting the data from data.dart in the correct mentioned formation
+  Map<String, Map<String, List<HospitalEmergency>>>? data = emergencyData();
 
   // fileters
   String? selectedState;
@@ -63,20 +69,20 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   // selecting the locality depending on the state
   List<String> get localities =>
-      selectedState != null ? data[selectedState!]!.keys.toList() : [];
+      selectedState != null ? g_localities[selectedState!]! : [];
 
-  // displayed hospitals:
-  List<HospitalEmergency> get hospitals {
+  //displayed hospitals:
+  List<HospitalEmergency> get emergencyNumbers {
     if (selectedState != null && selectedLocality != null) {
-      return data[selectedState!]![selectedLocality!] ?? [];
+      return data![selectedState!]![selectedLocality!] ?? [];
     } // if
     else if (selectedState != null) {
       // إذا لم يحدد المحلية، نرجع جميع المستشفيات في الولاية
-      return data[selectedState!]!.values.expand((list) => list).toList();
+      return data![selectedState!]!.values.expand((list) => list).toList();
     } // else if
     else {
       // إذا لم يحدد الولاية، نرجع كل المستشفيات
-      return data.values
+      return data!.values
           .expand((map) => map.values)
           .expand((list) => list)
           .toList();
@@ -118,7 +124,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                   fillColor: Colors.grey[100],
                 ),
                 value: selectedState,
-                items: data.keys
+                items: g_states
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (val) {
@@ -158,12 +164,12 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
               // displaying hospitals and thier hot lines
               Expanded(
-                child: hospitals.isEmpty
+                child: emergencyNumbers.isEmpty
                     ? Center(child: Text('لا توجد مستشفيات لعرضها'))
                     : ListView.builder(
-                        itemCount: hospitals.length,
+                        itemCount: emergencyNumbers.length,
                         itemBuilder: (context, index) {
-                          final hospital = hospitals[index];
+                          final hospital = emergencyNumbers[index];
                           return Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
@@ -223,12 +229,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 }
 
 // hospital object here must be edited after creating our class
-class HospitalEmergency {
-  final String name;
-  final String phone;
-  HospitalEmergency({required this.name, required this.phone});
-} // HospitalEmergency
-
+// HospitalEmergency
 
 /*
 

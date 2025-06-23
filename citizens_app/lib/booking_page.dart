@@ -2,12 +2,13 @@
 
 // importing
 import 'dart:core';
+import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'backend/validatePhoneNumber.dart';
 import 'backend/globalVar.dart';
+import 'backend/data.dart';
 import 'backend/hospital.dart';
-import 'backend/getHospitals.dart';
 
 // testing this page alone
 void main(List<String> args) {
@@ -21,7 +22,7 @@ class _BookingPageTest extends StatelessWidget {
   }
 } // BookingPageTest
 
-// booking page builder
+/// booking page builder
 class BookingPage extends StatefulWidget {
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -31,75 +32,6 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   // Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  List<Hospital> hospitalsData = getHospitalsData([
-    'الخرطوم',
-    'بحري',
-    'مستشفى بحري',
-    {
-      'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
-      'الأطفال': ['د. منى بابكر'],
-      'pediatric': ['dr.ahmad yassin', 'dr.abobaker ahmed'],
-      'dentists': ['dr mufti maamon', 'saja essam']
-    },
-    'الخرطوم',
-    'بحري',
-    'مستشفى الختمية',
-    {
-      'الأنف والأذن': ['د. عمار صالح'],
-    },
-    'الخرطوم',
-    'أم درمان',
-    'مستشفى أم درمان',
-    {
-      'الجراحة': ['د. حسن محمد'],
-      'النساء والتوليد': ['د. إيمان الزين'],
-    },
-    'الجزيرة',
-    'مدني',
-    'مستشفى ود مدني',
-    {
-      'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
-      'الجلدية': ['د. هالة حسن'],
-      'emergency': ['dr. salah mohamed', 'dr. nour aldin ibrahim'],
-      'orthopedic': ['dr. osama ali', 'dr. khalid mustafa']
-    },
-    'الجزيرة',
-    'مدني',
-    'مستشفى الأطفال',
-    {
-      'الأطفال': ['د. منى بابكر'],
-    }
-  ]);
-
-  final Map<String, Map<String, List<String>>> hospitalData = {
-    'الخرطوم': {
-      'بحري': ['مستشفى بحري', 'مستشفى الختمية'],
-      'أم درمان': ['مستشفى أم درمان']
-    },
-    'الجزيرة': {
-      'مدني': ['مستشفى ود مدني', 'مستشفى الأطفال']
-    }
-  }; // hospitalData
-
-  // Testing Data (Departments in each hospital)
-  final Map<String, List<String>> departments = {
-    'مستشفى بحري': ['الباطنية', 'الأطفال'],
-    'مستشفى أم درمان': ['الجراحة', 'النساء والتوليد'],
-    'مستشفى ود مدني': ['الباطنية', 'الجلدية'],
-    'مستشفى الأطفال': ['الأطفال'],
-    'مستشفى الختمية': ['الأنف والأذن']
-  }; // depatments
-
-  // Testing Data (Doctors in each department)
-  final Map<String, List<String>> doctors = {
-    'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
-    'الأطفال': ['د. منى بابكر'],
-    'الجراحة': ['د. حسن محمد'],
-    'النساء والتوليد': ['د. إيمان الزين'],
-    'الجلدية': ['د. هالة حسن'],
-    'الأنف والأذن': ['د. عمار صالح']
-  }; // doctors
 
   // Fields:
   String? fullName;
@@ -121,17 +53,11 @@ class _BookingPageState extends State<BookingPage> {
     - The displayed doctors will be depending on the depatment
 
 */
-  // git localities depending on the state
+  /// get localities depending on the state
   List<String> get localities =>
       selectedState != null ? g_localities[selectedState!]! : [];
 
-  // //git hospitals depending on the locality
-  // List<String> get hospitals =>
-  //     (selectedState != null && selectedLocality != null)
-  //         ? hospitalData[selectedState!]![selectedLocality!] ?? []
-  //         : [];
-
-  //git hospitals depending on the locality
+  ///get hospitals depending on the locality
   List<Hospital> hospitals() {
     List<Hospital> list = [];
     if (selectedState != null && selectedLocality != null) {
@@ -147,6 +73,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  ///get a list of the names of the previously selected hospitals
   List<String> hospitalsName() {
     List<String> list = [];
     for (Hospital hospital in hospitals()) {
@@ -155,10 +82,7 @@ class _BookingPageState extends State<BookingPage> {
     return list;
   }
 
-  // git departments depending on the hospital
-  // List<String> get availableDepartments =>
-  //     selectedHospital != null ? departments[selectedHospital!] ?? [] : [];
-
+  // gtt departments depending on the hospital
   List<String> availableDepartments() {
     for (Hospital hospital in hospitals()) {
       if (hospital.hospitalName == selectedHospital) {
@@ -176,10 +100,8 @@ class _BookingPageState extends State<BookingPage> {
 
     *** the problem was from the Testing data (doctor), because the keys (departments) aren't depending on the local hospitals, and hence the values (doctors) aren't depending on the hospitals***
 */
-//  git doctors depending on the department
-  // List<String> get availableDoctors =>
-  //     selectedDepartment != null ? doctors[selectedDepartment!] ?? [] : [];
 
+//  get doctors depending on the department
   List<String> availableDoctors() {
     for (Hospital hospital in hospitals()) {
       if (hospital.hospitalName == selectedHospital) {
@@ -190,7 +112,7 @@ class _BookingPageState extends State<BookingPage> {
     return [];
   }
 
-  // build fun
+  /// overriding the build method
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -358,6 +280,19 @@ class _BookingPageState extends State<BookingPage> {
                         // save info in database
                         ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('تم إرسال الحجز بنجاح 🎉')));
+
+                        /// the appointment object should be created here
+                        // Appointment createAppointment = Appointment(
+                        //     fullName!,
+                        //     age!,
+                        //     gender!,
+                        //     phoneNumber!,
+                        //     address!,
+                        //     selectedState!,
+                        //     selectedLocality!,
+                        //     selectedHospital!,
+                        //     selectedDepartment!,
+                        //     selectedDoctor!);
                       } // if
                       else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -372,7 +307,7 @@ class _BookingPageState extends State<BookingPage> {
     );
   } // build fun
 
-  // checking is the form is completely full or not
+  /// checking is the form is completely full or not
   bool _isFormValid() {
     return fullName != null &&
         age != null &&
