@@ -177,5 +177,6 @@ List<Hospital> getHospitalsData(dynamic hospitalsData) {
 class HospitalEmergency {
   final String name;
   final String phone;
-  HospitalEmergency({required this.name, required this.phone});
+  
+  const HospitalEmergency({required this.name, required this.phone});
 }

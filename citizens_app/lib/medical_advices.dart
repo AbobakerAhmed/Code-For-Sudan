@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'styles.dart';
 
 void main(List<String> args) {
-  runApp(MedicalAdvicesTest());
+  runApp(const MedicalAdvicesTest());
 }
 
 class MedicalAdvicesTest extends StatelessWidget {
+  const MedicalAdvicesTest({super.key});
+
   @override
   Widget build(BuildContext) {
-    return Directionality(
+    return const Directionality(
         textDirection: TextDirection.rtl, // arabic lang
         child: MaterialApp(home: MedicalAdvicesPage()));
   }
 } // MedicalAdvicesTest
 
 class MedicalAdvicesPage extends StatefulWidget {
+  const MedicalAdvicesPage({super.key});
+
   @override
   _MedicalAdvicesPageState createState() => _MedicalAdvicesPageState();
 }

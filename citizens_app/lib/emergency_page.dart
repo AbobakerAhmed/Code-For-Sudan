@@ -21,13 +21,15 @@ dependencies:
 
 // test emegencyPage alone
 void main() {
-  runApp(EmergencyPageTest());
+  runApp(const EmergencyPageTest());
 } // main
 
 class EmergencyPageTest extends StatelessWidget {
+  const EmergencyPageTest({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Directionality(
+    return const Directionality(
         textDirection: TextDirection.rtl,
         child: MaterialApp(home: EmergencyPage()));
   }
@@ -35,6 +37,8 @@ class EmergencyPageTest extends StatelessWidget {
 
 // EmergencyPage builder
 class EmergencyPage extends StatefulWidget {
+  const EmergencyPage({super.key});
+
   @override
   _EmergencyPageState createState() => _EmergencyPageState();
 } // EmergencyPage

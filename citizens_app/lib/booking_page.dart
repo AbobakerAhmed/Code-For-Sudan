@@ -12,18 +12,22 @@ import 'backend/hospital.dart';
 
 // testing this page alone
 void main(List<String> args) {
-  runApp(_BookingPageTest());
+  runApp(const _BookingPageTest());
 } // main
 
 class _BookingPageTest extends StatelessWidget {
+  const _BookingPageTest();
+
   @override
   Widget build(BuildContext) {
-    return MaterialApp(home: BookingPage());
+    return const MaterialApp(home: BookingPage());
   }
 } // BookingPageTest
 
 /// booking page builder
 class BookingPage extends StatefulWidget {
+  const BookingPage({super.key});
+
   @override
   State<BookingPage> createState() => _BookingPageState();
 } // BookingPage

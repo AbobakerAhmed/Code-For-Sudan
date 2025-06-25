@@ -7,35 +7,39 @@ import 'styles.dart';
 
 // to test the home page alone
 void main() {
-  runApp(HomePageTest());
+  runApp(const HomePageTest());
 }
 
 class HomePageTest extends StatelessWidget {
+  const HomePageTest({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: const HomePage(),
       routes: {
-        'booking_page': (context) => BookingPage(),
-        'emergency_page': (context) => EmergencyPage(),
-        'medical_advices': (context) => MedicalAdvicesPage(),
-        'notifications_page': (context) => NotificationsPage(),
+        'booking_page': (context) => const BookingPage(),
+        'emergency_page': (context) => const EmergencyPage(),
+        'medical_advices': (context) => const MedicalAdvicesPage(),
+        'notifications_page': (context) => const NotificationsPage(),
       },
     );
   }
 }
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: appBar('الصفحة الرئيسية'),
-        drawer: Drawer(),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
+        drawer: const Drawer(),
+        body: const Padding(
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -49,41 +53,7 @@ class HomePage extends StatelessWidget {
               ),
               SizedBox(height: 70),
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  children: [
-                    FeatureCard(
-                      icon: Icons.domain_add,
-                      title: 'أحجز لي',
-                      onTap: () {
-                        Navigator.pushNamed(context, 'booking_page');
-                      },
-                    ),
-                    FeatureCard(
-                      icon: Icons.phone_in_talk,
-                      title: 'حالة مستعجلة',
-                      onTap: () {
-                        Navigator.pushNamed(context, 'emergency_page');
-                      },
-                    ),
-                    FeatureCard(
-                      icon: Icons.volunteer_activism,
-                      title: 'نصائح طبية',
-                      onTap: () {
-                        Navigator.pushNamed(context, 'medical_advices');
-                      },
-                    ),
-                    FeatureCard(
-                      icon: Icons.notifications_active,
-                      title: 'التنبيهات',
-                      onTap: () {
-                        Navigator.pushNamed(context, 'notifications_page');
-                      },
-                    ),
-                  ],
-                ),
+                child: _HomeGrid(), // look at the next class
               ),
             ],
           ),
@@ -93,43 +63,168 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class FeatureCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
+// This clas contains the 4 cards in the home screen
+class _HomeGrid extends StatelessWidget {
+  const _HomeGrid(); // const to improve perfomace
+  // (stop rebuilding)
 
+  // Static data for better performance
+  static const List<Map<String, dynamic>> _featureData = [
+    {
+      'icon': Icons.domain_add,
+      'title': 'أحجز لي',
+      'route': 'booking_page',
+    },
+    {
+      'icon': Icons.phone_in_talk,
+      'title': 'حالة مستعجلة',
+      'route': 'emergency_page',
+    },
+    {
+      'icon': Icons.volunteer_activism,
+      'title': 'نصائح طبية',
+      'route': 'medical_advices',
+    },
+    {
+      'icon': Icons.notifications_active,
+      'title': 'التنبيهات',
+      'route': 'notifications_page',
+    },
+  ];
+
+  // build fun
+  @override
+  Widget build(BuildContext context) {
+    // Fixed layout: Column + Row to maintain exact card positions
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          // First row: 2 cards
+          Expanded(
+            flex: 3,
+            child: Row(
+              children: [
+                // First card
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: _FeatureCardWrapper(
+                      index: 0,
+                    ),
+                  ),
+                ),
+                // Second card
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: _FeatureCardWrapper(
+                      index: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Second row: 2 cards
+          Expanded(
+            flex: 3,
+            child: Row(
+              children: [
+                // Third card
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: _FeatureCardWrapper(
+                      index: 2,
+                    ),
+                  ),
+                ),
+                // Fourth card
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: _FeatureCardWrapper(
+                      index: 3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(''),
+          ),
+        ],
+      ),
+    );
+  } // build fun
+} // _HomeGrid
+
+// Wrapper widget to handle navigation for each card
+class _FeatureCardWrapper extends StatelessWidget {
+  final int index;
+
+  const _FeatureCardWrapper({required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return FeatureCard(
+      icon: _HomeGrid._featureData[index]['icon'],
+      title: _HomeGrid._featureData[index]['title'],
+      onTap: () =>
+          Navigator.pushNamed(context, _HomeGrid._featureData[index]['route']),
+    );
+  }
+}
+
+// Componnect of the card
+class FeatureCard extends StatelessWidget {
+  final IconData icon; // icon
+  final String title; // title
+  final VoidCallback onTap; // function on Tap
+
+  // constructor
   const FeatureCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.onTap,
   });
 
+  // build fun
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[50],
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 40, color: Colors.lightBlue),
-              SizedBox(height: 10),
-              Text(
-                title,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.blueGrey),
-              ),
-            ],
+    return RepaintBoundary(
+      child: Card(
+        elevation: 4,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        color: Colors.grey[50],
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 40, color: Colors.lightBlue),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.blueGrey),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-}
+  } // build fun
+} // FeatureCard
+

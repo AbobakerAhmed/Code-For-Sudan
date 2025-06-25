@@ -3,20 +3,24 @@ import 'styles.dart';
 // import 'classes.dart'; // editing the notifiation there
 
 void main(List<String> args) {
-  runApp(NotificationsPageTest());
+  runApp(const NotificationsPageTest());
 }
 
 class NotificationsPageTest extends StatelessWidget {
+  const NotificationsPageTest({super.key});
+
   @override
   Widget build(BuildContext) {
-    return Directionality(
+    return const Directionality(
         textDirection: TextDirection.rtl,
         child: MaterialApp(home: NotificationsPage()));
   }
 } // NotificationsPageTest
 
 class NotificationsPage extends StatelessWidget {
-  final List<Map<String, String>> notifications = [
+  const NotificationsPage({super.key});
+
+  final List<Map<String, String>> notifications = const [
     {
       'type': 'booking',
       'title': 'تأكيد الحجز',

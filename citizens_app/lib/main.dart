@@ -10,23 +10,25 @@ import 'medical_advices.dart'; // MedicalAdvicesPage()
 
 // running the whole app here:
 void main() {
-  runApp(HealthCareSudan_citizen_app());
+  runApp(const HealthCareSudan_citizen_app());
 }
 
 // app class
 class HealthCareSudan_citizen_app extends StatelessWidget {
+  const HealthCareSudan_citizen_app({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: HomePage(),
+        home: const HomePage(),
         routes: <String, WidgetBuilder>{
-          'home': (context) => HomePage(),
-          'booking_page': (context) => BookingPage(),
-          'emergency_page': (context) => EmergencyPage(),
-          'notifications_page': (context) => NotificationsPage(),
-          'medical_advices': (context) => MedicalAdvicesPage(),
+          'home': (context) => const HomePage(),
+          'booking_page': (context) =>  const BookingPage(),
+          'emergency_page': (context) => EmergencyPage(), //const EmergencyPage(),
+          'notifications_page': (context) => NotificationsPage(), //const NotificationsPage(),
+          'medical_advices': (context) => MedicalAdvicesPage(), //const MedicalAdvicesPage(),
         }, // routes
         // to hide the defualt debugging icon in the corner
         debugShowCheckedModeBanner: false,
