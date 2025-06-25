@@ -100,83 +100,11 @@ class Hospital {
 ///    'الأطفال': ['د. منى بابكر', 'dr.ahmad yassin', 'dr.abobaker ahmed'],
 ///    'dentists': ['dr mufti maamon', 'saja essam']
 ///  }
-Hospital toObject(dynamic) {
-  String state = dynamic[0];
-  String locality = dynamic[1];
-  String name = dynamic[2];
-  String number = dynamic[3];
-  Map<String, List<String>> departmentToDoctors = dynamic[4];
-  Hospital obj = Hospital(state, locality, name, number, departmentToDoctors);
-  return obj;
-}
-
-/// Returns a String of Hospital objects
-/// it's use to convert the received data into Hospital objects
-/// for example:
-///[
-///  'الخرطوم',
-///  'بحري',
-///  'مستشفى بحري',
-///  '0123456789',
-///  {
-///    'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
-///    'الأطفال': ['د. منى بابكر', 'dr.ahmad yassin', 'dr.abobaker ahmed'],
-///    'dentists': ['dr mufti maamon', 'saja essam']
-///  },
-///  'الخرطوم',
-///  'بحري',
-///  'مستشفى الختمية',
-///  '0123456789',
-///  {
-///    'الأنف والأذن': ['د. عمار صالح'],
-///  },
-///  'الخرطوم',
-///  'أم درمان',
-///  'مستشفى أم درمان',
-///  '0123456789',
-///  {
-///    'الجراحة': ['د. حسن محمد'],
-///    'النساء والتوليد': ['د. إيمان الزين'],
-///  },
-///  'الجزيرة',
-///  'مدني',
-///  'مستشفى ود مدني',
-///  '0123456789',
-///  {
-///    'الباطنية': ['د. أحمد عمر', 'د. سامية عوض'],
-///    'الجلدية': ['د. هالة حسن'],
-///    'emergency': ['dr. salah mohamed', 'dr. nour aldin ibrahim'],
-///    'orthopedic': ['dr. osama ali', 'dr. khalid mustafa']
-///  },
-///  'الجزيرة',
-///  'مدني',
-///  'مستشفى الأطفال',
-///  '0123456789',
-///  {
-///    'الأطفال': ['د. منى بابكر'],
-///  }
-///]
-List<Hospital> getHospitalsData(dynamic hospitalsData) {
-  List data = [];
-  List<Hospital> hospitals = [];
-  int counter = 1;
-  for (var element in hospitalsData) {
-    if (counter % 5 == 0 && counter != 0) {
-      data.add(element);
-      hospitals.add(toObject(data));
-      data = [];
-    } else {
-      data.add(element);
-    }
-    counter++;
-  }
-  return hospitals;
-}
 
 ///This class is used in emergency_page
 class HospitalEmergency {
   final String name;
   final String phone;
-  
+
   const HospitalEmergency({required this.name, required this.phone});
 }

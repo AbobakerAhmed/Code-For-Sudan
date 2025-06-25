@@ -7,10 +7,9 @@ import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'backend/validatePhoneNumber.dart';
 import 'backend/globalVar.dart';
-import 'backend/data.dart';
-import 'backend/hospital.dart';
+import 'backend/hospitalsdata.dart';
 
-// testing this page alone
+/// testing this page alone
 void main(List<String> args) {
   runApp(const _BookingPageTest());
 } // main
@@ -32,12 +31,12 @@ class BookingPage extends StatefulWidget {
   State<BookingPage> createState() => _BookingPageState();
 } // BookingPage
 
-// Booking page
+/// Booking page
 class _BookingPageState extends State<BookingPage> {
-  // Testing Data (Region)
+  /// Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Fields:
+  /// Fields:
   String? fullName;
   String? age;
   String? gender;
@@ -48,73 +47,6 @@ class _BookingPageState extends State<BookingPage> {
   String? selectedHospital;
   String? selectedDepartment;
   String? selectedDoctor;
-
-/*
-  Now we should ensure that:
-    - All states in sudan will be displayed.
-    - The displayed localities will be depending on the state
-    - The displayed depatments will be depending on the hospital
-    - The displayed doctors will be depending on the depatment
-
-*/
-  /// get localities depending on the state
-  List<String> get localities =>
-      selectedState != null ? g_localities[selectedState!]! : [];
-
-  ///get hospitals depending on the locality
-  List<Hospital> hospitals() {
-    List<Hospital> list = [];
-    if (selectedState != null && selectedLocality != null) {
-      for (Hospital hospital in hospitalsData) {
-        if (hospital.hospitalState == selectedState &&
-            hospital.hospitalLocality == selectedLocality) {
-          list.add(hospital);
-        }
-      }
-      return list;
-    } else {
-      return [];
-    }
-  }
-
-  ///get a list of the names of the previously selected hospitals
-  List<String> hospitalsName() {
-    List<String> list = [];
-    for (Hospital hospital in hospitals()) {
-      list.add(hospital.hospitalName!);
-    }
-    return list;
-  }
-
-  // gtt departments depending on the hospital
-  List<String> availableDepartments() {
-    for (Hospital hospital in hospitals()) {
-      if (hospital.hospitalName == selectedHospital) {
-        return hospital.hospitalDepartmentToDoctors!.keys.toList();
-      }
-    }
-    return [];
-  }
-
-/*
-  - There is a bugge here which is the available doctors must be depending on
-    the specific department in a specific hospital
-  - The current code displayed the abailable doctors in that department in
-    in any hospital in Sudan
-
-    *** the problem was from the Testing data (doctor), because the keys (departments) aren't depending on the local hospitals, and hence the values (doctors) aren't depending on the hospitals***
-*/
-
-//  get doctors depending on the department
-  List<String> availableDoctors() {
-    for (Hospital hospital in hospitals()) {
-      if (hospital.hospitalName == selectedHospital) {
-        // Check if the map is not null before accessing it
-        return hospital.hospitalDepartmentToDoctors?[selectedDepartment] ?? [];
-      }
-    }
-    return [];
-  }
 
   /// overriding the build method
   @override
@@ -129,7 +61,7 @@ class _BookingPageState extends State<BookingPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  // entering name
+                  /// entering name
                   _buildTextField(
                       // validate the name with range of characters
                       'الاسم الرباعي',
@@ -139,7 +71,7 @@ class _BookingPageState extends State<BookingPage> {
                     return null;
                   }),
 
-                  // entering gender
+                  /// entering gender
                   _buildDropdown(
                     label: 'النوع',
                     value: gender,
@@ -151,7 +83,7 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // entering age
+                  /// entering age
                   _buildTextField(
                     'العمر',
                     (val) => age = val,
@@ -167,7 +99,7 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // enter phone number
+                  /// enter phone number
                   _buildTextField(
                     'رقم الهاتف (مثال: 0123456789)',
                     // validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
@@ -185,7 +117,7 @@ class _BookingPageState extends State<BookingPage> {
                       height:
                           20), // dividing between personal info and hospital info
 
-                  // state
+                  ///selecting a state
                   _buildDropdown(
                     label: 'الولاية',
                     value: selectedState,
@@ -201,11 +133,11 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // selection a locality depending on the state
+                  /// selection a locality depending on the state
                   _buildDropdown(
                     label: 'المحلية',
                     value: selectedLocality,
-                    items: localities,
+                    items: g_localities[selectedState] ?? [],
                     onChanged: (val) {
                       setState(() {
                         selectedLocality = val;
@@ -216,7 +148,7 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // home details: neighborhod - block
+                  /// home details: neighborhod - block
                   _buildTextField(
                     'الحي - المربع (مثال: الواحة - 4)',
                     (val) => address = val,
@@ -226,11 +158,12 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // selecting a hospital depending on the locality
+                  /// selecting a hospital depending on the locality
                   _buildDropdown(
                     label: 'المستشفى',
                     value: selectedHospital,
-                    items: hospitalsName(),
+                    items: HospitalsData.availablehospitals(
+                        selectedState, selectedLocality),
                     onChanged: (val) {
                       setState(() {
                         selectedHospital = val;
@@ -240,11 +173,12 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // selecting a department depending on the hospital
+                  /// selecting a department depending on the hospital
                   _buildDropdown(
                     label: 'القسم',
                     value: selectedDepartment,
-                    items: availableDepartments(),
+                    items: HospitalsData.availableDepartments(
+                        selectedState, selectedLocality, selectedHospital),
                     onChanged: (val) {
                       setState(() {
                         selectedDepartment = val;
@@ -253,12 +187,13 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  // selecting a doctor depending on the department
+                  /// selecting a doctor depending on the department
                   _buildDropdown(
                     label: 'الطبيب',
                     // look the bugg above (in the doctors testing data)
                     value: selectedDoctor,
-                    items: availableDoctors(),
+                    items: HospitalsData.availableDoctors(selectedState,
+                        selectedLocality, selectedHospital, selectedDepartment),
                     onChanged: (val) {
                       setState(() {
                         selectedDoctor = val;
@@ -276,10 +211,7 @@ class _BookingPageState extends State<BookingPage> {
                         foregroundColor: Colors.green[700],
                         minimumSize: const Size(10, 10)),
                     onPressed: () {
-                      /*
-  Validation of a field can be in its text field or here
-  */
-
+                      //validation of field before booking the appointment
                       if (_isFormValid() && _formKey.currentState!.validate()) {
                         // save info in database
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -328,7 +260,7 @@ class _BookingPageState extends State<BookingPage> {
         selectedDoctor != null;
   } // _isFormValid
 
-// build text field has been updated to handle the validation
+  /// build text field has been updated to handle the validation
   Widget _buildTextField(
     String label,
     Function(String) onChanged, {
@@ -352,7 +284,7 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-// ready (after solving the bug above line 92)
+  ///
   Widget _buildDropdown({
     required String label,
     required String? value,
