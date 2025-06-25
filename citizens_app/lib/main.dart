@@ -8,8 +8,17 @@ import 'emergency_page.dart'; // EmergencyPage()
 import 'notifications_page.dart'; // NotificationsPage()
 import 'medical_advices.dart'; // MedicalAdvicesPage()
 
+// importing for database
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 // running the whole app here:
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
+
   runApp(const HealthCareSudan_citizen_app());
 }
 

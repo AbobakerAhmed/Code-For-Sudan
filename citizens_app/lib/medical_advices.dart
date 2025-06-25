@@ -39,7 +39,7 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
 
   int currentIndex = 0;
 
-  void showNextAdvice() {
+  void showNextAdvice() async {
     setState(() {
       currentIndex = (currentIndex + 1) % advices.length;
     });

@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "826222626361",
+    "project_id": "health-sudan-app",
+    "storage_bucket": "health-sudan-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826222626361:android:f52a95ef0b3c005fff6fe8",
+        "android_client_info": {
+          "package_name": "com.example.citizens_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQG58nyruo1dhLWcoDz2vpM3wQHjRMu5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826222626361:android:72c9cb20f05b9fccff6fe8",
+        "android_client_info": {
+          "package_name": "com.example.code_for_sudan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQG58nyruo1dhLWcoDz2vpM3wQHjRMu5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826222626361:android:1fb8ebf61cc3c376ff6fe8",
+        "android_client_info": {
+          "package_name": "com.example.health_sudan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQG58nyruo1dhLWcoDz2vpM3wQHjRMu5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
