@@ -168,7 +168,7 @@ class HospitalsData {
   }
 
   static final Map<String, Map<String, List<HospitalEmergency>>>
-      HospitalsEmergencyData = HospitalsData.getHospitalsEmergencyData();
+      hospitalsEmergencyData = HospitalsData.getHospitalsEmergencyData();
 
   ///get hospitals object depending on the state and locality
   static List<Hospital> hospitals(
