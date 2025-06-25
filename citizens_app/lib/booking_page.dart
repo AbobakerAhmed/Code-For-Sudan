@@ -2,7 +2,7 @@
 
 // importing
 import 'dart:core';
-import 'package:citizens_app/backend/appointment.dart';
+//import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'backend/validatePhoneNumber.dart';
@@ -181,7 +181,7 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  SizedBox(
+                  const SizedBox(
                       height:
                           20), // dividing between personal info and hospital info
 
@@ -266,15 +266,15 @@ class _BookingPageState extends State<BookingPage> {
                     },
                   ),
 
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
                   // sending the appoinment
                   ElevatedButton.icon(
-                    icon: Icon(Icons.check_circle_outline),
-                    label: Text('تأكيد الحجز'),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('تأكيد الحجز'),
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.green[700],
-                        minimumSize: Size(10, 10)),
+                        minimumSize: const Size(10, 10)),
                     onPressed: () {
                       /*
   Validation of a field can be in its text field or here
@@ -283,7 +283,8 @@ class _BookingPageState extends State<BookingPage> {
                       if (_isFormValid() && _formKey.currentState!.validate()) {
                         // save info in database
                         ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('تم إرسال الحجز بنجاح 🎉')));
+                            const SnackBar(
+                                content: Text('تم إرسال الحجز بنجاح 🎉')));
 
                         /// the appointment object should be created here
                         // Appointment createAppointment = Appointment(
@@ -299,8 +300,10 @@ class _BookingPageState extends State<BookingPage> {
                         //     selectedDoctor!);
                       } // if
                       else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
                       } // else
                     },
                   ),

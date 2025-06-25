@@ -25,10 +25,13 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
         home: const HomePage(),
         routes: <String, WidgetBuilder>{
           'home': (context) => const HomePage(),
-          'booking_page': (context) =>  const BookingPage(),
-          'emergency_page': (context) => EmergencyPage(), //const EmergencyPage(),
-          'notifications_page': (context) => NotificationsPage(), //const NotificationsPage(),
-          'medical_advices': (context) => MedicalAdvicesPage(), //const MedicalAdvicesPage(),
+          'booking_page': (context) => const BookingPage(),
+          'emergency_page': (context) =>
+              const EmergencyPage(), //const EmergencyPage(),
+          'notifications_page': (context) =>
+              const NotificationsPage(), //const NotificationsPage(),
+          'medical_advices': (context) =>
+              const MedicalAdvicesPage(), //const MedicalAdvicesPage(),
         }, // routes
         // to hide the defualt debugging icon in the corner
         debugShowCheckedModeBanner: false,
@@ -49,6 +52,3 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
     );
   } // build
 } // HealthCareSudan_citizen_app
-
-
-

@@ -101,7 +101,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
     } // if
     else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر الاتصال بالرقم')),
+        const SnackBar(content: Text('تعذر الاتصال بالرقم')),
       );
     } // else
   } //_makePhoneCall
@@ -140,7 +140,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
               ),
 
               // dividing between state fillter and locality fillter
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               // locality fillter
               DropdownButtonFormField<String>(
@@ -164,12 +164,12 @@ class _EmergencyPageState extends State<EmergencyPage> {
               ),
 
               // dividing between locality fillter and displayied hospitlas
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // displaying hospitals and thier hot lines
               Expanded(
                 child: emergencyNumbers.isEmpty
-                    ? Center(child: Text('لا توجد مستشفيات لعرضها'))
+                    ? const Center(child: Text('لا توجد مستشفيات لعرضها'))
                     : ListView.builder(
                         itemCount: emergencyNumbers.length,
                         itemBuilder: (context, index) {
@@ -177,16 +177,18 @@ class _EmergencyPageState extends State<EmergencyPage> {
                           return Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
-                            margin: EdgeInsets.only(bottom: 12),
+                            margin: const EdgeInsets.only(bottom: 12),
                             child: ListTile(
                               title: Text(hospital.name,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16)),
                               subtitle: Text(hospital.phone,
-                                  style: TextStyle(color: Colors.blueAccent)),
+                                  style: const TextStyle(
+                                      color: Colors.blueAccent)),
                               trailing: IconButton(
-                                icon: Icon(Icons.call, color: Colors.green),
+                                icon:
+                                    const Icon(Icons.call, color: Colors.green),
                                 onPressed: () =>
                                     _showCallDialog(hospital.phone),
                               ),
@@ -207,15 +209,15 @@ class _EmergencyPageState extends State<EmergencyPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('اتصال بالرقم', textAlign: TextAlign.right),
+        title: const Text('اتصال بالرقم', textAlign: TextAlign.right),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('الرقم: $phone'),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
-              icon: Icon(Icons.call),
-              label: Text('اتصال'),
+              icon: const Icon(Icons.call),
+              label: const Text('اتصال'),
               style: ElevatedButton.styleFrom(
                 iconColor: Colors.red,
                 backgroundColor: Colors.white,

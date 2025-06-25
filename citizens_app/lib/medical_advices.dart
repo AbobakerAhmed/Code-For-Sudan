@@ -56,7 +56,7 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Spacer(),
+              const Spacer(),
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -67,7 +67,7 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
                   padding: const EdgeInsets.all(24.0),
                   child: Text(
                     advices[currentIndex],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       height: 1.6,
                       fontWeight: FontWeight.w500,
@@ -76,22 +76,22 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: showNextAdvice,
-                  child: Text('التالي'),
+                  child: const Text('التالي'),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    textStyle: TextStyle(fontSize: 16),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
             ],
           ),
         ),

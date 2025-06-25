@@ -46,11 +46,11 @@ class NotificationsPage extends StatelessWidget {
 
   Icon _getIcon(String type) {
     if (type == 'booking') {
-      return Icon(Icons.calendar_today, color: Colors.blue);
+      return const Icon(Icons.calendar_today, color: Colors.blue);
     } else if (type == 'ministry') {
-      return Icon(Icons.campaign, color: Colors.redAccent);
+      return const Icon(Icons.campaign, color: Colors.redAccent);
     } else {
-      return Icon(Icons.notifications);
+      return const Icon(Icons.notifications);
     }
   }
 
@@ -71,7 +71,7 @@ class NotificationsPage extends StatelessWidget {
                 child: ListTile(
                   leading: _getIcon(notification['type']!),
                   title: Text(notification['title'] ?? '',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(notification['body'] ?? ''),
                 ),
               );
