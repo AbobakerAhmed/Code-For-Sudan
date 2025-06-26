@@ -185,7 +185,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _checkConnectivity();
+    //_checkConnectivity();
     _getHospitalsEmergencyData();
     _getStates();
   }
@@ -197,7 +197,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: appBar('الطوارئ - الخطوط الساخنة'), // styles.dart
-        body: !_isConnected
+        body: emergencyNumbers.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -270,7 +270,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
                     // displaying hospitals and thier hot lines
                     Expanded(
                       child: emergencyNumbers.isEmpty
-                          ? const Center(child: Text('لا توجد مستشفيات لعرضها'))
+                          ? const Center(
+                              child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [CircularProgressIndicator()],
+                            ))
                           : ListView.builder(
                               itemCount: emergencyNumbers.length,
                               itemBuilder: (context, index) {
