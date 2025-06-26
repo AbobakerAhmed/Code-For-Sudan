@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'styles.dart'; // appBar style
 import 'package:url_launcher/url_launcher.dart'; // call api
-import 'backend/hospital.dart';
-import 'backend/globalVar.dart';
-import 'backend/hospitalsdata.dart';
+//import 'backend/hospital.dart';
+//import 'backend/globalVar.dart';
+//import 'backend/hospitalsdata.dart';
+import 'firestore_services/firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 /*
   Emergency Page
@@ -20,7 +22,7 @@ dependencies:
 */
 
 // test emegencyPage alone
-void main() {
+void main(List<String> args) {
   runApp(const EmergencyPageTest());
 } // main
 
@@ -45,9 +47,67 @@ class EmergencyPage extends StatefulWidget {
 
 // EmergencyPage conent
 class _EmergencyPageState extends State<EmergencyPage> {
+  FirestoreService _firestoreService = FirestoreService();
+  List<String> _dbStates = [];
+  List<String> _dbLocalities = [];
+  //List<String> _dbHospitals = [];
+
+  Map<String, Map<String, List<HospitalEmergency>>> _dbEmergencyData = {};
+  bool _isConnected = false;
   //getting the data from data.dart in the correct mentioned formation
   // Map<String, Map<String, List<HospitalEmergency>>>? data =
   //     HospitalsData.emergencyData();
+
+  Future<void> _getStates() async {
+    try {
+      final statesAndLocalities =
+          await _firestoreService.getStatesAndLocalities();
+      final states = statesAndLocalities.keys.toList();
+      setState(() {
+        _dbStates = states;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> _getLocalities(String state) async {
+    try {
+      final statesAndLocalities =
+          await _firestoreService.getStatesAndLocalities();
+      final localities = statesAndLocalities[state];
+      setState(() {
+        _dbLocalities = localities!;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  //
+  Future<void> _getHospitalsEmergencyData() async {
+    try {
+      final data = await _firestoreService.getHospitalsEmergencyData();
+      setState(() {
+        _dbEmergencyData = data;
+      });
+    } catch (e) {
+      print("Error fetching emergency data: $e");
+    }
+  }
+
+  //   Future<void> _getHospitals(String state, String locality) async {
+  //   try {
+  //     final hospitals = await _firestoreService
+  //         .getHospitalsWithDepartmentsAndDoctors(state, locality);
+  //     final names = hospitals.map((hospital) => hospital.name).toList();
+  //     setState(() {
+  //       _dbHospitals = names;
+  //     });
+  //   } catch (e) {
+  //     print("Error: $e");
+  //   }
+  // }
 
   // fileters
   String? selectedState;
@@ -56,24 +116,44 @@ class _EmergencyPageState extends State<EmergencyPage> {
   //displayed hospitals:
   List<HospitalEmergency> get emergencyNumbers {
     if (selectedState != null && selectedLocality != null) {
-      return HospitalsData
-              .hospitalsEmergencyData[selectedState!]![selectedLocality!] ??
-          [];
+      return _dbEmergencyData[selectedState!]![selectedLocality!] ?? [];
     } // if
     else if (selectedState != null) {
       // إذا لم يحدد المحلية، نرجع جميع المستشفيات في الولاية
-      return HospitalsData.hospitalsEmergencyData[selectedState!]!.values
+      return _dbEmergencyData[selectedState!]!
+          .values
           .expand((list) => list)
           .toList();
     } // else if
     else {
       // إذا لم يحدد الولاية، نرجع كل المستشفيات
-      return HospitalsData.hospitalsEmergencyData.values
+      return _dbEmergencyData.values
           .expand((map) => map.values)
           .expand((list) => list)
           .toList();
     } // else
   } // hospitals
+
+  //   List<HospitalEmergency> get emergencyNumbers {
+  //   if (selectedState != null && selectedLocality != null) {
+  //     return HospitalsData
+  //             .hospitalsEmergencyData[selectedState!]![selectedLocality!] ??
+  //         [];
+  //   } // if
+  //   else if (selectedState != null) {
+  //     // إذا لم يحدد المحلية، نرجع جميع المستشفيات في الولاية
+  //     return HospitalsData.hospitalsEmergencyData[selectedState!]!.values
+  //         .expand((list) => list)
+  //         .toList();
+  //   } // else if
+  //   else {
+  //     // إذا لم يحدد الولاية، نرجع كل المستشفيات
+  //     return HospitalsData.hospitalsEmergencyData.values
+  //         .expand((map) => map.values)
+  //         .expand((list) => list)
+  //         .toList();
+  //   } // else
+  // } // hospitals
 
   // connecting with the caller app in the phone and copy the hospital number on it
   void _makePhoneCall(String phone) async {
@@ -88,6 +168,28 @@ class _EmergencyPageState extends State<EmergencyPage> {
     } // else
   } //_makePhoneCall
 
+  Future<bool> isConnectedToInternet() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult[0] == ConnectivityResult.mobile ||
+        connectivityResult[0] == ConnectivityResult.wifi) {
+      return true; // Connected to either mobile data or WiFi
+    }
+    return false; // Not connected
+  }
+
+  Future<void> _checkConnectivity() async {
+    _isConnected = await isConnectedToInternet();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkConnectivity();
+    _getHospitalsEmergencyData();
+    _getStates();
+  }
+
   // build fun
   @override
   Widget build(BuildContext context) {
@@ -95,93 +197,110 @@ class _EmergencyPageState extends State<EmergencyPage> {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: appBar('الطوارئ - الخطوط الساخنة'), // styles.dart
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // state filters
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'الولاية',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
+        body: !_isConnected
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Text("كيف حالك")
+                  ],
                 ),
-                value: selectedState,
-                items: g_states
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() {
-                    selectedState = val;
-                    selectedLocality = null;
-                  });
-                },
-              ),
-
-              // dividing between state fillter and locality fillter
-              const SizedBox(height: 12),
-
-              // locality fillter
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'المحلية',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                ),
-                value: selectedLocality,
-                items: (g_localities[selectedState] ?? [])
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) {
-                  setState(() {
-                    selectedLocality = val;
-                  });
-                },
-              ),
-
-              // dividing between locality fillter and displayied hospitlas
-              const SizedBox(height: 20),
-
-              // displaying hospitals and thier hot lines
-              Expanded(
-                child: emergencyNumbers.isEmpty
-                    ? const Center(child: Text('لا توجد مستشفيات لعرضها'))
-                    : ListView.builder(
-                        itemCount: emergencyNumbers.length,
-                        itemBuilder: (context, index) {
-                          final hospital = emergencyNumbers[index];
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: ListTile(
-                              title: Text(hospital.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                              subtitle: Text(hospital.phone,
-                                  style: const TextStyle(
-                                      color: Colors.blueAccent)),
-                              trailing: IconButton(
-                                icon:
-                                    const Icon(Icons.call, color: Colors.green),
-                                onPressed: () =>
-                                    _showCallDialog(hospital.phone),
-                              ),
-                            ),
-                          );
-                        },
+              )
+            : Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // state filters
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: 'الولاية',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
                       ),
+                      value: selectedState,
+                      items: _dbStates
+                          .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          selectedState = val;
+                          selectedLocality = null;
+                          _dbLocalities = [];
+                          _getLocalities(selectedState!);
+                        });
+                      },
+                    ),
+
+                    // dividing between state fillter and locality fillter
+                    const SizedBox(height: 12),
+
+                    // locality fillter
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: 'المحلية',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                      ),
+                      value: selectedLocality,
+                      items: _dbLocalities
+                          .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          selectedLocality = val;
+                        });
+                      },
+                    ),
+
+                    // dividing between locality fillter and displayied hospitlas
+                    const SizedBox(height: 20),
+
+                    // displaying hospitals and thier hot lines
+                    Expanded(
+                      child: emergencyNumbers.isEmpty
+                          ? const Center(child: Text('لا توجد مستشفيات لعرضها'))
+                          : ListView.builder(
+                              itemCount: emergencyNumbers.length,
+                              itemBuilder: (context, index) {
+                                final hospital = emergencyNumbers[index];
+                                return Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  child: ListTile(
+                                    title: Text(hospital.name,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16)),
+                                    subtitle: Text(hospital.phone,
+                                        style: const TextStyle(
+                                            color: Colors.blueAccent)),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.call,
+                                          color: Colors.green),
+                                      onPressed: () =>
+                                          _showCallDialog(hospital.phone),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   } // build fun

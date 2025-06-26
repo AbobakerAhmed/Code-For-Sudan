@@ -82,6 +82,89 @@ class FirestoreService {
       return [];
     }
   }
+
+  Future<Map<String, Map<String, List<HospitalEmergency>>>>
+      getHospitalsEmergencyData() async {
+    Map<String, Map<String, List<HospitalEmergency>>> emergData = {};
+
+    try {
+      // Get all states (documents under "hospitals")
+      QuerySnapshot stateSnapshot =
+          await _firestore.collection(HOSPITALS).get();
+
+      for (var stateDoc in stateSnapshot.docs) {
+        String stateName = stateDoc.id;
+        emergData[stateName] = {};
+
+        // Get all localities (subcollections under each state)
+        QuerySnapshot localitySnapshot =
+            await stateDoc.reference.collection(LOCALITIES).get();
+
+        for (var localityDoc in localitySnapshot.docs) {
+          String localityName = localityDoc.id;
+          emergData[stateName]![localityName] = [];
+
+          // Get hospitals under each locality (DATA collection)
+          QuerySnapshot hospitalSnapshot = await localityDoc.reference
+              .collection(DATA)
+              .get(); // No need to fetch departments/doctors
+
+          for (var hospitalDoc in hospitalSnapshot.docs) {
+            String name = hospitalDoc.id;
+            String phone = hospitalDoc.get(PHONE);
+
+            emergData[stateName]![localityName]!.add(
+              HospitalEmergency(name: name, phone: phone),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print("Error in getHospitalsEmergencyData: $e");
+    }
+
+    return emergData;
+  }
+
+  // Future<Map<String, Map<String, List<HospitalEmergency>>>>
+  //     getHospitalsEmergencyData() async {
+  //   Map<String, Map<String, List<HospitalEmergency>>> emergData = {};
+
+  //   try {
+  //     // Step 1: Get all states and their localities
+  //     // Map<String, List<String>> statesAndLocalities =
+  //     //     await getStatesAndLocalities();
+  //     Map<String, List<String>> statesAndLocalities =
+  //         await getStatesAndLocalities();
+  //     for (String state in statesAndLocalities.keys) {
+  //       List<String> localities = statesAndLocalities[state]!;
+
+  //       for (String locality in localities) {
+  //         // Step 2: Get hospitals for this state/locality
+  //         List<Hospital> hospitals =
+  //             await getHospitalsWithDepartmentsAndDoctors(state, locality);
+
+  //         for (Hospital hospital in hospitals) {
+  //           // Step 3: Initialize nested maps/lists if needed
+  //           emergData[state] ??= {};
+  //           emergData[state]![locality] ??= [];
+
+  //           // Step 4: Add HospitalEmergency entry
+  //           emergData[state]![locality]!.add(
+  //             HospitalEmergency(
+  //               name: hospital.name,
+  //               phone: hospital.phone,
+  //             ),
+  //           );
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print("Error in getHospitalsEmergencyData: $e");
+  //   }
+
+  //   return emergData;
+  // }
 }
 
 /*
@@ -122,4 +205,11 @@ class Department {
   List<String> doctors;
 
   Department({required this.name, required this.doctors});
+}
+
+class HospitalEmergency {
+  final String name;
+  final String phone;
+
+  const HospitalEmergency({required this.name, required this.phone});
 }
