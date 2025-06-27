@@ -16,7 +16,8 @@ import 'firebase_options.dart';
 // running the whole app here:
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform); //
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
 
   runApp(const HealthCareSudan_citizen_app());
