@@ -1,11 +1,11 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
-import 'package:citizens_app/styles.dart';
+import 'package:registrar_app/regist/registrar_home_page.dart';
+import 'package:registrar_app/styles.dart';
 import 'backend/registrar.dart';
-import 'home_page.dart';
-import 'profile_page.dart';
-import 'bookedPage.dart';
+import 'package:registrar_app/regist/registrar_profile_page.dart';
+import 'package:registrar_app/regist/registrar_booked_page.dart';
 
 // test the registrar app here
 void main() {

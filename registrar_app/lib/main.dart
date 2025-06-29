@@ -2,16 +2,18 @@
 
 // importing
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // HomePage()
-import 'booking_page.dart'; // BookingPage()
-import 'emergency_page.dart'; // EmergencyPage()
-import 'notifications_page.dart'; // NotificationsPage()
-import 'medical_advices.dart'; // MedicalAdvicesPage()
+import 'package:registrar_app/citizen/home_page.dart'; // HomePage()
+import 'package:registrar_app/citizen/booking_page.dart'; // BookingPage()
+import 'package:registrar_app/citizen/emergency_page.dart'; // EmergencyPage()
+import 'package:registrar_app/citizen/notifications_page.dart'; // NotificationsPage()
+import 'package:registrar_app/citizen/medical_advices.dart'; // MedicalAdvicesPage()
 
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:registrar_app/firebase_options.dart';
+import 'package:registrar_app/regist/backend/registrar.dart';
+import 'package:registrar_app/regist/registrar_home_page.dart';
 
 // running the whole app here:
 void main() async {
@@ -20,19 +22,23 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform); //
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
 
-  runApp(const HealthCareSudan_citizen_app());
+  runApp(HealthCareSudan_citizen_app());
 }
 
 // app class
 class HealthCareSudan_citizen_app extends StatelessWidget {
-  const HealthCareSudan_citizen_app({super.key});
+  HealthCareSudan_citizen_app({super.key});
+  final Registrar registrar = Registrar("name", "al-sanousy",
+      ["dentist", "brain", "bones"], "0128599405", "1234");
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: const HomePage(),
+        home: RegistrarHomePage(
+          registrar: registrar,
+        ),
         routes: <String, WidgetBuilder>{
           'home': (context) => const HomePage(),
           'booking_page': (context) => const BookingPage(),

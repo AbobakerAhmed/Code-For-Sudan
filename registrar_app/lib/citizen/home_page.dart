@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'booking_page.dart';
-import 'emergency_page.dart';
-import 'medical_advices.dart';
-import 'notifications_page.dart';
-import 'styles.dart';
+import 'package:registrar_app/citizen/booking_page.dart';
+import 'package:registrar_app/citizen/emergency_page.dart';
+import 'package:registrar_app/citizen/medical_advices.dart';
+import 'package:registrar_app/citizen/notifications_page.dart';
+import 'package:registrar_app/styles.dart';
 
 // to test the home page alone
 void main() {

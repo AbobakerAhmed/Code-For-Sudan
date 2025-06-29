@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:citizens_app/styles.dart';
+import 'package:registrar_app/styles.dart';
 import 'backend/registrar.dart';
 
 /*

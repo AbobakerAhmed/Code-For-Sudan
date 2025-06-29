@@ -1,12 +1,13 @@
 // Date: 21st of Jun 2025
 import 'package:flutter/material.dart';
-import 'styles.dart'; // appBar style
+import 'package:registrar_app/styles.dart'; // appBar style
 import 'package:url_launcher/url_launcher.dart'; // call api
+import 'package:registrar_app/firestore_services/firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 //import 'backend/hospital.dart';
 //import 'backend/globalVar.dart';
 //import 'backend/hospitalsdata.dart';
-import 'firestore_services/firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 /*
   Emergency Page

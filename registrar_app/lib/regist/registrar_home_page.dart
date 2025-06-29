@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:citizens_app/styles.dart';
-import 'bookedPage.dart';
-import 'RegistrarNotificationPage.dart';
-import 'profile_page.dart';
-import 'backend/registrar.dart';
+import 'package:registrar_app/regist/registrar_booked_page.dart';
+import 'package:registrar_app/regist/registrar_notification_page.dart';
+import 'package:registrar_app/regist/registrar_profile_page.dart';
+import 'package:registrar_app/styles.dart';
+import 'package:registrar_app/regist/backend/registrar.dart';
+
+void main(List<String> args) {
+  Registrar registrar = Registrar(
+      "omar", "al-sanousy", ["dentsit", "brain"], "0128599405", "1234");
+  runApp(RegistrarHomePageTest(registrar: registrar));
+}
 
 class RegistrarHomePageTest extends StatelessWidget {
   final Registrar registrar;

@@ -1,5 +1,5 @@
 // ignore_for_file: unused_local_variable
-
+/*
 import 'package:citizens_app/backend/hospitalsdata.dart';
 import 'package:citizens_app/backend/hospital.dart';
 
@@ -11,3 +11,4 @@ void main() {
 
   print(HospitalsData.hospitalsData);
 }
+*/

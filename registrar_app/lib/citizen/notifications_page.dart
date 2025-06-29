@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'styles.dart';
+import 'package:registrar_app/styles.dart';
 // import 'classes.dart'; // editing the notifiation there
 
 void main(List<String> args) {

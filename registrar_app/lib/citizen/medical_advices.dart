@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'styles.dart';
+import 'package:registrar_app/styles.dart';
 
 void main(List<String> args) {
   runApp(const MedicalAdvicesTest());
