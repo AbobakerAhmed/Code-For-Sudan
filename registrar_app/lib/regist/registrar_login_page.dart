@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:registrar_app/regist/registrar_home_page.dart';
 import 'package:registrar_app/styles.dart';
 import 'backend/registrar.dart';
-import 'package:registrar_app/regist/registrar_profile_page.dart';
-import 'package:registrar_app/regist/registrar_booked_page.dart';
 
 // test the registrar app here
 void main() {
@@ -74,10 +72,16 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
 // add Health Ministry Logo
-                Icon(
-                  Icons.now_wallpaper,
-                  size: 200,
+                Image.asset(
+                  'lib/assets/images/health_ministry_loge.jpg',
+                  alignment: Alignment.center,
+                  height: 200,
+                  width: 200,
                 ),
+                // Icon(
+                //   Icons.now_wallpaper,
+                //   size: 200,
+                // ),
                 const SizedBox(height: 8),
                 Text(
                   "وزارة الصحة الاتحادية",
