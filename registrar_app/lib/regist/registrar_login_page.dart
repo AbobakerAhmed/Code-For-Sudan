@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:registrar_app/regist/registrar_home_page.dart';
+import 'package:registrar_app/regist/signup_page.dart';
 import 'package:registrar_app/styles.dart';
 import 'backend/registrar.dart';
 
@@ -197,10 +198,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text('ليس لديك حساب؟ أنشئ واحدا'),
                       onPressed: () {
 // (it will take him to create new citizen account)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Create account prssed')),
-                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignupPage()));
                       },
                     ),
                   ],
