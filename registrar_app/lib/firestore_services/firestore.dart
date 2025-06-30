@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:registrar_app/citizen/backend/appointment.dart';
 
 const String HOSPITALS = "hospitals";
 const String LOCALITIES = "localities";
@@ -10,17 +11,60 @@ const String DATA = "data";
 class FirestoreService {
   // get collections
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-/*
+
   // CREATE
-  Future<void> addNotify(String type, String title, String mes) {
-    return notifications.doc(type).set({
-      "type": type,
-      "title": title,
-      "time": Timestamp.now(),
-      "mes": mes,
-    });
+
+  /* Method to add appointment in specific hospital and department */
+  Future<void> createAppointment(Appointment appointment) async {
+    try {
+      // Get the locality document
+      DocumentSnapshot localityDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.selectedState)
+          .collection(LOCALITIES)
+          .doc(appointment.selectedLocality)
+          .get();
+      // Check if the locality document exists
+      if (!localityDoc.exists) {
+        throw Exception("Locality document does not exist");
+      }
+      // Get the hospital document from the DATA sub-collection
+      DocumentSnapshot hospitalDoc = await localityDoc.reference
+          .collection(DATA)
+          .doc(appointment.selectedHospital)
+          .get();
+      // Check if the hospital document exists
+      if (!hospitalDoc.exists) {
+        throw Exception("Hospital document does not exist");
+      }
+      // Get the department document from the DEPARTMENTS sub-collection
+      DocumentSnapshot departmentDoc = await hospitalDoc.reference
+          .collection(DEPARTMENTS)
+          .doc(appointment.selectedDepartment)
+          .get();
+      // Check if the department document exists
+      if (!departmentDoc.exists) {
+        throw Exception("Department document does not exist");
+      }
+      // Create a new appointment document in the appointments sub-collection
+      await departmentDoc.reference.collection("appointments").add({
+        "الإسم": appointment.patientName,
+        "العمر": appointment.patientAge,
+        "الجنس": appointment.patientGender,
+        "الهاتف": appointment.patientPhoneNumber,
+        "السكن": appointment.patientAddress,
+        "الدكتور": appointment.selectedDoctor,
+        "الولاية": appointment.selectedState,
+        "المحلية": appointment.selectedLocality,
+        "المستشفى": appointment.selectedHospital,
+        "القسم": appointment.selectedDepartment,
+        // Add other fields as necessary
+      });
+      print("Appointment created successfully");
+    } catch (e) {
+      print("Error: $e");
+    }
   }
-*/
 
   // READ
   Future<Map<String, List<String>>> getStatesAndLocalities() async {
@@ -83,6 +127,73 @@ class FirestoreService {
     }
   }
 
+/* Method to get appointment in specific hospital and department */
+  Future<List<Appointment>> getAppointments(String state, String locality,
+      String hospitalName, String departmentName) async {
+    try {
+      // Get the locality document
+      DocumentSnapshot localityDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .get();
+      // Check if the locality document exists
+      if (!localityDoc.exists) {
+        return [];
+      }
+      // Get the hospital document from the DATA sub-collection
+      DocumentSnapshot hospitalDoc =
+          await localityDoc.reference.collection(DATA).doc(hospitalName).get();
+      // Check if the hospital document exists
+      if (!hospitalDoc.exists) {
+        return [];
+      }
+      // Get the department document from the DEPARTMENTS sub-collection
+      DocumentSnapshot departmentDoc = await hospitalDoc.reference
+          .collection(DEPARTMENTS)
+          .doc(departmentName)
+          .get();
+      // Check if the department document exists
+      if (!departmentDoc.exists) {
+        return [];
+      }
+      // Get the appointments from the appointments sub-collection
+      QuerySnapshot appointmentSnapshot =
+          await departmentDoc.reference.collection("appointments").get();
+      List<Appointment> appointments = [];
+      for (var appointmentDoc in appointmentSnapshot.docs) {
+        // Retrieve the relevant fields for the Appointment object
+        String patientName = appointmentDoc.get("الإسم");
+        String patientAge = appointmentDoc.get('العمر');
+        String patientGender = appointmentDoc.get('الجنس');
+        String patientPhoneNumber = appointmentDoc.get('الهاتف');
+        String patientAddress = appointmentDoc.get('السكن');
+        String selectedDoctor = appointmentDoc.get('الدكتور');
+        // Create an Appointment instance
+        appointments.add(Appointment(
+          patientName,
+          patientAge,
+          patientGender,
+          patientPhoneNumber,
+          patientAddress,
+          state,
+          locality,
+          hospitalName,
+          departmentName,
+          selectedDoctor,
+        ));
+      }
+      return appointments;
+    } catch (e) {
+      print("Error: $e");
+      return [];
+    }
+  }
+
+/* Method to get appointment in specific hospital and department */
+
+/* Method to get emergency numbers of hospitals */
   Future<Map<String, Map<String, List<HospitalEmergency>>>>
       getHospitalsEmergencyData() async {
     Map<String, Map<String, List<HospitalEmergency>>> emergData = {};
@@ -125,46 +236,6 @@ class FirestoreService {
 
     return emergData;
   }
-
-  // Future<Map<String, Map<String, List<HospitalEmergency>>>>
-  //     getHospitalsEmergencyData() async {
-  //   Map<String, Map<String, List<HospitalEmergency>>> emergData = {};
-
-  //   try {
-  //     // Step 1: Get all states and their localities
-  //     // Map<String, List<String>> statesAndLocalities =
-  //     //     await getStatesAndLocalities();
-  //     Map<String, List<String>> statesAndLocalities =
-  //         await getStatesAndLocalities();
-  //     for (String state in statesAndLocalities.keys) {
-  //       List<String> localities = statesAndLocalities[state]!;
-
-  //       for (String locality in localities) {
-  //         // Step 2: Get hospitals for this state/locality
-  //         List<Hospital> hospitals =
-  //             await getHospitalsWithDepartmentsAndDoctors(state, locality);
-
-  //         for (Hospital hospital in hospitals) {
-  //           // Step 3: Initialize nested maps/lists if needed
-  //           emergData[state] ??= {};
-  //           emergData[state]![locality] ??= [];
-
-  //           // Step 4: Add HospitalEmergency entry
-  //           emergData[state]![locality]!.add(
-  //             HospitalEmergency(
-  //               name: hospital.name,
-  //               phone: hospital.phone,
-  //             ),
-  //           );
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print("Error in getHospitalsEmergencyData: $e");
-  //   }
-
-  //   return emergData;
-  // }
 }
 
 /*

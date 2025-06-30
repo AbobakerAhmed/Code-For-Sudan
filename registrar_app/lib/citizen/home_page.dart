@@ -3,6 +3,7 @@ import 'package:registrar_app/citizen/booking_page.dart';
 import 'package:registrar_app/citizen/emergency_page.dart';
 import 'package:registrar_app/citizen/medical_advices.dart';
 import 'package:registrar_app/citizen/notifications_page.dart';
+import 'package:registrar_app/citizen/test_appointments.dart';
 import 'package:registrar_app/styles.dart';
 
 // to test the home page alone
@@ -19,7 +20,8 @@ class HomePageTest extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
       routes: {
-        'booking_page': (context) => const BookingPage(),
+        'booking_page': (context) =>
+            BookingPage(), // AppointmentTestScreen(), //BookingPage(),
         'emergency_page': (context) => const EmergencyPage(),
         'medical_advices': (context) => const MedicalAdvicesPage(),
         'notifications_page': (context) => const NotificationsPage(),

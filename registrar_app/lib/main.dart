@@ -11,6 +11,7 @@ import 'package:registrar_app/citizen/medical_advices.dart'; // MedicalAdvicesPa
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:registrar_app/citizen/test_appointments.dart';
 import 'package:registrar_app/firebase_options.dart';
 import 'package:registrar_app/regist/backend/registrar.dart';
 import 'package:registrar_app/regist/registrar_home_page.dart';
@@ -36,16 +37,14 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: RegistrarHomePage(
-          registrar: registrar,
-        ),
+        home: HomePage(),
         routes: <String, WidgetBuilder>{
           'home': (context) => const HomePage(),
           'booking_page': (context) => const BookingPage(),
           'emergency_page': (context) =>
               const EmergencyPage(), //const EmergencyPage(),
           'notifications_page': (context) =>
-              const NotificationsPage(), //const NotificationsPage(),
+              AppointmentTestScreen(), //const NotificationsPage(),
           'medical_advices': (context) =>
               const MedicalAdvicesPage(), //const MedicalAdvicesPage(),
         }, // routes
