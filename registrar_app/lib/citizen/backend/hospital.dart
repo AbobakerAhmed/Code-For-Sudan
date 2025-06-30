@@ -81,13 +81,6 @@ class Hospital {
       }
     };
   }
-
-  /// Returns a string representation of the [hospitalData] map.
-  ///
-  /// This can be used for debugging or displaying the full hospital structure.
-  void hospitalInfo() {
-    print(hospitalData.toString());
-  }
 }
 
 ///Return a Hospital object from data in the following hierarechy
