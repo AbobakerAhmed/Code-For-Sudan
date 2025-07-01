@@ -4,6 +4,7 @@
 import 'dart:core';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
+import 'package:registrar_app/citizen/backend/appointment.dart';
 import 'package:registrar_app/styles.dart'; // appBar style
 import 'backend/validate_fields.dart';
 import 'backend/globalVar.dart';
@@ -42,6 +43,11 @@ class _BookingPageState extends State<BookingPage> {
   List<String> _dbDepartments = [];
   List<String> _dbDoctors = [];
   bool _isConnected = false;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _phoneControoler = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   // Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -254,6 +260,7 @@ class _BookingPageState extends State<BookingPage> {
                       _buildTextField(
                           // validate the name with range of characters
                           'الاسم الرباعي',
+                          _nameController,
                           (val) => fullName = val, validator: (val) {
                         if (val == null || val.isEmpty) return 'الاسم مطلوب';
                         if (val.length < 4) return 'الاسم قصير جداً';
@@ -275,6 +282,7 @@ class _BookingPageState extends State<BookingPage> {
                       // entering age
                       _buildTextField(
                         'العمر',
+                        _ageController,
                         (val) => age = val,
                         inputType: TextInputType.number,
                         // validate the age range (0,150)
@@ -291,6 +299,7 @@ class _BookingPageState extends State<BookingPage> {
                       // enter phone number
                       _buildTextField(
                         'رقم الهاتف (مثال: 0123456789)',
+                        _phoneControoler,
                         // validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
                         (val) => phoneNumber = val,
                         inputType: TextInputType.phone,
@@ -349,6 +358,7 @@ class _BookingPageState extends State<BookingPage> {
                       // home details: neighborhod - block
                       _buildTextField(
                         'الحي - المربع (مثال: الواحة - 4)',
+                        _addressController,
                         (val) => address = val,
                         validator: (val) {
                           if (val == null || val.isEmpty)
@@ -421,22 +431,35 @@ class _BookingPageState extends State<BookingPage> {
                           if (_isFormValid() &&
                               _formKey.currentState!.validate()) {
                             // save info in database
+                            _firestoreService.createAppointment(Appointment(
+                                fullName!,
+                                age!,
+                                gender!,
+                                phoneNumber!,
+                                address!,
+                                selectedState!,
+                                selectedLocality!,
+                                selectedHospital!,
+                                selectedDepartment!,
+                                selectedDoctor!));
+
+                            // clear fields
+                            setState(() {
+                              _nameController.clear();
+                              _ageController.clear();
+                              gender = null;
+                              _phoneControoler.clear();
+                              _addressController.clear();
+                              selectedState = null;
+                              selectedLocality = null;
+                              selectedHospital = null;
+                              selectedDepartment = null;
+                              selectedDoctor = null;
+                            });
+
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content: Text('تم إرسال الحجز بنجاح 🎉')));
-
-                            /// the appointment object should be created here
-                            // Appointment createAppointment = Appointment(
-                            //     fullName!,
-                            //     age!,
-                            //     gender!,
-                            //     phoneNumber!,
-                            //     address!,
-                            //     selectedState!,
-                            //     selectedLocality!,
-                            //     selectedHospital!,
-                            //     selectedDepartment!,
-                            //     selectedDoctor!);
                           } // if
                           else {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -470,6 +493,7 @@ class _BookingPageState extends State<BookingPage> {
   /// build text field has been updated to handle the validation
   Widget _buildTextField(
     String label,
+    TextEditingController controller,
     Function(String) onChanged, {
     TextInputType inputType = TextInputType.text,
     String? Function(String?)? validator,
@@ -478,6 +502,7 @@ class _BookingPageState extends State<BookingPage> {
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         keyboardType: inputType,
+        controller: controller,
         cursorColor: Colors.black,
         decoration: InputDecoration(
           labelText: label,

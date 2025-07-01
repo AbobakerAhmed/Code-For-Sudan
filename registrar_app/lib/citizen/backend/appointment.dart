@@ -49,7 +49,4 @@ class Appointment {
       'selectedDoctor': department,
     };
   }
-  //  Map<String, List<String>> selectedDepartmentToDoctors) {
-  // hospital = Hospital(selectedState,selectedLocality,selectedHospital,selectedDepartment,selectedDoctor,selectedDepartmentToDoctors)
-  //}
 }
