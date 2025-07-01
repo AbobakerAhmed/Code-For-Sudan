@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:registrar_app/citizen/home_page.dart';
+import 'package:registrar_app/citizen/backend/citizen.dart';
+import 'package:registrar_app/citizen/backend/validate_fields.dart';
+import 'package:registrar_app/citizen/backend/globalVar.dart';
+
 import 'package:registrar_app/styles.dart';
-import 'backend/registrar.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -12,9 +16,11 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-  String _userName = '';
-  String _password = '';
-  String _confirmPassword = '';
+  String? _userName;
+  String? _phoneNumber;
+  String? _gender;
+  String? _password;
+  String? _confirmPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -33,66 +39,74 @@ class _SignupPageState extends State<SignupPage> {
                 const Text('سجل حساب جديد', style: titleTextStyle),
                 const SizedBox(height: 30),
 
-                // Email Field
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: 'اسم المستخدم',
-                    border:
-                        OutlineInputBorder(borderRadius: defaultBorderRadius),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                    filled: true,
-                    fillColor: Color(0xFFF7F7F7),
-                  ),
+                _buildTextField(
+                    // validate the name with range of characters
+                    'اسم المستخدم',
+                    (val) => _userName = val, validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'أدخل اسم المستخدم الخاص بك';
+                  }
+                  if (val.length < 4) return 'الاسم قصير جداً';
+                  return null;
+                }),
+
+                // entering gender
+                _buildDropdown(
+                  label: 'النوع',
+                  value: _gender,
+                  items: g_gender,
+                  onChanged: (val) {
+                    setState(() {
+                      _gender = val;
+                    });
+                  },
+                ),
+
+                // enter phone number
+                _buildTextField(
+                  'رقم الهاتف (مثال: 0123456789)',
+                  // validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
+                  (val) => _phoneNumber = val,
+                  inputType: TextInputType.phone,
+                  direction: TextDirection.ltr,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'أدخل اسم المستخدم الخاص بك';
+                      return 'الرجاءإدخال رقم الهاتف';
+                    } else if (!Validate.phoneNumber(value)) {
+                      return 'رقم الهاتف غير صالح'; // Invalid phone number
                     }
                     return null;
                   },
-                  onChanged: (value) => _userName = value,
                 ),
-                const SizedBox(height: 16),
-
                 // Password Field
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: 'كلمة المرور',
-                    border:
-                        OutlineInputBorder(borderRadius: defaultBorderRadius),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                    filled: true,
-                    fillColor: Color(0xFFF7F7F7),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.length < 8) {
+                _buildTextField(
+                  'كلمة المرور',
+                  (val) => _password = val,
+                  direction: TextDirection.ltr,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'أدخل كلمة المرور';
+                    }
+                    if (!Validate.password(val)) {
                       return 'كلمة المرور يجب أن تكون على الأقل 8 أحرف';
                     }
                     return null;
                   },
-                  onChanged: (value) => _password = value,
                 ),
-                const SizedBox(height: 16),
 
                 // Confirm Password Field
-                TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: 'تأكيد كلمة المرور',
-                    border:
-                        OutlineInputBorder(borderRadius: defaultBorderRadius),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                    filled: true,
-                    fillColor: Color(0xFFF7F7F7),
-                  ),
-                  validator: (value) {
-                    if (value != _password) {
-                      return 'كلمة المرور غير متطابقة';
-                    }
+                _buildTextField(
+                  'تأكيد كلمة المرور',
+                  (val) => _confirmPassword = val,
+                  direction: TextDirection.ltr,
+                  validator: (val) {
+                    if (val == null || val.isEmpty)
+                      return 'أدخل تأكيد كلمة المرور';
+                    if (val != _password) return 'كلمة المرور غير متطابقة';
                     return null;
                   },
-                  onChanged: (value) => _confirmPassword = value,
                 ),
+
                 const SizedBox(height: 20),
 
                 // Signup Button
@@ -118,4 +132,53 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
+
+  Widget _buildTextField(
+    String label,
+    Function(String) onChanged, {
+    TextInputType inputType = TextInputType.text,
+    String? Function(String?)? validator,
+    TextDirection direction = TextDirection.rtl,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        textDirection: direction,
+        keyboardType: inputType,
+        cursorColor: Colors.black,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: Colors.grey[100],
+        ),
+        onChanged: onChanged,
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: Colors.grey[100],
+        ),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
+        onChanged: onChanged,
+      ),
+    );
+  } // _buildDropdown
 }

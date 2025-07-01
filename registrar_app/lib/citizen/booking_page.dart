@@ -5,7 +5,7 @@ import 'dart:core';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:registrar_app/styles.dart'; // appBar style
-import 'backend/validatePhoneNumber.dart';
+import 'backend/validate_fields.dart';
 import 'backend/globalVar.dart';
 import 'package:registrar_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -295,7 +295,7 @@ class _BookingPageState extends State<BookingPage> {
                         (val) => phoneNumber = val,
                         inputType: TextInputType.phone,
                         validator: (value) {
-                          if (!validatePhoneNumber(value ?? '')) {
+                          if (!Validate.phoneNumber(value ?? '')) {
                             return 'رقم الهاتف غير صالح'; // Invalid phone number
                           }
                           return null;
