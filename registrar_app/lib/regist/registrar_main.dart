@@ -12,9 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:registrar_app/firebase_options.dart';
-// import 'package:registrar_app/regist/backend/registrar.dart';
-// import 'package:registrar_app/regist/registrar_home_page.dart';
-import 'registrar_login_page.dart';
+import 'package:registrar_app/regist/registrar_home_page.dart';
+import 'package:registrar_app/regist/backend/registrar.dart';
+import 'package:registrar_app/regist/registrar_home_page.dart';
+//import 'registrar_login_page.dart';
 
 // running the registrar pages here:
 void main() async {
@@ -35,7 +36,14 @@ class HealthCareSudan_registrar_app extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: LoginPage(),
+        home: RegistrarHomePage(
+            registrar: Registrar(
+          'Mohammed abdulsalam',
+          'alamal hospital',
+          ['العيون', 'الجلدية', 'الباطنية'],
+          '0912345678',
+          '123456', // password
+        )),
 
         // to hide the defualt debugging icon in the corner
         debugShowCheckedModeBanner: false,

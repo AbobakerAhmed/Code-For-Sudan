@@ -3,6 +3,7 @@ class Citizen {
   String? _phoneNumber;
   String? _password;
   String? _gender;
+  String? _address;
   DateTime? _birthDate;
   List<String>? _medicalHistory;
 
@@ -11,6 +12,7 @@ class Citizen {
     String phoneNumber,
     String password,
     String gender,
+    String address,
     DateTime birthDate,
     List<String> medicalHistory,
   ) {
@@ -18,6 +20,7 @@ class Citizen {
     _phoneNumber = phoneNumber;
     _password = password;
     _gender = gender;
+    _address = address;
     _birthDate = birthDate;
     _medicalHistory = medicalHistory;
   }
@@ -27,6 +30,7 @@ class Citizen {
   String? get phoneNumber => _phoneNumber;
   String? get password => _password;
   String? get gender => _gender;
+  String? get address => _address;
   DateTime? get birthDate => _birthDate;
   List<String>? get medicalHistory => _medicalHistory;
 
@@ -35,6 +39,7 @@ class Citizen {
   set phoneNumber(String? phone) => _phoneNumber = phone;
   set password(String? pass) => _password = pass;
   set gender(String? gen) => _gender = gen;
+  set address(String? addr) => _address = addr;
   set birthDate(DateTime? date) => _birthDate = date;
   set medicalHistory(List<String>? history) => _medicalHistory = history;
 }

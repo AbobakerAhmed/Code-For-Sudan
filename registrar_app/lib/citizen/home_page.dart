@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: appBar('الصفحة الرئيسية'),
-        drawer: const Drawer(),
+        drawer: _citizenDrawer(context),
         body: const Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -63,6 +63,87 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  // registrar drawer
+  Drawer _citizenDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'قائمة المواطن', // Translated
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('الرئيسية'), // Translated
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('الملف الشخصي'), // Translated
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              // got to the progile page
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) =>
+              //         CitizenProfilePage(citizen: this.citizen),
+              //   ),
+              // );
+            },
+          ),
+          // ListTile(
+          //   leading: const Icon(Icons.notifications),
+          //   title: const Text('الإشعارات'), // Translated
+          //   onTap: () {
+          //     Navigator.pop(context); // Close the drawer
+          //     // go to the notifications page
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) =>
+          //             RegistrarNotificationsPage(registrar: this.registrar),
+          //       ),
+          //     );
+          //   },
+          // ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('الإعدادات'), // Translated
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+// go to sitting page or edit eidte it to edit the theme here dirctly
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('تسجيل الخروج'), // Translated
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+// add logout logic here
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  } // _registrarDrawer
 }
 
 // This clas contains the 4 cards in the home screen

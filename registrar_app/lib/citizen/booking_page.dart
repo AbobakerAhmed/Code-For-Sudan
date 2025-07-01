@@ -46,7 +46,7 @@ class _BookingPageState extends State<BookingPage> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _phoneControoler = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
   // Testing Data (Region)
@@ -260,6 +260,7 @@ class _BookingPageState extends State<BookingPage> {
                       _buildTextField(
                           // validate the name with range of characters
                           'الاسم الرباعي',
+                          textDirection: TextDirection.rtl,
                           _nameController,
                           (val) => fullName = val, validator: (val) {
                         if (val == null || val.isEmpty) return 'الاسم مطلوب';
@@ -299,7 +300,7 @@ class _BookingPageState extends State<BookingPage> {
                       // enter phone number
                       _buildTextField(
                         'رقم الهاتف (مثال: 0123456789)',
-                        _phoneControoler,
+                        _phoneController,
                         // validate the number (10 digits, start only with 01, 099, 092, 090, 091, or 096)
                         (val) => phoneNumber = val,
                         inputType: TextInputType.phone,
@@ -358,6 +359,7 @@ class _BookingPageState extends State<BookingPage> {
                       // home details: neighborhod - block
                       _buildTextField(
                         'الحي - المربع (مثال: الواحة - 4)',
+                        textDirection: TextDirection.rtl,
                         _addressController,
                         (val) => address = val,
                         validator: (val) {
@@ -448,7 +450,7 @@ class _BookingPageState extends State<BookingPage> {
                               _nameController.clear();
                               _ageController.clear();
                               gender = null;
-                              _phoneControoler.clear();
+                              _phoneController.clear();
                               _addressController.clear();
                               selectedState = null;
                               selectedLocality = null;
@@ -495,12 +497,14 @@ class _BookingPageState extends State<BookingPage> {
     String label,
     TextEditingController controller,
     Function(String) onChanged, {
+    TextDirection textDirection = TextDirection.ltr,
     TextInputType inputType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
+        textDirection: TextDirection.ltr,
         keyboardType: inputType,
         controller: controller,
         cursorColor: Colors.black,

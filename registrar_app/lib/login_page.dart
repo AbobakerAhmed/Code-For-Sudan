@@ -1,12 +1,16 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
-import 'package:registrar_app/regist/registrar_home_page.dart';
-import 'package:registrar_app/regist/signup_page.dart';
-import 'package:registrar_app/styles.dart';
-import 'backend/registrar.dart';
 
-// test the registrar app here
+import 'package:registrar_app/citizen/backend/citizens_data.dart';
+import 'package:registrar_app/citizen/home_page.dart';
+import 'package:registrar_app/regist/registrar_home_page.dart';
+import 'package:registrar_app/signup_page.dart';
+import 'package:registrar_app/styles.dart';
+import 'package:registrar_app/regist/backend/registrar.dart';
+import 'package:registrar_app/citizen/backend/validate_fields.dart';
+
+// test the login page here
 void main() {
   runApp(const LoginPageTest());
 } // main
@@ -37,14 +41,30 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
   final _formKey = GlobalKey<FormState>();
 
-  // this fun will help us later to validate the username and password
-  void _login() {
+  // this fun will validate the username and password and check if it's in citizens_data.dart
+  //TODO: instead CitizensData use firebase to validate the login
+  bool _citizenLogin() {
+    if (_formKey.currentState!.validate()) {
+      return CitizensData.isCitizenValid(
+          _usernameController.text, _passwordController.text);
+    } else
+      return false;
+  } // _login
+
+  // this fun will validate the username and password and check if it's a registrar or not
+  //check line 183
+  //TODO: instead or currentRegistrar use firebase to validate the login
+  bool _registrarLogin(Registrar reg) {
     if (_formKey.currentState!.validate()) {
       // For demonstration, just print values
       print('Username: ${_usernameController.text}');
       print('Password: ${_passwordController.text}');
+
+      return (_usernameController.text == reg.name &&
+          _passwordController.text == reg.password);
 
 // Check the username and password in the database
       // Example:
@@ -56,6 +76,8 @@ class _LoginPageState extends State<LoginPage> {
       //   );
       // }
     } // if
+    else
+      return false;
   } // _login
 
   //build fun
@@ -107,6 +129,9 @@ class _LoginPageState extends State<LoginPage> {
 // validate username here
                       return 'الرجاء إدخال اسم المستخدم الخاص بك';
                     } //if
+                    else if (Validate.password(value)) {
+                      return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                    }
                     return null;
                   }, // validattor
                 ),
@@ -116,8 +141,10 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Password Field
                 TextFormField(
+                  textDirection: TextDirection.ltr,
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
+
                   decoration: InputDecoration(
                     labelText: 'كلمة المرور',
                     hintText: 'أدخل كلمة المرور الخاصة بك',
@@ -125,6 +152,18 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -159,21 +198,34 @@ class _LoginPageState extends State<LoginPage> {
 // read it from the database
                     // example
                     Registrar currentRegistrar = Registrar(
-                      'محمد عبدالسلام',
-                      'مستشفى الأمل',
+                      'Mohammed abdulsalam',
+                      'alamal hospital',
                       ['العيون', 'الجلدية', 'الباطنية'],
                       '0912345678',
-                      '123456', // password
+                      '123456@Registrar', // password
                     );
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RegistrarHomePage(
-                            registrar:
-                                currentRegistrar), // send the registrar object to the registrar home page
-                      ),
-                    );
+                    if (_citizenLogin()) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HomePage(), // send the citizen object to the citizen home page
+                        ),
+                      );
+                    } else if (_registrarLogin(currentRegistrar)) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegistrarHomePage(
+                              registrar:
+                                  currentRegistrar), // send the registrar object to the registrar home page
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              'حدث خطأ. لم يتم تسجيل الدخول\n الرجاء التأكد من اسم المستخدم و كلمة المرور')));
+                    }
                   },
                 ),
 
