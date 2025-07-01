@@ -191,7 +191,25 @@ class FirestoreService {
     }
   }
 
-/* Method to get appointment in specific hospital and department */
+/* Method to get advices */
+  Future<List<String>> getMedicalAdvices() async {
+    try {
+      // Get all documents from the medical_advices collection
+      QuerySnapshot adviceSnapshot =
+          await _firestore.collection('medical_advices').get();
+      // Create a list to hold the advices
+      List<String> advices = [];
+      // Iterate through the documents and extract the advice field
+      for (var adviceDoc in adviceSnapshot.docs) {
+        String advice = adviceDoc.get('advice');
+        advices.add(advice);
+      }
+      return advices;
+    } catch (e) {
+      print("Error fetching medical advices: $e");
+      return [];
+    }
+  }
 
 /* Method to get emergency numbers of hospitals */
   Future<Map<String, Map<String, List<HospitalEmergency>>>>
