@@ -3,7 +3,7 @@ import 'package:registrar_app/citizen/backend/citizen.dart';
 
 import 'package:registrar_app/citizen/home_page.dart';
 import 'package:registrar_app/citizen/backend/validate_fields.dart';
-import 'package:registrar_app/citizen/backend/globalVar.dart';
+import 'package:registrar_app/citizen/backend/global_var.dart';
 
 import 'package:registrar_app/styles.dart';
 
