@@ -48,7 +48,7 @@ class EmergencyPage extends StatefulWidget {
 
 // EmergencyPage conent
 class _EmergencyPageState extends State<EmergencyPage> {
-  FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService = FirestoreService();
   List<String> _dbStates = [];
   List<String> _dbLocalities = [];
   //List<String> _dbHospitals = [];

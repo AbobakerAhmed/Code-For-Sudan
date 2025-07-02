@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:registrar_app/citizen/backend/appointment.dart';
 import 'package:registrar_app/styles.dart'; // appBar style
 import 'backend/validate_fields.dart';
-import 'backend/globalVar.dart';
+import 'backend/global_var.dart';
 import 'package:registrar_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 

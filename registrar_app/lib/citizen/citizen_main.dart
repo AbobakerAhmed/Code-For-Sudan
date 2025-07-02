@@ -20,12 +20,12 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform); //
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
 
-  runApp(HealthCareSudan_citizen_app());
+  runApp(HealthCareSudanCitizenApp());
 }
 
 // app class
-class HealthCareSudan_citizen_app extends StatelessWidget {
-  HealthCareSudan_citizen_app({super.key});
+class HealthCareSudanCitizenApp extends StatelessWidget {
+  const HealthCareSudanCitizenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,4 +62,4 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
       ),
     );
   } // build
-} // HealthCareSudan_citizen_app
+} // HealthCareSudanCitizenApp

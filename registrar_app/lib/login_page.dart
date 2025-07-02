@@ -50,8 +50,9 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       return CitizensData.isCitizenValid(
           _usernameController.text, _passwordController.text);
-    } else
+    } else {
       return false;
+    }
   } // _login
 
   // this fun will validate the username and password and check if it's a registrar or not
@@ -59,10 +60,6 @@ class _LoginPageState extends State<LoginPage> {
   //TODO: instead or currentRegistrar use firebase to validate the login
   bool _registrarLogin(Registrar reg) {
     if (_formKey.currentState!.validate()) {
-      // For demonstration, just print values
-      print('Username: ${_usernameController.text}');
-      print('Password: ${_passwordController.text}');
-
       return (_usernameController.text == reg.name &&
           _passwordController.text == reg.password);
 
@@ -76,8 +73,9 @@ class _LoginPageState extends State<LoginPage> {
       //   );
       // }
     } // if
-    else
+    else {
       return false;
+    }
   } // _login
 
   //build fun
