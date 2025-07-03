@@ -2,17 +2,16 @@
 
 // importing
 import 'package:flutter/material.dart';
-import 'package:registrar_app/citizen/backend/citizens_data.dart';
-import 'package:registrar_app/citizen/home_page.dart'; // HomePage()
-import 'package:registrar_app/citizen/booking_page.dart'; // BookingPage()
-import 'package:registrar_app/citizen/emergency_page.dart'; // EmergencyPage()
-import 'package:registrar_app/citizen/notifications_page.dart'; // NotificationsPage()
-import 'package:registrar_app/citizen/medical_advices.dart'; // MedicalAdvicesPage()
+import 'package:mobile_app/citizen/home_page.dart'; // HomePage()
+import 'package:mobile_app/citizen/booking_page.dart'; // BookingPage()
+import 'package:mobile_app/citizen/emergency_page.dart'; // EmergencyPage()
+import 'package:mobile_app/citizen/notifications_page.dart'; // NotificationsPage()
+import 'package:mobile_app/citizen/medical_advices.dart'; // MedicalAdvicesPage()
 
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:registrar_app/firebase_options.dart';
+import 'package:mobile_app/firebase_options.dart';
 
 // running the citizen pages here:
 void main() async {
@@ -21,25 +20,21 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform); //
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
 
-  runApp(HealthCareSudan_citizen_app());
+  runApp(HealthCareSudanCitizenApp());
 }
 
 // app class
-class HealthCareSudan_citizen_app extends StatelessWidget {
-  HealthCareSudan_citizen_app({super.key});
+class HealthCareSudanCitizenApp extends StatelessWidget {
+  const HealthCareSudanCitizenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: HomePage(
-          citizen: CitizensData.data[0],
-        ),
+        home: HomePage(),
         routes: <String, WidgetBuilder>{
-          'home': (context) => HomePage(
-                citizen: CitizensData.data[0],
-              ),
+          'home': (context) => const HomePage(),
           'booking_page': (context) => const BookingPage(),
           'emergency_page': (context) =>
               const EmergencyPage(), //const EmergencyPage(),
@@ -67,4 +62,4 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
       ),
     );
   } // build
-} // HealthCareSudan_citizen_app
+} // HealthCareSudanCitizenApp

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:registrar_app/regist/registrar_booked_page.dart';
-import 'package:registrar_app/regist/registrar_notification_page.dart';
-import 'package:registrar_app/regist/registrar_profile_page.dart';
-import 'package:registrar_app/styles.dart';
-import 'package:registrar_app/regist/backend/registrar.dart';
+import 'package:mobile_app/regist/registrar_booked_page.dart';
+import 'package:mobile_app/regist/registrar_notification_page.dart';
+import 'package:mobile_app/regist/registrar_profile_page.dart';
+import 'package:mobile_app/styles.dart';
+import 'package:mobile_app/regist/backend/registrar.dart';
 
 void main(List<String> args) {
   Registrar registrar = Registrar(
@@ -21,7 +21,7 @@ class RegistrarHomePageTest extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: RegistrarHomePage(
-        registrar: this.registrar,
+        registrar: registrar,
       ),
 //      routes: {      }, // no routes here because we will send registrar object to the next page
     );
@@ -111,7 +111,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      RegistrarProfilePage(registrar: this.registrar),
+                      RegistrarProfilePage(registrar: registrar),
                 ),
               );
             },
@@ -126,7 +126,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      RegistrarNotificationsPage(registrar: this.registrar),
+                      RegistrarNotificationsPage(registrar: registrar),
                 ),
               );
             },
@@ -190,7 +190,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => BookedAppointmentsPage(
-                                      registrar: this.registrar)));
+                                      registrar: registrar)));
                         },
                       )),
                 ),
@@ -210,7 +210,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                             MaterialPageRoute(
                                 builder: (context) =>
                                     RegistrarNotificationsPage(
-                                        registrar: this.registrar)));
+                                        registrar: registrar)));
                       },
                     ),
                   ),
@@ -271,7 +271,8 @@ class FeatureCard extends StatelessWidget {
   final String title; // title
 
   // constructor
-  FeatureCard({
+  const FeatureCard({
+    super.key,
     required this.icon,
     required this.title,
   });

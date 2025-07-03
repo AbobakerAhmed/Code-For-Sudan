@@ -1,8 +1,8 @@
 // Date: 21st of Jun 2025
 import 'package:flutter/material.dart';
-import 'package:registrar_app/styles.dart'; // appBar style
+import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:url_launcher/url_launcher.dart'; // call api
-import 'package:registrar_app/firestore_services/firestore.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 //import 'backend/hospital.dart';
@@ -48,7 +48,7 @@ class EmergencyPage extends StatefulWidget {
 
 // EmergencyPage conent
 class _EmergencyPageState extends State<EmergencyPage> {
-  FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService = FirestoreService();
   List<String> _dbStates = [];
   List<String> _dbLocalities = [];
   //List<String> _dbHospitals = [];
