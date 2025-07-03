@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:registrar_app/citizen/booking_page.dart';
-import 'package:registrar_app/citizen/emergency_page.dart';
-import 'package:registrar_app/citizen/medical_advices.dart';
-import 'package:registrar_app/citizen/notifications_page.dart';
-import 'package:registrar_app/citizen/test_appointments.dart';
-import 'package:registrar_app/styles.dart';
+import 'package:mobile_app/citizen/booking_page.dart';
+import 'package:mobile_app/citizen/emergency_page.dart';
+import 'package:mobile_app/citizen/medical_advices.dart';
+import 'package:mobile_app/citizen/notifications_page.dart';
+import 'package:mobile_app/citizen/test_appointments.dart';
+import 'package:mobile_app/styles.dart';
 
 // to test the home page alone
 void main() {

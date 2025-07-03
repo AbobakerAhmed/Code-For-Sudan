@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:registrar_app/styles.dart';
+import 'package:mobile_app/styles.dart';
 import 'backend/registrar.dart';
 
 /*

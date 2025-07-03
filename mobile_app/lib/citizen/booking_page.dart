@@ -4,11 +4,11 @@
 import 'dart:core';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
-import 'package:registrar_app/citizen/backend/appointment.dart';
-import 'package:registrar_app/styles.dart'; // appBar style
+import 'package:mobile_app/citizen/backend/appointment.dart';
+import 'package:mobile_app/styles.dart'; // appBar style
 import 'backend/validate_fields.dart';
 import 'backend/global_var.dart';
-import 'package:registrar_app/firestore_services/firestore.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// testing this page alone

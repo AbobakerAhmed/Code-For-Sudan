@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:registrar_app/firebase_options.dart';
-import 'package:registrar_app/regist/registrar_home_page.dart';
-import 'package:registrar_app/regist/backend/registrar.dart';
+import 'package:mobile_app/firebase_options.dart';
+import 'package:mobile_app/regist/registrar_home_page.dart';
+import 'package:mobile_app/regist/backend/registrar.dart';
 //import 'registrar_login_page.dart';
 
 // running the registrar pages here:

@@ -2,16 +2,16 @@
 
 // importing
 import 'package:flutter/material.dart';
-import 'package:registrar_app/citizen/home_page.dart'; // HomePage()
-import 'package:registrar_app/citizen/booking_page.dart'; // BookingPage()
-import 'package:registrar_app/citizen/emergency_page.dart'; // EmergencyPage()
-import 'package:registrar_app/citizen/notifications_page.dart'; // NotificationsPage()
-import 'package:registrar_app/citizen/medical_advices.dart'; // MedicalAdvicesPage()
+import 'package:mobile_app/citizen/home_page.dart'; // HomePage()
+import 'package:mobile_app/citizen/booking_page.dart'; // BookingPage()
+import 'package:mobile_app/citizen/emergency_page.dart'; // EmergencyPage()
+import 'package:mobile_app/citizen/notifications_page.dart'; // NotificationsPage()
+import 'package:mobile_app/citizen/medical_advices.dart'; // MedicalAdvicesPage()
 
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:registrar_app/firebase_options.dart';
+import 'package:mobile_app/firebase_options.dart';
 
 // running the citizen pages here:
 void main() async {

@@ -1,4 +1,4 @@
-import 'package:registrar_app/citizen/backend/citizen.dart';
+import 'package:mobile_app/citizen/backend/citizen.dart';
 
 class CitizensData {
   static List<Citizen> data = [
@@ -9,7 +9,7 @@ class CitizensData {
       'ذكر',
       'Khartoum North, Bahri',
       DateTime(2003, 10, 7),
-      ['Severe Obesity', 'Light blood pressure', 'Weak sight'],
+      ['Severe Obesity', 'Weak sight'],
     ),
     Citizen(
       'saraahmed',

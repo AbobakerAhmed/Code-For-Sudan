@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:registrar_app/citizen/backend/appointment.dart';
+import 'package:mobile_app/citizen/backend/appointment.dart';
+import 'package:mobile_app/citizen/backend/citizen.dart';
 
 const String HOSPITALS = "hospitals";
 const String LOCALITIES = "localities";

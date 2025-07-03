@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:registrar_app/firebase_options.dart';
+import 'package:mobile_app/firebase_options.dart';
 //import login page
-import 'package:registrar_app/login_page.dart';
+import 'package:mobile_app/login_page.dart';
 
 //import citizens page (can be deleted later)
-import 'package:registrar_app/citizen/home_page.dart';
-import 'package:registrar_app/citizen/booking_page.dart';
-import 'package:registrar_app/citizen/emergency_page.dart';
-import 'package:registrar_app/citizen/medical_advices.dart';
-import 'package:registrar_app/citizen/test_appointments.dart';
+import 'package:mobile_app/citizen/home_page.dart';
+import 'package:mobile_app/citizen/booking_page.dart';
+import 'package:mobile_app/citizen/emergency_page.dart';
+import 'package:mobile_app/citizen/medical_advices.dart';
+import 'package:mobile_app/citizen/test_appointments.dart';
 
 //current login data
 // Registrar(

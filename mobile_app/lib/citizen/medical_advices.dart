@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:registrar_app/styles.dart';
-import 'package:registrar_app/firestore_services/firestore.dart';
+import 'package:mobile_app/styles.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 
 void main(List<String> args) {
   runApp(const MedicalAdvicesTest());
