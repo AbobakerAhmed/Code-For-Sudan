@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'backend/registrar.dart';
-import 'backend/appoinment.dart'; // similate appointment class
+import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/registrar/appoinment.dart'; // similate appointment class
 
 // booked appointments page
 class BookedAppointmentsPage extends StatefulWidget {

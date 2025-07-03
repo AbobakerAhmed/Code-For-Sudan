@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:mobile_app/citizen/backend/citizen.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/home_page.dart';
-import 'package:mobile_app/citizen/backend/validate_fields.dart';
-import 'package:mobile_app/citizen/backend/global_var.dart';
+import 'package:mobile_app/backend/validate_fields.dart';
+import 'package:mobile_app/backend/global_var.dart';
 
 import 'package:mobile_app/styles.dart';
 

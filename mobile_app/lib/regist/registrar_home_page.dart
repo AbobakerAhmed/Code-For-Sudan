@@ -3,7 +3,7 @@ import 'package:mobile_app/regist/registrar_booked_page.dart';
 import 'package:mobile_app/regist/registrar_notification_page.dart';
 import 'package:mobile_app/regist/registrar_profile_page.dart';
 import 'package:mobile_app/styles.dart';
-import 'package:mobile_app/regist/backend/registrar.dart';
+import 'package:mobile_app/backend/registrar/registrar.dart';
 
 void main(List<String> args) {
   Registrar registrar = Registrar(

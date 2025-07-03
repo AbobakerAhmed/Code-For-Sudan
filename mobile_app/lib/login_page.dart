@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:mobile_app/citizen/backend/citizens_data.dart';
+import 'package:mobile_app/backend/citizen/backend/citizens_data.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
 import 'package:mobile_app/styles.dart';
-import 'package:mobile_app/regist/backend/registrar.dart';
-import 'package:mobile_app/citizen/backend/validate_fields.dart';
+import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/validate_fields.dart';
 
 // test the login page here
 void main() {

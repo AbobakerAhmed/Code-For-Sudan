@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/citizen/backend/appointment.dart';
+import 'package:mobile_app/backend/citizen/appointment.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:mobile_app/styles.dart';
 

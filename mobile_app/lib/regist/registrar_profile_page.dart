@@ -1,7 +1,7 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
-import 'backend/registrar.dart';
+import 'package:mobile_app/backend/registrar/registrar.dart';
 
 class RegistrarProfilePage extends StatelessWidget {
   final Registrar registrar; // required (see registrar.dart)

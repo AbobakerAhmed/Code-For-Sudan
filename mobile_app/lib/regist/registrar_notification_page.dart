@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/styles.dart';
-import 'backend/registrar.dart';
+import 'package:mobile_app/backend/registrar/registrar.dart';
 
 /*
 This is the same as the citizen notification page

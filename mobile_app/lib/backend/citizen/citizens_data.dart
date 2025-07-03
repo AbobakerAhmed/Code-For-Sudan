@@ -1,4 +1,4 @@
-import 'package:mobile_app/citizen/backend/citizen.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
 
 class CitizensData {
   static List<Citizen> data = [
