@@ -8,6 +8,7 @@ import 'package:mobile_app/backend/citizen/appointment.dart';
 import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
+import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -36,7 +37,7 @@ class BookingPage extends StatefulWidget {
 /// Booking page
 class _BookingPageState extends State<BookingPage> {
   // Define database object
-  FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService = FirestoreService();
   List<String> _dbStates = [];
   List<String> _dbLocalities = [];
   List<String> _dbHospitals = [];

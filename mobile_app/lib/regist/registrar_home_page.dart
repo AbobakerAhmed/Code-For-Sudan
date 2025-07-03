@@ -6,8 +6,8 @@ import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 
 void main(List<String> args) {
-  Registrar registrar = Registrar(
-      "omar", "al-sanousy", ["dentsit", "brain"], "0128599405", "1234");
+  Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
+      "al-sanousy", 'الجزيرة', 'ود مدني', ["dentsit", "brain"]);
   runApp(RegistrarHomePageTest(registrar: registrar));
 }
 

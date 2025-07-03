@@ -304,7 +304,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         age: age,
                         neighborhood: neighborhood,
                         phoneNumber: phoneNumber,
-                        hospital: widget.registrar.hospital,
+                        hospital: widget.registrar.hospitalName,
                         department: selectedDepartment,
                         doctor: selectedDoctor,
                         time: DateTime.now(),
@@ -324,7 +324,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         existingAppointment.department = selectedDepartment;
                         existingAppointment.doctor = selectedDoctor;
                         existingAppointment.hospital =
-                            widget.registrar.hospital;
+                            widget.registrar.hospitalName;
                         existingAppointment.time = DateTime.now();
                       });
                     } // in else

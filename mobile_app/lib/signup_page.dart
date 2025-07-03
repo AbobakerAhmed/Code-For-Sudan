@@ -4,6 +4,7 @@ import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 
 import 'package:mobile_app/styles.dart';
 
@@ -15,10 +16,16 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final FirestoreService _firestoreService = FirestoreService();
+  List<String> _dbStates = [];
+  List<String> _dbLocalities = [];
+
   final _formKey = GlobalKey<FormState>();
   String? _userName;
   String? _phoneNumber;
   String? _gender;
+  String? _state;
+  String? _locality;
   String? _address;
   DateTime? _birthDate;
   String? _password;
@@ -33,6 +40,39 @@ class _SignupPageState extends State<SignupPage> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  Future<void> _getStates() async {
+    try {
+      final statesAndLocalities =
+          await _firestoreService.getStatesAndLocalities();
+      final states = statesAndLocalities.keys.toList();
+      setState(() {
+        _dbStates = states;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> _getLocalities(String state) async {
+    try {
+      final statesAndLocalities =
+          await _firestoreService.getStatesAndLocalities();
+      final localities = statesAndLocalities[state];
+      setState(() {
+        _dbLocalities = localities!;
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getStates();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +126,32 @@ class _SignupPageState extends State<SignupPage> {
                     return null;
                   },
                 ),
+
+                _buildDropdown(
+                  label: 'الولاية',
+                  value: _state,
+                  items: _dbStates,
+                  onChanged: (val) {
+                    setState(() {
+                      _state = val;
+                      _dbLocalities = [];
+                      _getLocalities(_state!);
+                    });
+                  },
+                ),
+
+                // selection a locality depending on the state
+                _buildDropdown(
+                  label: 'المحلية',
+                  value: _locality,
+                  items: _dbLocalities,
+                  onChanged: (val) {
+                    setState(() {
+                      _locality = val;
+                    });
+                  },
+                ),
+
                 _buildTextField(
                   'ادخل الحي - المربع (مثال: الواحة - 4)',
                   direction: TextDirection.rtl,
@@ -159,26 +225,31 @@ class _SignupPageState extends State<SignupPage> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         // TODO: handle signup to firebase
-                        // //save info in database
-                        // _firestoreService.createCitizen(Citizen(
-                        //     _userName!,
-                        //     _phoneNumber!,
-                        //     _password!,
-                        //     _gender!,
-                        //     _address!,
-                        //     _birthDate!,
-                        //     ['None']));
+                        //save info in database
+                        _firestoreService.createCitizen(Citizen(
+                          _userName!,
+                          _phoneNumber!,
+                          _password!,
+                          _gender!,
+                          _birthDate!,
+                          ['None'],
+                          _state!,
+                          _locality!,
+                          _address!,
+                        ));
 
-                        // // clear fields
-                        // setState(() {
-                        //   _nameController.clear();
-                        //   _phoneController.clear();
-                        //   _gender = null;
-                        //   _addressController.clear();
-                        //   _birthDate = null;
-                        //   _passwordController.clear();
-                        //   _confirmPasswordController.clear();
-                        // });
+                        // clear fields
+                        setState(() {
+                          _nameController.clear();
+                          _phoneController.clear();
+                          _passwordController.clear();
+                          _confirmPasswordController.clear();
+                          _gender = null;
+                          _birthDate = null;
+                          _state = null;
+                          _locality = null;
+                          _addressController.clear();
+                        });
 
                         Navigator.push(
                           context,

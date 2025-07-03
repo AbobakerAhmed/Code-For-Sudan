@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/citizen/appointment.dart';
+import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 
 const String HOSPITALS = "hospitals";
@@ -8,13 +9,61 @@ const String DEPARTMENTS = "departments";
 const String DOCTORS = "doctors";
 const String PHONE = "phone";
 const String DATA = "data";
+const String CITIZENS = "citizens";
+const String NAME = "name";
+const String PHONENUMBER = "phoneNumber";
+const String ADDRESS = "address";
+const String GENDER = "gender";
+const String STATE = "state";
+const String LOCALITY = "locality";
+const String PASSWORD = "password";
+const String BIRTHDATE = "birthDate";
 
 class FirestoreService {
   // get collections
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // CREATE
+  Future<bool> searchCitizen(String phoneNumber, String password) async {
+    try {
+      QuerySnapshot citizenDoc = await _firestore
+          .collection(CITIZENS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .where(PASSWORD, isEqualTo: password)
+          .get();
 
+      return citizenDoc.docs.first.exists;
+    } catch (e) {
+      print("Error: $e");
+      return false;
+    }
+  }
+
+  //get an oject from the citizen phone number and password
+  Future<Citizen> getCitizen(String phoneNumber, String password) async {
+    QuerySnapshot citizenDoc = await _firestore
+        .collection(CITIZENS)
+        .where(PHONENUMBER, isEqualTo: phoneNumber)
+        .where(PASSWORD, isEqualTo: password)
+        .get();
+
+    return Citizen.fromJson(
+        citizenDoc.docs.first.data() as Map<String, dynamic>);
+  }
+
+  Future<void> createCitizen(Citizen citizen) async {
+    try {
+      bool found = await searchCitizen(citizen.phoneNumber, citizen.password);
+      if (!found) {
+        CollectionReference<Map<String, dynamic>> citizenDoc =
+            _firestore.collection(CITIZENS);
+        citizenDoc.add(citizen.toJson());
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  // CREATE
   /* Method to add appointment in specific hospital and department */
   Future<void> createAppointment(Appointment appointment) async {
     try {
@@ -118,14 +167,27 @@ class FirestoreService {
           List<String> doctors = List<String>.from(departmentDoc.get(DOCTORS));
           departments.add(Department(name: departmentName, doctors: doctors));
         }
-        hospitals.add(Hospital(
-            name: hospitalName, phone: phone, departments: departments));
+        hospitals.add(Hospital(hospitalName, phone, departments));
       }
       return hospitals;
     } catch (e) {
       print("Error: $e");
       return [];
     }
+  }
+
+  Future<Hospital> getHospital(
+      String state, String locality, String hospitalName) async {
+    DocumentSnapshot hospitalDoc = await _firestore
+        .collection(HOSPITALS)
+        .doc(state)
+        .collection(LOCALITIES)
+        .doc(locality)
+        .collection(DATA)
+        .doc(hospitalName)
+        .get();
+    return Hospital(
+        hospitalDoc.id, hospitalDoc.get("phone"), hospitalDoc.get(DEPARTMENTS));
   }
 
 /* Method to get appointment in specific hospital and department */
@@ -280,26 +342,3 @@ class FirestoreService {
     return notifications.doc(docID).delete();
   }
 */
-
-class Hospital {
-  String name;
-  String phone;
-  List<Department> departments;
-
-  Hospital(
-      {required this.name, required this.phone, required this.departments});
-}
-
-class Department {
-  String name;
-  List<String> doctors;
-
-  Department({required this.name, required this.doctors});
-}
-
-class HospitalEmergency {
-  final String name;
-  final String phone;
-
-  const HospitalEmergency({required this.name, required this.phone});
-}

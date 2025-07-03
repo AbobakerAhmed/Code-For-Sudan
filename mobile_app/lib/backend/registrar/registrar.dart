@@ -1,16 +1,17 @@
-class Registrar {
-  late final String name;
-  late final String hospital;
-  late final List<String> departments;
-  late final String phoneNumber;
-  String? password;
+import 'package:mobile_app/backend/hospital_employee.dart';
+//import 'package:mobile_app/backend/citizen/hospital.dart';
 
-  Registrar(String name, String hospital, List<String> departments,
-      String phoneNumber, String password) {
-    this.name = name;
-    this.hospital = hospital;
-    this.departments = departments;
-    this.phoneNumber = phoneNumber;
-    this.password = password;
+class Registrar extends HospitalEmployee {
+  //late final String name;
+  //late final String hospital;
+  late final List<String> _departments;
+  //late final String phoneNumber;
+  //String? password;
+
+  Registrar(super.name, super.phoneNumber, super.password, super.state,
+      super.locality, super.hospitalName, this._departments) {
+    //_departments = super.hospital.departmentsToString();
   }
+
+  List<String> get departments => _departments;
 }

@@ -49,7 +49,7 @@ class RegistrarProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.local_hospital),
                 title: const Text('المستشفى'),
-                subtitle: Text(registrar.hospital),
+                subtitle: Text(registrar.hospitalName),
               ),
 
               // departments

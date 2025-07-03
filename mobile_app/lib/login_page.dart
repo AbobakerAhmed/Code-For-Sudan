@@ -2,13 +2,15 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:mobile_app/backend/citizen/backend/citizens_data.dart';
+import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
 import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
+
+import 'package:mobile_app/firestore_services/firestore.dart';
 
 // test the login page here
 void main() {
@@ -39,19 +41,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
+  final FirestoreService _firestoreService = FirestoreService();
+
+  final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   final _formKey = GlobalKey<FormState>();
+  bool _foundInDb = false;
 
   // this fun will validate the username and password and check if it's in citizens_data.dart
   //TODO: instead CitizensData use firebase to validate the login
-  bool _citizenLogin() {
+  Future<void> _citizenLogin() async {
     if (_formKey.currentState!.validate()) {
-      return CitizensData.isCitizenValid(
-          _usernameController.text, _passwordController.text);
-    } else {
-      return false;
+      final bool found = await _firestoreService.searchCitizen(
+          _phoneNumberController.text, _passwordController.text);
+      setState(() {
+        _foundInDb = found;
+      });
     }
   } // _login
 
@@ -60,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
   //TODO: instead or currentRegistrar use firebase to validate the login
   bool _registrarLogin(Registrar reg) {
     if (_formKey.currentState!.validate()) {
-      return (_usernameController.text == reg.name &&
+      return (_passwordController.text == reg.name &&
           _passwordController.text == reg.password);
 
 // Check the username and password in the database
@@ -113,22 +119,22 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Username Field
                 TextFormField(
-                  controller: _usernameController,
+                  controller: _phoneNumberController,
                   decoration: InputDecoration(
-                    labelText: 'اسم المستخدم',
-                    hintText: 'أدخل اسم المستخدم الخاص بك',
+                    labelText: 'رقم الهاتف',
+                    hintText: 'أدخل رقم الهاتف الخاص بك',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    prefixIcon: const Icon(Icons.person),
+                    prefixIcon: const Icon(Icons.phone),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
 // validate username here
-                      return 'الرجاء إدخال اسم المستخدم الخاص بك';
+                      return 'الرجاء إدخال رقم الهاتف الخاص بك';
                     } //if
-                    else if (Validate.password(value)) {
-                      return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                    else if (!Validate.phoneNumber(value)) {
+                      return 'رقم هاتف غير صحيح ادخل رقم الهاتف يبتدئ ب09 او 01 (مثال: 0123456789)';
                     }
                     return null;
                   }, // validattor
@@ -167,8 +173,11 @@ class _LoginPageState extends State<LoginPage> {
                     if (value == null || value.isEmpty) {
                       return 'الرجاء إدخال كلمة المرور الخاصة بك'; // Translated
 // validate the password
+                    } else if (!Validate.password(value)) {
+                      return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                    } else {
+                      return null;
                     }
-                    return null;
                   }, // validator
                 ),
 
@@ -189,20 +198,24 @@ class _LoginPageState extends State<LoginPage> {
                     foregroundColor: Colors.white, // text color
                     backgroundColor: Colors.lightBlue, // button color
                   ),
-                  onPressed: () {
+                  onPressed: () async {
 // checking login data
 //                 _login();
 // if you find him a registrar, then create a registrar object and assign its data
 // read it from the database
                     // example
+                    await _citizenLogin();
                     Registrar currentRegistrar = Registrar(
                       'Mohammed abdulsalam',
-                      'alamal hospital',
-                      ['العيون', 'الجلدية', 'الباطنية'],
                       '0912345678',
                       '123456@Registrar', // password
+                      'alamal hospital',
+                      'الخرطوم',
+                      'بحري',
+                      ['العيون', 'الجلدية', 'الباطنية'],
                     );
-                    if (_citizenLogin()) {
+                    if (_foundInDb) {
+                      _foundInDb = false;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -211,6 +224,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     } else if (_registrarLogin(currentRegistrar)) {
+                      _foundInDb = false;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
