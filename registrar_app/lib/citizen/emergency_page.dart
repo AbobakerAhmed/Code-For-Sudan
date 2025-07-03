@@ -197,7 +197,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
-        appBar: appBar('الطوارئ - الخطوط الساخنة'), // styles.dart
+        appBar: AppBar(title: Text("الطوارئ - الخطوط الساخنة")),
         body: emergencyNumbers.isEmpty
             ? Center(
                 child: Column(
@@ -217,18 +217,30 @@ class _EmergencyPageState extends State<EmergencyPage> {
                   children: [
                     // state filters
                     DropdownButtonFormField<String>(
+                      dropdownColor: Theme.of(context).primaryColorLight,
                       decoration: InputDecoration(
                         labelText: 'الولاية',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        floatingLabelStyle:
+                            TextStyle(color: Theme.of(context).primaryColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor)),
                       ),
                       value: selectedState,
                       items: _dbStates
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColorDark,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )))
                           .toList(),
                       onChanged: (val) {
                         setState(() {
@@ -245,18 +257,29 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
                     // locality fillter
                     DropdownButtonFormField<String>(
+                      dropdownColor: Theme.of(context).primaryColorLight,
                       decoration: InputDecoration(
                         labelText: 'المحلية',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        floatingLabelStyle:
+                            TextStyle(color: Theme.of(context).primaryColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor)),
                       ),
                       value: selectedLocality,
                       items: _dbLocalities
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e,
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColorDark,
+                                    fontWeight: FontWeight.bold),
+                              )))
                           .toList(),
                       onChanged: (val) {
                         setState(() {
@@ -287,11 +310,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
                                   child: ListTile(
                                     title: Text(hospital.name,
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w300,
                                             fontSize: 16)),
                                     subtitle: Text(hospital.phone,
                                         style: const TextStyle(
-                                            color: Colors.blueAccent)),
+                                            color: Colors.redAccent)),
                                     trailing: IconButton(
                                       icon: const Icon(Icons.call,
                                           color: Colors.green),
@@ -315,17 +338,24 @@ class _EmergencyPageState extends State<EmergencyPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('اتصال بالرقم', textAlign: TextAlign.right),
+        title: const Text(': اتصال بالرقم', textAlign: TextAlign.right),
+        backgroundColor: Theme.of(context).primaryColorLight,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('الرقم: $phone'),
+            Text(
+              phone,
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.redAccent,
+              ),
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: const Icon(Icons.call),
-              label: const Text('اتصال'),
+              label: Text('اتصال', style: TextStyle(color: Colors.black)),
               style: ElevatedButton.styleFrom(
-                iconColor: Colors.red,
+                iconColor: Colors.green,
                 backgroundColor: Colors.white,
               ),
               onPressed: () {

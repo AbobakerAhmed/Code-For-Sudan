@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:registrar_app/citizen/backend/citizen.dart';
+import 'package:registrar_app/citizen/backend/citizens_data.dart';
 
 import 'package:registrar_app/citizen/home_page.dart';
 import 'package:registrar_app/citizen/backend/validate_fields.dart';
@@ -174,7 +175,7 @@ class _SignupPageState extends State<SignupPage> {
                         //   _phoneController.clear();
                         //   _gender = null;
                         //   _addressController.clear();
-                        //   _birthDate = null;
+                        //   _birthDate = null;b
                         //   _passwordController.clear();
                         //   _confirmPasswordController.clear();
                         // });
@@ -182,7 +183,16 @@ class _SignupPageState extends State<SignupPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => HomePage(
+                                    citizen: Citizen(
+                                        _userName!,
+                                        _phoneNumber!,
+                                        _password!,
+                                        _gender!,
+                                        _address!,
+                                        _birthDate!,
+                                        ['None']),
+                                  )),
                         );
                       }
                     },

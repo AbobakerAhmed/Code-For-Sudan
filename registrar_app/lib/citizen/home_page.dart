@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:registrar_app/citizen/backend/citizen.dart';
+import 'package:registrar_app/citizen/backend/citizens_data.dart';
 import 'package:registrar_app/citizen/booking_page.dart';
+import 'package:registrar_app/citizen/citizen_profile_page.dart';
 import 'package:registrar_app/citizen/emergency_page.dart';
 import 'package:registrar_app/citizen/medical_advices.dart';
 import 'package:registrar_app/citizen/notifications_page.dart';
 import 'package:registrar_app/citizen/test_appointments.dart';
 import 'package:registrar_app/styles.dart';
+import 'package:registrar_app/theme_provider.dart';
 
 // to test the home page alone
 void main() {
-  runApp(const HomePageTest());
+  runApp(HomePageTest());
 }
 
+bool _isDark = false;
+
 class HomePageTest extends StatelessWidget {
-  const HomePageTest({super.key});
+  HomePageTest({super.key});
+  Citizen citizen = CitizensData.data[
+      0]; // default citizen, it does not affcet directly unless when test this page directly
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: HomePage(
+        citizen: citizen,
+      ),
       routes: {
         'booking_page': (context) =>
             BookingPage(), // AppointmentTestScreen(), //BookingPage(),
@@ -30,17 +41,25 @@ class HomePageTest extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  final Citizen citizen;
+  const HomePage({super.key, required this.citizen});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: appBar('الصفحة الرئيسية'),
+        appBar: AppBar(
+          title: Text("الصفحة الرئيسية"),
+        ),
         drawer: _citizenDrawer(context),
-        body: const Padding(
+        body: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,10 +67,7 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 50),
               Text(
                 'حبابك والله \nدايرنا نساعدك في شنو؟',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey),
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
               SizedBox(height: 70),
               Expanded(
@@ -70,16 +86,13 @@ class HomePage extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
+          DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Theme.of(context).primaryColor,
             ),
             child: Text(
               'قائمة المواطن', // Translated
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
           ListTile(
@@ -93,38 +106,33 @@ class HomePage extends StatelessWidget {
             leading: const Icon(Icons.person),
             title: const Text('الملف الشخصي'), // Translated
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              //Navigator.pop(context); // Close the drawer
               // got to the progile page
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) =>
-              //         CitizenProfilePage(citizen: this.citizen),
-              //   ),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CitizenProfilePage(citizen: this.widget.citizen),
+                ),
+              );
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.notifications),
-          //   title: const Text('الإشعارات'), // Translated
-          //   onTap: () {
-          //     Navigator.pop(context); // Close the drawer
-          //     // go to the notifications page
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) =>
-          //             RegistrarNotificationsPage(registrar: this.registrar),
-          //       ),
-          //     );
-          //   },
-          // ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('الإعدادات'), // Translated
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-// go to sitting page or edit eidte it to edit the theme here dirctly
+          SwitchListTile(
+            activeColor: Theme.of(context).primaryColor,
+            title: Row(
+              children: [
+                const Icon(Icons.dark_mode),
+                SizedBox(
+                  width: 16,
+                ),
+                const Text("الوضع الليلي"),
+              ],
+            ),
+            value: _isDark,
+            onChanged: (val) {
+              _isDark = val;
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              //setState(() {});
             },
           ),
           const Divider(),
@@ -143,7 +151,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
-  } // _registrarDrawer
+  }
 }
 
 // This clas contains the 4 cards in the home screen
@@ -285,7 +293,7 @@ class FeatureCard extends StatelessWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
-        color: Colors.grey[50],
+        color: Theme.of(context).cardColor,
         child: InkWell(
           onTap: onTap,
           borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -297,10 +305,7 @@ class FeatureCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blueGrey),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
             ),

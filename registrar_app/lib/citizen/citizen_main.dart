@@ -2,6 +2,7 @@
 
 // importing
 import 'package:flutter/material.dart';
+import 'package:registrar_app/citizen/backend/citizens_data.dart';
 import 'package:registrar_app/citizen/home_page.dart'; // HomePage()
 import 'package:registrar_app/citizen/booking_page.dart'; // BookingPage()
 import 'package:registrar_app/citizen/emergency_page.dart'; // EmergencyPage()
@@ -32,9 +33,13 @@ class HealthCareSudan_citizen_app extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: MaterialApp(
-        home: HomePage(),
+        home: HomePage(
+          citizen: CitizensData.data[0],
+        ),
         routes: <String, WidgetBuilder>{
-          'home': (context) => const HomePage(),
+          'home': (context) => HomePage(
+                citizen: CitizensData.data[0],
+              ),
           'booking_page': (context) => const BookingPage(),
           'emergency_page': (context) =>
               const EmergencyPage(), //const EmergencyPage(),

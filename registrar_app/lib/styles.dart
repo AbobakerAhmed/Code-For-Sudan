@@ -7,7 +7,7 @@ AppBar appBar(String title) {
     title: Text(title),
     centerTitle: true,
     foregroundColor: Colors.white,
-    backgroundColor: Colors.lightBlue,
+    backgroundColor: Colors.blue,
   );
 }
 
