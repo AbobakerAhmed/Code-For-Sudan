@@ -1,5 +1,5 @@
 // Date: 21st of Jun 2025
-
+/*
 // importing
 import 'package:flutter/material.dart';
 import 'package:mobile_app/citizen/home_page.dart'; // HomePage()
@@ -63,3 +63,4 @@ class HealthCareSudanCitizenApp extends StatelessWidget {
     );
   } // build
 } // HealthCareSudanCitizenApp
+*/

@@ -1,7 +1,7 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
-import 'package:registrar_app/styles.dart';
+import 'package:mobile_app/styles.dart';
 import 'backend/citizen.dart';
 
 class CitizenProfilePage extends StatelessWidget {

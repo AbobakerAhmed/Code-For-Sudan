@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:registrar_app/citizen/backend/citizen.dart';
-import 'package:registrar_app/citizen/backend/citizens_data.dart';
+import 'package:mobile_app/citizen/backend/citizen.dart';
+import 'package:mobile_app/citizen/backend/citizens_data.dart';
 
-import 'package:registrar_app/citizen/home_page.dart';
-import 'package:registrar_app/citizen/backend/validate_fields.dart';
-import 'package:registrar_app/citizen/backend/global_var.dart';
+import 'package:mobile_app/citizen/home_page.dart';
+import 'package:mobile_app/citizen/backend/validate_fields.dart';
+import 'package:mobile_app/citizen/backend/global_var.dart';
 
-import 'package:registrar_app/styles.dart';
+import 'package:mobile_app/styles.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
