@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile_app/citizen/backend/citizen.dart';
-import 'package:mobile_app/citizen/backend/citizens_data.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
+import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';

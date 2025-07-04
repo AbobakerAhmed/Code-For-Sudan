@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/person.dart';
 
 // class Citizen {
@@ -83,21 +84,11 @@ class Citizen extends Person {
     return age;
   }
 
-  void setMedicalHistory(List<String> history) {
-    _medicalHistory = history;
-  }
-
-  void setState(String state) {
-    _state = state;
-  }
-
-  void setLocality(String locality) {
-    _locality = locality;
-  }
-
-  void setAddress(String address) {
-    _address = address;
-  }
+// Setters (all using consistent syntax)
+  set medicalHistory(List<String> history) => _medicalHistory = history;
+  set state(String state) => _state = state;
+  set locality(String locality) => _locality = locality;
+  set address(String address) => _address = address;
 
   void addMedicalRecord(String record) {
     _medicalHistory.add(record);
@@ -108,7 +99,7 @@ class Citizen extends Person {
         'phoneNumber': phoneNumber,
         'password': password,
         'gender': gender,
-        'birthDate': birthDate.toIso8601String(),
+        'birthDate': birthDate,
         'medicalHistory': medicalHistory,
         'state': state,
         'locality': locality,
@@ -120,7 +111,7 @@ class Citizen extends Person {
         json['phoneNumber'],
         json['password'],
         json['gender'],
-        DateTime.parse(json['birthDate']),
+        (json['birthDate'] as Timestamp).toDate(),
         List<String>.from(json['medicalHistory']),
         json['state'],
         json['locality'],

@@ -23,18 +23,23 @@ class FirestoreService {
   // get collections
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<bool> searchCitizen(String phoneNumber, String password) async {
+  Future<(bool, bool)> searchCitizen(
+      String phoneNumber, String password) async {
     try {
       QuerySnapshot citizenDoc = await _firestore
           .collection(CITIZENS)
           .where(PHONENUMBER, isEqualTo: phoneNumber)
-          .where(PASSWORD, isEqualTo: password)
           .get();
+      bool found = citizenDoc.docs.first.exists;
+      bool correctPassword = false;
+      if (found) {
+        correctPassword = await citizenDoc.docs.first.get(PASSWORD) == password;
+      }
 
-      return citizenDoc.docs.first.exists;
+      return (found, correctPassword);
     } catch (e) {
       print("Error: $e");
-      return false;
+      return (false, false);
     }
   }
 
@@ -52,12 +57,12 @@ class FirestoreService {
 
   Future<void> createCitizen(Citizen citizen) async {
     try {
-      bool found = await searchCitizen(citizen.phoneNumber, citizen.password);
-      if (!found) {
-        CollectionReference<Map<String, dynamic>> citizenDoc =
-            _firestore.collection(CITIZENS);
-        citizenDoc.add(citizen.toJson());
-      }
+      // bool found = await searchCitizen(citizen.phoneNumber, citizen.password);
+      // if (!found) {
+      CollectionReference<Map<String, dynamic>> citizenDoc =
+          _firestore.collection(CITIZENS);
+      citizenDoc.add(citizen.toJson());
+      //}
     } catch (e) {
       print("Error: $e");
     }

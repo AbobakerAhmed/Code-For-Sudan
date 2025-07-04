@@ -1,6 +1,7 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
 
 import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/home_page.dart';
@@ -48,15 +49,17 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   final _formKey = GlobalKey<FormState>();
   bool _foundInDb = false;
+  bool _correctPassword = false;
 
   // this fun will validate the username and password and check if it's in citizens_data.dart
   //TODO: instead CitizensData use firebase to validate the login
   Future<void> _citizenLogin() async {
     if (_formKey.currentState!.validate()) {
-      final bool found = await _firestoreService.searchCitizen(
-          _phoneNumberController.text, _passwordController.text);
+      final (bool, bool) foundAndCorrectPassword = await _firestoreService
+          .searchCitizen(_phoneNumberController.text, _passwordController.text);
       setState(() {
-        _foundInDb = found;
+        _foundInDb = foundAndCorrectPassword.$1;
+        _correctPassword = foundAndCorrectPassword.$2;
       });
     }
   } // _login
@@ -214,17 +217,19 @@ class _LoginPageState extends State<LoginPage> {
                       'بحري',
                       ['العيون', 'الجلدية', 'الباطنية'],
                     );
-                    if (_foundInDb) {
+                    if (_foundInDb && _correctPassword) {
                       _foundInDb = false;
+                      _correctPassword = false;
+                      Citizen currentCitizen =
+                          await _firestoreService.getCitizen(
+                              _phoneNumberController.text,
+                              _passwordController.text);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => HomePage(
-                            citizen: CitizensData.data.firstWhere((citizen) =>
-                                citizen.citizenName ==
-                                    _usernameController.text &&
-                                citizen.password == _passwordController.text),
-                          ), // send the citizen object to the citizen home page
+                              citizen:
+                                  currentCitizen), // send the citizen object to the citizen home page
                         ),
                       );
                     } else if (_registrarLogin(currentRegistrar)) {

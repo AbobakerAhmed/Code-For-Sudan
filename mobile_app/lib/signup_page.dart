@@ -19,6 +19,7 @@ class _SignupPageState extends State<SignupPage> {
   final FirestoreService _firestoreService = FirestoreService();
   List<String> _dbStates = [];
   List<String> _dbLocalities = [];
+  bool _alreadySignedUp = false;
 
   final _formKey = GlobalKey<FormState>();
   String? _userName;
@@ -66,6 +67,16 @@ class _SignupPageState extends State<SignupPage> {
       print("Error: $e");
     }
   }
+
+  Future<void> _checkCitizens() async {
+    if (_formKey.currentState!.validate()) {
+      final (bool, bool) foundAndCorrectPassword = await _firestoreService
+          .searchCitizen(_phoneController.text, _passwordController.text);
+      setState(() {
+        _alreadySignedUp = foundAndCorrectPassword.$1;
+      });
+    }
+  } // _login
 
   @override
   void initState() {
@@ -211,8 +222,9 @@ class _SignupPageState extends State<SignupPage> {
                     },
                   ),
                   validator: (val) {
-                    if (val == null || val.isEmpty)
+                    if (val == null || val.isEmpty) {
                       return 'أدخل تأكيد كلمة المرور';
+                    }
                     if (val != _password) return 'كلمة المرور غير متطابقة';
                     return null;
                   },
@@ -221,49 +233,61 @@ class _SignupPageState extends State<SignupPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // TODO: handle signup to firebase
-                        //save info in database
-                        _firestoreService.createCitizen(Citizen(
-                          _userName!,
-                          _phoneNumber!,
-                          _password!,
-                          _gender!,
-                          _birthDate!,
-                          ['None'],
-                          _state!,
-                          _locality!,
-                          _address!,
-                        ));
+                        await _checkCitizens();
+                        if (_gender == null ||
+                            _birthDate == null ||
+                            _state == null ||
+                            _locality == null ||
+                            _addressController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('الرجاء تعبئة جميع الحقول المطلوبة')),
+                          );
+                          return;
+                        } else if (!_alreadySignedUp) {
+                          _alreadySignedUp = false;
+                          Citizen citizen = Citizen(
+                            _nameController.text,
+                            _phoneController.text,
+                            _passwordController.text,
+                            _gender!,
+                            _birthDate!,
+                            ['None'],
+                            _state!,
+                            _locality!,
+                            _addressController.text,
+                          );
 
-                        // clear fields
-                        setState(() {
-                          _nameController.clear();
-                          _phoneController.clear();
-                          _passwordController.clear();
-                          _confirmPasswordController.clear();
-                          _gender = null;
-                          _birthDate = null;
-                          _state = null;
-                          _locality = null;
-                          _addressController.clear();
-                        });
+                          _firestoreService.createCitizen(citizen);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomePage(
-                                    citizen: Citizen(
-                                        _userName!,
-                                        _phoneNumber!,
-                                        _password!,
-                                        _gender!,
-                                        _address!,
-                                        _birthDate!,
-                                        ['None']),
-                                  )),
-                        );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    HomePage(citizen: citizen)),
+                          );
+
+                          // clear fields
+                          setState(() {
+                            _nameController.clear();
+                            _phoneController.clear();
+                            _passwordController.clear();
+                            _confirmPasswordController.clear();
+                            _gender = null;
+                            _birthDate = null;
+                            _state = null;
+                            _locality = null;
+                            _addressController.clear();
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text(
+                                  'رقم الهاتف هذا موجود بالفعل الرجاء ادخال رقم آخر')));
+                          return;
+                        }
                       }
                     },
                     child: const Text('إنشاء حساب'),

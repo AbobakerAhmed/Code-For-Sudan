@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/styles.dart';
-import 'backend/citizen.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
 
 class CitizenProfilePage extends StatelessWidget {
   final Citizen citizen; // required (see registrar.dart)
@@ -25,7 +25,7 @@ class CitizenProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  citizen.citizenName![0].toUpperCase(),
+                  citizen.name.toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
@@ -33,7 +33,7 @@ class CitizenProfilePage extends StatelessWidget {
 
               // registrar name
               Text(
-                citizen.citizenName!,
+                citizen.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -44,14 +44,14 @@ class CitizenProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: const Text('رقم الهاتف'),
-                subtitle: Text(citizen.phoneNumber!),
+                subtitle: Text(citizen.phoneNumber),
               ),
 
               // hsopital
               ListTile(
                 leading: const Icon(Icons.local_hospital),
                 title: const Text('العنوان'),
-                subtitle: Text(citizen.address!),
+                subtitle: Text(citizen.address),
               ),
 
               // departments
@@ -112,7 +112,7 @@ class CitizenProfilePage extends StatelessWidget {
                   children: [
                     // edit the name
                     TextFormField(
-                      initialValue: currentCitizen?.citizenName,
+                      initialValue: currentCitizen?.name,
                       decoration: const InputDecoration(labelText: 'الاسم'),
                       validator: (value) {
 // validate the name here
@@ -121,7 +121,7 @@ class CitizenProfilePage extends StatelessWidget {
                         }
                         return null;
                       },
-                      onChanged: (value) => currentCitizen?.citizenName = value,
+                      onChanged: (value) => currentCitizen?.name = value,
                     ),
 
                     const SizedBox(height: 10), // between name and phone number
