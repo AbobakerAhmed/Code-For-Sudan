@@ -211,9 +211,8 @@ class _SignupPageState extends State<SignupPage> {
                     },
                   ),
                   validator: (val) {
-                    if (val == null || val.isEmpty) {
+                    if (val == null || val.isEmpty)
                       return 'أدخل تأكيد كلمة المرور';
-                    }
                     if (val != _password) return 'كلمة المرور غير متطابقة';
                     return null;
                   },
@@ -254,7 +253,16 @@ class _SignupPageState extends State<SignupPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const HomePage()),
+                              builder: (context) => HomePage(
+                                    citizen: Citizen(
+                                        _userName!,
+                                        _phoneNumber!,
+                                        _password!,
+                                        _gender!,
+                                        _address!,
+                                        _birthDate!,
+                                        ['None']),
+                                  )),
                         );
                       }
                     },

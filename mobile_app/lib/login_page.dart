@@ -219,8 +219,12 @@ class _LoginPageState extends State<LoginPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              HomePage(), // send the citizen object to the citizen home page
+                          builder: (context) => HomePage(
+                            citizen: CitizensData.data.firstWhere((citizen) =>
+                                citizen.citizenName ==
+                                    _usernameController.text &&
+                                citizen.password == _passwordController.text),
+                          ), // send the citizen object to the citizen home page
                         ),
                       );
                     } else if (_registrarLogin(currentRegistrar)) {
