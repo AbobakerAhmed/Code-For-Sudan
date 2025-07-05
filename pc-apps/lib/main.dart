@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
@@ -117,6 +117,36 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}*/
+
+import 'package:flutter/material.dart';
+// Import the LoginScreen from its dedicated file
+import 'package:pc_apps/flutter_login_screen.dart';
+// Import the DashboardScreen from its dedicated file
+import 'package:pc_apps/flutter_main_screen.dart';
+
+// The main function that starts the Flutter application.
+void main() {
+  runApp(const MyApp());
+}
+
+// MyApp is the root widget of the application.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Sudan Health App', // Title of the application
+      theme: ThemeData(
+        primarySwatch:
+            Colors.blue, // Defines the primary color swatch for the app
+        fontFamily: 'Inter', // Specifies the default font family for the app
+      ),
+      home:
+          const LoginScreen(), // Sets the initial screen of the app to LoginScreen
     );
   }
 }
