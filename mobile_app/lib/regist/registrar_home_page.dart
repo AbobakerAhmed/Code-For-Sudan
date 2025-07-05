@@ -5,11 +5,11 @@ import 'package:mobile_app/regist/registrar_profile_page.dart';
 import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 
-void main(List<String> args) {
-  Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
-      "al-sanousy", 'الجزيرة', 'ود مدني', ["dentsit", "brain"]);
-  runApp(RegistrarHomePageTest(registrar: registrar));
-}
+// void main(List<String> args) {
+//   // Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
+//   //     "al-sanousy", 'الجزيرة', 'ود مدني', ["dentsit", "brain"]);
+//   runApp(RegistrarHomePageTest(registrar: registrar));
+// }
 
 class RegistrarHomePageTest extends StatelessWidget {
   final Registrar registrar;

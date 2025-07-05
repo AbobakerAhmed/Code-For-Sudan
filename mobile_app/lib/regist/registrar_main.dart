@@ -40,10 +40,10 @@ class HealthCareSudanRegistrarApp extends StatelessWidget {
           'Mohammed abdulsalam',
           '0912345678',
           '123456@Registrar', // password
-          'alamal hospital',
+          'مستشفى بحري',
           'الخرطوم',
           'بحري',
-          ['العيون', 'الجلدية', 'الباطنية'],
+          //['العيون', 'الجلدية', 'الباطنية'],
         )),
 
         // to hide the defualt debugging icon in the corner

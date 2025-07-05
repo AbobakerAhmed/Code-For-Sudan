@@ -9,7 +9,7 @@ import 'package:mobile_app/firebase_options.dart';
 import 'package:mobile_app/login_page.dart';
 
 //import citizens page (can be deleted later)
-import 'package:mobile_app/citizen/home_page.dart';
+//import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';

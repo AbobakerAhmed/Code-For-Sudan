@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/citizen/appointment.dart';
 import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
+import 'package:mobile_app/backend/registrar/registrar.dart';
 
+// Constants
 const String HOSPITALS = "hospitals";
 const String LOCALITIES = "localities";
 const String DEPARTMENTS = "departments";
@@ -10,6 +12,7 @@ const String DOCTORS = "doctors";
 const String PHONE = "phone";
 const String DATA = "data";
 const String CITIZENS = "citizens";
+const String REGISTRARS = "registrars";
 const String NAME = "name";
 const String PHONENUMBER = "phoneNumber";
 const String ADDRESS = "address";
@@ -19,308 +22,303 @@ const String LOCALITY = "locality";
 const String PASSWORD = "password";
 const String BIRTHDATE = "birthDate";
 
-class FirestoreService {
-  // get collections
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+// Arabic field labels
+const String FIELD_NAME = "الإسم";
+const String FIELD_AGE = "العمر";
+const String FIELD_GENDER = "الجنس";
+const String FIELD_PHONE = "الهاتف";
+const String FIELD_ADDRESS = "السكن";
+const String FIELD_DOCTOR = "الدكتور";
+const String FIELD_STATE = "الولاية";
+const String FIELD_LOCALITY = "المحلية";
+const String FIELD_HOSPITAL = "المستشفى";
+const String FIELD_DEPARTMENT = "القسم";
 
+class FirestoreService {
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  void _logError(String method, Object e) => print("[$method] Error: $e");
+
+  //we can optimize the code by refering to hospital collection instead if doing multiple reads
+  static CollectionReference<Map<String, dynamic>> _hospitalCollection(
+          String state, String locality) =>
+      _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .collection(DATA);
+
+  /// Check if a citizen exists and if the password is correct
   Future<(bool, bool)> searchCitizen(
       String phoneNumber, String password) async {
     try {
-      QuerySnapshot citizenDoc = await _firestore
+      final snapshot = await _firestore
           .collection(CITIZENS)
           .where(PHONENUMBER, isEqualTo: phoneNumber)
           .get();
-      bool found = citizenDoc.docs.first.exists;
-      bool correctPassword = false;
-      if (found) {
-        correctPassword = await citizenDoc.docs.first.get(PASSWORD) == password;
-      }
 
-      return (found, correctPassword);
+      if (snapshot.docs.isEmpty) return (false, false);
+
+      final data = snapshot.docs.first.data();
+      return (true, data[PASSWORD] == password);
     } catch (e) {
-      print("Error: $e");
+      _logError("searchCitizen", e);
       return (false, false);
     }
   }
 
-  //get an oject from the citizen phone number and password
-  Future<Citizen> getCitizen(String phoneNumber, String password) async {
-    QuerySnapshot citizenDoc = await _firestore
-        .collection(CITIZENS)
-        .where(PHONENUMBER, isEqualTo: phoneNumber)
-        .where(PASSWORD, isEqualTo: password)
-        .get();
-
-    return Citizen.fromJson(
-        citizenDoc.docs.first.data() as Map<String, dynamic>);
-  }
-
-  Future<void> createCitizen(Citizen citizen) async {
+  Future<(bool, bool)> searchRegistrar(
+      String phoneNumber, String password) async {
     try {
-      // bool found = await searchCitizen(citizen.phoneNumber, citizen.password);
-      // if (!found) {
-      CollectionReference<Map<String, dynamic>> citizenDoc =
-          _firestore.collection(CITIZENS);
-      citizenDoc.add(citizen.toJson());
-      //}
+      final snapshot = await _firestore
+          .collection(REGISTRARS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      if (snapshot.docs.isEmpty) return (false, false);
+
+      final data = snapshot.docs.first.data();
+      return (true, data[PASSWORD] == password);
     } catch (e) {
-      print("Error: $e");
+      _logError("searchRegistrar", e);
+      return (false, false);
     }
   }
 
-  // CREATE
-  /* Method to add appointment in specific hospital and department */
+  /// Retrieve a Citizen object by phone and password
+  Future<Citizen> getCitizen(String phoneNumber, String password) async {
+    final snapshot = await _firestore
+        .collection(CITIZENS)
+        .where(PHONENUMBER, isEqualTo: phoneNumber)
+        .get();
+
+    return Citizen.fromJson(snapshot.docs.first.data());
+  }
+
+  Future<Registrar> getRegistrar(String phoneNumber, String password) async {
+    final snapshot = await _firestore
+        .collection(REGISTRARS)
+        .where(PHONENUMBER, isEqualTo: phoneNumber)
+        .get();
+
+    final Registrar reg = await Registrar.fromJson(snapshot.docs.first.data());
+    print(reg.toString());
+    return reg;
+  }
+
+  /// Create a new Citizen document
+  Future<void> createCitizen(Citizen citizen) async {
+    try {
+      await _firestore.collection(CITIZENS).add(citizen.toJson());
+    } catch (e) {
+      _logError("createCitizen", e);
+    }
+  }
+
+  /// Create a new appointment in nested hospital/department structure
   Future<void> createAppointment(Appointment appointment) async {
     try {
-      // Get the locality document
-      DocumentSnapshot localityDoc = await _firestore
+      final departmentDoc = await _firestore
           .collection(HOSPITALS)
           .doc(appointment.selectedState)
           .collection(LOCALITIES)
           .doc(appointment.selectedLocality)
-          .get();
-      // Check if the locality document exists
-      if (!localityDoc.exists) {
-        throw Exception("Locality document does not exist");
-      }
-      // Get the hospital document from the DATA sub-collection
-      DocumentSnapshot hospitalDoc = await localityDoc.reference
           .collection(DATA)
           .doc(appointment.selectedHospital)
-          .get();
-      // Check if the hospital document exists
-      if (!hospitalDoc.exists) {
-        throw Exception("Hospital document does not exist");
-      }
-      // Get the department document from the DEPARTMENTS sub-collection
-      DocumentSnapshot departmentDoc = await hospitalDoc.reference
           .collection(DEPARTMENTS)
           .doc(appointment.selectedDepartment)
           .get();
-      // Check if the department document exists
-      if (!departmentDoc.exists) {
-        throw Exception("Department document does not exist");
-      }
-      // Create a new appointment document in the appointments sub-collection
+
+      if (!departmentDoc.exists) throw Exception("Department does not exist");
+
       await departmentDoc.reference.collection("appointments").add({
-        "الإسم": appointment.patientName,
-        "العمر": appointment.patientAge,
-        "الجنس": appointment.patientGender,
-        "الهاتف": appointment.patientPhoneNumber,
-        "السكن": appointment.patientAddress,
-        "الدكتور": appointment.selectedDoctor,
-        "الولاية": appointment.selectedState,
-        "المحلية": appointment.selectedLocality,
-        "المستشفى": appointment.selectedHospital,
-        "القسم": appointment.selectedDepartment,
-        // Add other fields as necessary
+        FIELD_NAME: appointment.patientName,
+        FIELD_AGE: appointment.patientAge,
+        FIELD_GENDER: appointment.patientGender,
+        FIELD_PHONE: appointment.patientPhoneNumber,
+        FIELD_ADDRESS: appointment.patientAddress,
+        FIELD_DOCTOR: appointment.selectedDoctor,
+        FIELD_STATE: appointment.selectedState,
+        FIELD_LOCALITY: appointment.selectedLocality,
+        FIELD_HOSPITAL: appointment.selectedHospital,
+        FIELD_DEPARTMENT: appointment.selectedDepartment,
       });
+
       print("Appointment created successfully");
     } catch (e) {
-      print("Error: $e");
+      _logError("createAppointment", e);
     }
   }
 
-  // READ
+  /// Get all states and their localities
   Future<Map<String, List<String>>> getStatesAndLocalities() async {
     try {
-      QuerySnapshot querySnapshot =
-          await _firestore.collection(HOSPITALS).get();
-      Map<String, List<String>> statesAndLocalities = {};
-      for (var stateDoc in querySnapshot.docs) {
-        QuerySnapshot localitiesSnapshot =
-            await stateDoc.reference.collection(LOCALITIES).get();
-        List<String> localities = localitiesSnapshot.docs
-            .map((localityDoc) => localityDoc.id)
-            .toList();
-        statesAndLocalities[stateDoc.id] = localities;
+      final snapshot = await _firestore.collection(HOSPITALS).get();
+      final result = <String, List<String>>{};
+
+      for (var doc in snapshot.docs) {
+        final localities = await doc.reference.collection(LOCALITIES).get();
+        result[doc.id] = localities.docs.map((e) => e.id).toList();
       }
-      return statesAndLocalities;
+
+      return result;
     } catch (e) {
-      print("Error: $e");
+      _logError("getStatesAndLocalities", e);
       return {};
     }
   }
 
+  /// Get hospitals and their departments and doctors for a locality
   Future<List<Hospital>> getHospitalsWithDepartmentsAndDoctors(
       String state, String locality) async {
     try {
-      DocumentSnapshot localityDoc = await _firestore
-          .collection(HOSPITALS)
-          .doc(state)
-          .collection(LOCALITIES)
-          .doc(locality)
-          .get();
-      if (!localityDoc.exists) {
-        return [];
-      }
+      final hospitalsSnapshot =
+          await _hospitalCollection(state, locality).get();
+      final hospitals = <Hospital>[];
 
-      QuerySnapshot hospitalSnapshot =
-          await localityDoc.reference.collection(DATA).get();
-      List<Hospital> hospitals = [];
-
-      for (var hospitalDoc in hospitalSnapshot.docs) {
-        String hospitalName = hospitalDoc.id;
-        String phone = hospitalDoc.get(PHONE);
-
-        QuerySnapshot departmentSnapshot =
+      for (var hospitalDoc in hospitalsSnapshot.docs) {
+        final phone = hospitalDoc.get(PHONE);
+        final departmentsSnapshot =
             await hospitalDoc.reference.collection(DEPARTMENTS).get();
-        List<Department> departments = [];
 
-        for (var departmentDoc in departmentSnapshot.docs) {
-          String departmentName = departmentDoc.id;
-          List<String> doctors = List<String>.from(departmentDoc.get(DOCTORS));
-          departments.add(Department(name: departmentName, doctors: doctors));
-        }
-        hospitals.add(Hospital(hospitalName, phone, departments));
+        final departments = departmentsSnapshot.docs.map((dept) {
+          final doctors = List<String>.from(dept.get(DOCTORS));
+          return Department(name: dept.id, doctors: doctors);
+        }).toList();
+
+        hospitals.add(Hospital(hospitalDoc.id, phone, departments));
       }
+
       return hospitals;
     } catch (e) {
-      print("Error: $e");
+      _logError("getHospitalsWithDepartmentsAndDoctors", e);
       return [];
     }
   }
+
+  /// Get a hospital's details
+  // static Future<Hospital> getHospital(
+  //     String state, String locality, String hospitalName) async {
+  //   final doc =
+  //       await _hospitalCollection(state, locality).doc(hospitalName).get();
+  //   return Hospital(doc.id, doc.get(PHONE), doc.get(DEPARTMENTS));
+  // }
 
   Future<Hospital> getHospital(
       String state, String locality, String hospitalName) async {
-    DocumentSnapshot hospitalDoc = await _firestore
-        .collection(HOSPITALS)
-        .doc(state)
-        .collection(LOCALITIES)
-        .doc(locality)
-        .collection(DATA)
-        .doc(hospitalName)
-        .get();
-    return Hospital(
-        hospitalDoc.id, hospitalDoc.get("phone"), hospitalDoc.get(DEPARTMENTS));
+    try {
+      final doc =
+          await _hospitalCollection(state, locality).doc(hospitalName).get();
+
+      if (!doc.exists) throw Exception("Hospital not found");
+
+      final phone = doc.get(PHONE);
+
+      // Fetch the departments subcollection
+      final departmentsSnapshot =
+          await doc.reference.collection(DEPARTMENTS).get();
+      final departments = departmentsSnapshot.docs.map((dept) {
+        final doctors = List<String>.from(dept.get(DOCTORS));
+        return Department(name: dept.id, doctors: doctors);
+      }).toList();
+
+      return Hospital(doc.id, phone, departments);
+    } catch (e) {
+      _logError("getHospital", e);
+      rethrow;
+    }
   }
 
-/* Method to get appointment in specific hospital and department */
-  Future<List<Appointment>> getAppointments(String state, String locality,
-      String hospitalName, String departmentName) async {
+  /// Retrieve appointments from a specific department
+  Future<List<Appointment>> getAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
     try {
-      // Get the locality document
-      DocumentSnapshot localityDoc = await _firestore
+      final departmentDoc = await _firestore
           .collection(HOSPITALS)
           .doc(state)
           .collection(LOCALITIES)
           .doc(locality)
-          .get();
-      // Check if the locality document exists
-      if (!localityDoc.exists) {
-        return [];
-      }
-      // Get the hospital document from the DATA sub-collection
-      DocumentSnapshot hospitalDoc =
-          await localityDoc.reference.collection(DATA).doc(hospitalName).get();
-      // Check if the hospital document exists
-      if (!hospitalDoc.exists) {
-        return [];
-      }
-      // Get the department document from the DEPARTMENTS sub-collection
-      DocumentSnapshot departmentDoc = await hospitalDoc.reference
+          .collection(DATA)
+          .doc(hospitalName)
           .collection(DEPARTMENTS)
           .doc(departmentName)
           .get();
-      // Check if the department document exists
-      if (!departmentDoc.exists) {
-        return [];
-      }
-      // Get the appointments from the appointments sub-collection
-      QuerySnapshot appointmentSnapshot =
+
+      if (!departmentDoc.exists) return [];
+
+      final appointmentsSnapshot =
           await departmentDoc.reference.collection("appointments").get();
-      List<Appointment> appointments = [];
-      for (var appointmentDoc in appointmentSnapshot.docs) {
-        // Retrieve the relevant fields for the Appointment object
-        String patientName = appointmentDoc.get("الإسم");
-        String patientAge = appointmentDoc.get('العمر');
-        String patientGender = appointmentDoc.get('الجنس');
-        String patientPhoneNumber = appointmentDoc.get('الهاتف');
-        String patientAddress = appointmentDoc.get('السكن');
-        String selectedDoctor = appointmentDoc.get('الدكتور');
-        // Create an Appointment instance
-        appointments.add(Appointment(
-          patientName,
-          patientAge,
-          patientGender,
-          patientPhoneNumber,
-          patientAddress,
-          state,
-          locality,
-          hospitalName,
-          departmentName,
-          selectedDoctor,
-        ));
-      }
-      return appointments;
+      return appointmentsSnapshot.docs
+          .map((doc) => Appointment(
+                doc.get(FIELD_NAME),
+                doc.get(FIELD_AGE),
+                doc.get(FIELD_GENDER),
+                doc.get(FIELD_PHONE),
+                doc.get(FIELD_ADDRESS),
+                state,
+                locality,
+                hospitalName,
+                departmentName,
+                doc.get(FIELD_DOCTOR),
+              ))
+          .toList();
     } catch (e) {
-      print("Error: $e");
+      _logError("getAppointments", e);
       return [];
     }
   }
 
-/* Method to get advices */
+  /// Fetch list of medical advices
   Future<List<String>> getMedicalAdvices() async {
     try {
-      // Get all documents from the medical_advices collection
-      QuerySnapshot adviceSnapshot =
-          await _firestore.collection('medical_advices').get();
-      // Create a list to hold the advices
-      List<String> advices = [];
-      // Iterate through the documents and extract the advice field
-      for (var adviceDoc in adviceSnapshot.docs) {
-        String advice = adviceDoc.get('advice');
-        advices.add(advice);
-      }
-      return advices;
+      final snapshot = await _firestore.collection('medical_advices').get();
+      return snapshot.docs.map((doc) => doc.get('advice') as String).toList();
     } catch (e) {
-      print("Error fetching medical advices: $e");
+      _logError("getMedicalAdvices", e);
       return [];
     }
   }
 
-/* Method to get emergency numbers of hospitals */
+  /// Retrieve emergency contact numbers of hospitals by state and locality
   Future<Map<String, Map<String, List<HospitalEmergency>>>>
       getHospitalsEmergencyData() async {
-    Map<String, Map<String, List<HospitalEmergency>>> emergData = {};
+    final data = <String, Map<String, List<HospitalEmergency>>>{};
 
     try {
-      // Get all states (documents under "hospitals")
-      QuerySnapshot stateSnapshot =
-          await _firestore.collection(HOSPITALS).get();
+      final stateSnapshot = await _firestore.collection(HOSPITALS).get();
 
       for (var stateDoc in stateSnapshot.docs) {
-        String stateName = stateDoc.id;
-        emergData[stateName] = {};
+        final stateName = stateDoc.id;
+        data[stateName] = {};
 
-        // Get all localities (subcollections under each state)
-        QuerySnapshot localitySnapshot =
+        final localitySnapshot =
             await stateDoc.reference.collection(LOCALITIES).get();
 
         for (var localityDoc in localitySnapshot.docs) {
-          String localityName = localityDoc.id;
-          emergData[stateName]![localityName] = [];
+          final localityName = localityDoc.id;
+          data[stateName]![localityName] = [];
 
-          // Get hospitals under each locality (DATA collection)
-          QuerySnapshot hospitalSnapshot = await localityDoc.reference
-              .collection(DATA)
-              .get(); // No need to fetch departments/doctors
+          final hospitalSnapshot =
+              await localityDoc.reference.collection(DATA).get();
 
           for (var hospitalDoc in hospitalSnapshot.docs) {
-            String name = hospitalDoc.id;
-            String phone = hospitalDoc.get(PHONE);
-
-            emergData[stateName]![localityName]!.add(
-              HospitalEmergency(name: name, phone: phone),
-            );
+            final name = hospitalDoc.id;
+            final phone = hospitalDoc.get(PHONE);
+            data[stateName]![localityName]!
+                .add(HospitalEmergency(name: name, phone: phone));
           }
         }
       }
     } catch (e) {
-      print("Error in getHospitalsEmergencyData: $e");
+      _logError("getHospitalsEmergencyData", e);
     }
 
-    return emergData;
+    return data;
   }
 }
 

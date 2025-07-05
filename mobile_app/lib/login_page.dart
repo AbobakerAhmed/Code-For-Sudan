@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 
-import 'package:mobile_app/backend/citizen/citizens_data.dart';
+//import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
@@ -48,17 +48,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   final _formKey = GlobalKey<FormState>();
-  bool _foundInDb = false;
+  bool _citizenFoundInDb = false;
+  bool _registrarFoundInDb = false;
   bool _correctPassword = false;
 
   // this fun will validate the username and password and check if it's in citizens_data.dart
   //TODO: instead CitizensData use firebase to validate the login
-  Future<void> _citizenLogin() async {
+  Future<void> _checkCitizenLogin() async {
     if (_formKey.currentState!.validate()) {
       final (bool, bool) foundAndCorrectPassword = await _firestoreService
           .searchCitizen(_phoneNumberController.text, _passwordController.text);
       setState(() {
-        _foundInDb = foundAndCorrectPassword.$1;
+        _citizenFoundInDb = foundAndCorrectPassword.$1;
         _correctPassword = foundAndCorrectPassword.$2;
       });
     }
@@ -67,24 +68,33 @@ class _LoginPageState extends State<LoginPage> {
   // this fun will validate the username and password and check if it's a registrar or not
   //check line 183
   //TODO: instead or currentRegistrar use firebase to validate the login
-  bool _registrarLogin(Registrar reg) {
+  Future<void> _checkRegistrarLogin() async {
     if (_formKey.currentState!.validate()) {
-      return (_passwordController.text == reg.name &&
-          _passwordController.text == reg.password);
+      final (bool, bool) foundAndCorrectPassword =
+          await _firestoreService.searchRegistrar(
+              _phoneNumberController.text, _passwordController.text);
+      setState(() {
+        _registrarFoundInDb = foundAndCorrectPassword.$1;
+        _correctPassword = foundAndCorrectPassword.$2;
+      });
+    }
+    // if (_formKey.currentState!.validate()) {
+    //   return (_phoneNumberController.text == reg.phoneNumber &&
+    //       _passwordController.text == reg.password);
 
 // Check the username and password in the database
-      // Example:
-      // if (_usernameController.text == 'admin' && _passwordController.text == 'password') {
-      //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      // } else {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Invalid credentials')),
-      //   );
-      // }
-    } // if
-    else {
-      return false;
-    }
+    // Example:
+    // if (_usernameController.text == 'admin' && _passwordController.text == 'password') {
+    //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Invalid credentials')),
+    //   );
+    // }
+    // } // if
+    // else {
+    //   return false;
+    // }
   } // _login
 
   //build fun
@@ -207,18 +217,19 @@ class _LoginPageState extends State<LoginPage> {
 // if you find him a registrar, then create a registrar object and assign its data
 // read it from the database
                     // example
-                    await _citizenLogin();
-                    Registrar currentRegistrar = Registrar(
-                      'Mohammed abdulsalam',
-                      '0912345678',
-                      '123456@Registrar', // password
-                      'alamal hospital',
-                      'الخرطوم',
-                      'بحري',
-                      ['العيون', 'الجلدية', 'الباطنية'],
-                    );
-                    if (_foundInDb && _correctPassword) {
-                      _foundInDb = false;
+                    await _checkCitizenLogin();
+                    await _checkRegistrarLogin();
+                    // Registrar currentRegistrar = Registrar(
+                    //   'Mohammed abdulsalam',
+                    //   '0912345678',
+                    //   '123456@Registrar', // password
+                    //   'مستشفى بحري',
+                    //   'الخرطوم',
+                    //   'بحري',
+                    // );
+                    if (_citizenFoundInDb && _correctPassword) {
+                      _registrarFoundInDb = false;
+                      _citizenFoundInDb = false;
                       _correctPassword = false;
                       Citizen currentCitizen =
                           await _firestoreService.getCitizen(
@@ -232,8 +243,19 @@ class _LoginPageState extends State<LoginPage> {
                                   currentCitizen), // send the citizen object to the citizen home page
                         ),
                       );
-                    } else if (_registrarLogin(currentRegistrar)) {
-                      _foundInDb = false;
+                    } else if (_registrarFoundInDb && _correctPassword) {
+                      _registrarFoundInDb = false;
+                      _citizenFoundInDb = false;
+                      _correctPassword = false;
+
+                      Registrar reg = Registrar('ahmad', '0118718014',
+                          '123456@Yassin', 'الخرطوم', 'بحري', 'مستشفى بحري');
+                      await reg.fetchDepartments();
+                      Registrar currentRegistrar =
+                          await _firestoreService.getRegistrar(
+                              _phoneNumberController.text,
+                              _passwordController.text);
+                      currentRegistrar.fetchDepartments();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
