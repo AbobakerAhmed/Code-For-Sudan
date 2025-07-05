@@ -1,7 +1,6 @@
 // Date: 26th of Jun 2025
 
 import 'package:flutter/material.dart';
-import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 
 class CitizenProfilePage extends StatelessWidget {
@@ -25,7 +24,7 @@ class CitizenProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  citizen.name.toUpperCase(),
+                  citizen.name.substring(0, 2).toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
@@ -47,17 +46,17 @@ class CitizenProfilePage extends StatelessWidget {
                 subtitle: Text(citizen.phoneNumber),
               ),
 
-              // hsopital
+              // address
               ListTile(
-                leading: const Icon(Icons.local_hospital),
+                leading: const Icon(Icons.place),
                 title: const Text('العنوان'),
                 subtitle: Text(citizen.address),
               ),
 
-              // departments
+              // birth date
               ListTile(
                   leading: const Icon(
-                    Icons.category,
+                    Icons.cake,
                   ),
                   title: const Text('الميلاد'),
                   subtitle: Text(citizen.birthDate.toString())),
@@ -74,7 +73,7 @@ class CitizenProfilePage extends StatelessWidget {
                   'تعديل البيانات',
                   style: TextStyle(
                       color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600),
+                      fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   _showEditDialog(context);
@@ -102,79 +101,173 @@ class CitizenProfilePage extends StatelessWidget {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            title: Text("تعديل بيانات المسجل"),
-            content: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // edit the name
-                    TextFormField(
-                      initialValue: currentCitizen?.name,
-                      decoration: const InputDecoration(labelText: 'الاسم'),
-                      validator: (value) {
-// validate the name here
-                        if (value == null || value.isEmpty) {
-                          return 'الرجاء إدخال الاسم';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => currentCitizen?.name = value,
-                    ),
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              backgroundColor: Theme.of(context).primaryColorLight,
+              title: Text(
+                "تعديل بيانات المواطن",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).secondaryHeaderColor),
+              ),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // edit the name
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentCitizen?.name,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'الاسم',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        validator: (value) {
+                          // validate the name here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال الاسم';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => currentCitizen?.name = value,
+                      ),
 
-                    const SizedBox(height: 10), // between name and phone number
+                      const SizedBox(
+                          height: 10), // between name and phone number
 
-                    // enter phone number
-                    TextFormField(
-                      initialValue: currentCitizen?.phoneNumber.toString(),
-                      decoration:
-                          const InputDecoration(labelText: 'رقم الهاتف'),
-                      keyboardType: TextInputType.phone,
-// validate the phone number here
-                      onChanged: (value) => currentCitizen?.phoneNumber = value,
-                    ),
+                      // enter phone number
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentCitizen?.phoneNumber.toString(),
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                            labelText: 'رقم الهاتف',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor),
+                            floatingLabelStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            )),
 
-                    const SizedBox(height: 10), // between age and neighborhood
+                        keyboardType: TextInputType.phone,
+                        // validate the phone number here
+                        onChanged: (value) =>
+                            currentCitizen?.phoneNumber = value,
+                      ),
 
-                    // enter neighborhood
-                    TextFormField(
-                      initialValue: currentCitizen?.password,
-                      decoration:
-                          const InputDecoration(labelText: 'كلمة المرور'),
-                      validator: (value) {
-// validate the password here
-                        if (value == null || value.isEmpty) {
-                          return 'الرجاء إدخال كلمة المرور';
-                        } // if
-                        return null;
-                      }, // validator
-// encode it
-                      onChanged: (value) => currentCitizen?.password = value,
-                    ),
+                      const SizedBox(height: 10), // between age and password
 
-                    const SizedBox(
-                        height: 10), // between phone number and gender
-                  ],
+                      // enter password
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentCitizen?.password,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                            labelText: 'كلمة المرور',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor),
+                            floatingLabelStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                            ))),
+                        validator: (value) {
+                          // validate the password here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال كلمة المرور';
+                          } // if
+                          return null;
+                        }, // validator
+                        // encode it
+                        onChanged: (value) => currentCitizen?.password = value,
+                      ),
+
+                      const SizedBox(
+                          height: 10), // between phone number and gender
+
+                      // enter password
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentCitizen?.password,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                            labelText: 'العنوان',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor),
+                            floatingLabelStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                            ))),
+                        validator: (value) {
+                          // validate the password here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال العنوان';
+                          } // if
+                          return null;
+                        }, // validator
+                        // encode it
+                        onChanged: (value) => currentCitizen?.password = value,
+                      ),
+
+                      const SizedBox(
+                          height: 10), // between phone number and gender
+                    ],
+                  ),
                 ),
               ),
+              actions: [
+                // chencle
+                TextButton(
+                  child: Text(
+                    'إلغاء',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                // added it to the appointments list
+                // connect to the database here to add the new appointment
+                ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                  child: Text(
+                    'تحديث',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // there is a problem here
+                  // when adding the appointment to the same page it is not be shown directly
+                  onPressed: () {}, // onPress
+                ),
+              ],
             ),
-            actions: [
-              // chencle
-              TextButton(
-                child: const Text('إلغاء'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              // added it to the appointments list
-// connect to the database here to add the new appointment
-              ElevatedButton(
-                child: Text('تحديث'),
-// there is a problem here
-// when adding the appointment to the same page it is not be shown directly
-                onPressed: () {}, // onPress
-              ),
-            ],
           );
         });
       },

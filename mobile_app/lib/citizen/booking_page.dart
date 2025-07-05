@@ -44,6 +44,8 @@ class _BookingPageState extends State<BookingPage> {
   List<String> _dbDepartments = [];
   List<String> _dbDoctors = [];
   bool _isConnected = false;
+  bool _showMedicalHistory = false;
+  int _forMe = 1;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -237,13 +239,14 @@ class _BookingPageState extends State<BookingPage> {
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
-        appBar: appBar('حجز موعد'), // styles.dart
+        appBar: AppBar(title: Text("حجز موعد")),
         body: !_isConnected
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor),
                     SizedBox(
                       height: 30,
                     ),
@@ -257,6 +260,33 @@ class _BookingPageState extends State<BookingPage> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      // radio buttons to choose the appointment for me/or for other one
+                      Row(
+                        children: [
+                          _expanadedRadio(
+                              title: "حجز لي",
+                              value: 1,
+                              groupValue: _forMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _forMe = value!;
+                                });
+                              }),
+                          _expanadedRadio(
+                              title: "حجز لغيري",
+                              value: 0,
+                              groupValue: _forMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _forMe = value!;
+                                });
+                              }),
+                        ],
+                      ),
+
+                      // space between buttons and fields
+                      const SizedBox(height: 30),
+
                       // entering name
                       _buildTextField(
                           // validate the name with range of characters
@@ -416,15 +446,29 @@ class _BookingPageState extends State<BookingPage> {
                           });
                         },
                       ),
+                      //const SizedBox(height: 10),
 
-                      const SizedBox(height: 30),
+                      // show my medical history
+                      CheckboxListTile(
+                          value: _showMedicalHistory,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text("مشاركة السجل المرضي مع الطبيب"),
+                          activeColor: Theme.of(context).primaryColorDark,
+                          enabled: _forMe == 1 ? true : false,
+                          onChanged: (value) {
+                            setState(() {
+                              _showMedicalHistory = value!;
+                            });
+                          }),
+
+                      const SizedBox(height: 20),
 
                       // sending the appoinment
                       ElevatedButton.icon(
                         icon: const Icon(Icons.check_circle_outline),
                         label: const Text('تأكيد الحجز'),
                         style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.green[700],
+                            foregroundColor: Colors.green,
                             minimumSize: const Size(10, 10)),
                         onPressed: () {
                           /*
@@ -477,6 +521,21 @@ class _BookingPageState extends State<BookingPage> {
                 )),
       ),
     );
+  }
+
+  Widget _expanadedRadio(
+      {required String title,
+      required int value,
+      required int groupValue,
+      required ValueChanged<int?> onChanged}) {
+    return Expanded(
+      child: RadioListTile(
+          title: Text(title),
+          activeColor: Theme.of(context).primaryColorDark,
+          value: value,
+          groupValue: groupValue,
+          onChanged: onChanged),
+    );
   } // build fun
 
   /// checking is the form is completely full or not
@@ -505,16 +564,20 @@ class _BookingPageState extends State<BookingPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
-        textDirection: TextDirection.ltr,
         keyboardType: inputType,
         controller: controller,
-        cursorColor: Colors.black,
+        cursorColor: Theme.of(context).primaryColor,
+        style: Theme.of(context).textTheme.labelMedium,
         decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          filled: true,
-          fillColor: Colors.grey[100],
-        ),
+            labelText: label,
+            labelStyle: TextStyle(color: Colors.grey[400]),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            filled: true,
+            fillColor: Theme.of(context).cardColor,
+            floatingLabelStyle:
+                TextStyle(color: Theme.of(context).primaryColor),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).primaryColor))),
         onChanged: onChanged,
         validator: validator,
       ),
@@ -532,14 +595,25 @@ class _BookingPageState extends State<BookingPage> {
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
         value: value,
+        dropdownColor: Theme.of(context).cardColor,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: TextStyle(color: Colors.grey[400]),
+          floatingLabelStyle: TextStyle(color: Theme.of(context).primaryColor),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Theme.of(context).primaryColor)),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: Theme.of(context).cardColor,
         ),
         items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .map((e) => DropdownMenuItem(
+                alignment: AlignmentDirectional.centerEnd,
+                value: e,
+                child: Text(
+                  e,
+                  style: Theme.of(context).textTheme.labelMedium,
+                )))
             .toList(),
         onChanged: onChanged,
       ),

@@ -77,13 +77,16 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: appBar('النصائح الطبية'),
+        appBar: AppBar(
+          title: Text("النصائح الطبية"),
+        ),
         body: _isLoading
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor),
                     SizedBox(
                       height: 30,
                     ),
@@ -106,15 +109,16 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           elevation: 4,
-                          color: Colors.lightBlue[50],
+                          color: Theme.of(context).primaryColorLight,
                           child: Padding(
                             padding: const EdgeInsets.all(24.0),
                             child: Text(
                               advices[currentIndex],
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 height: 1.6,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).secondaryHeaderColor,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -125,7 +129,12 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: showNextAdvice,
-                            child: const Text('التالي'),
+                            child: Text(
+                              'التالي',
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(

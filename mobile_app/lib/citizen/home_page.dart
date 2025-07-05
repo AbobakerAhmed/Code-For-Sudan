@@ -7,7 +7,6 @@ import 'package:mobile_app/citizen/citizen_profile_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
 import 'package:mobile_app/citizen/notifications_page.dart';
-import 'package:mobile_app/citizen/test_appointments.dart';
 import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
@@ -30,13 +29,6 @@ class HomePageTest extends StatelessWidget {
       home: HomePage(
         citizen: citizen,
       ),
-      routes: {
-        'booking_page': (context) =>
-            BookingPage(), // AppointmentTestScreen(), //BookingPage(),
-        'emergency_page': (context) => const EmergencyPage(),
-        'medical_advices': (context) => const MedicalAdvicesPage(),
-        'notifications_page': (context) => const NotificationsPage(),
-      },
     );
   }
 }

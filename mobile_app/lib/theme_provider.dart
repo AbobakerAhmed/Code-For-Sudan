@@ -16,6 +16,7 @@ class ThemeProvider with ChangeNotifier {
       primaryColor: Colors.lightBlue,
       primaryColorLight: Colors.lightBlue[50],
       primaryColorDark: Colors.blue,
+      secondaryHeaderColor: Colors.blueGrey,
 
       brightness: Brightness.light,
       // Add other customizations here
@@ -34,6 +35,10 @@ class ThemeProvider with ChangeNotifier {
             fontWeight: FontWeight.w800),
         headlineMedium: TextStyle(color: Colors.white, fontSize: 24.0),
         titleMedium: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+        labelMedium: TextStyle(
+            color: Colors.grey[800],
+            fontSize: 18,
+            fontWeight: FontWeight.normal),
       ),
       // Cards
       cardColor: Colors.grey[50],
@@ -46,6 +51,7 @@ class ThemeProvider with ChangeNotifier {
       primaryColor: Colors.lightBlue,
       primaryColorLight: Colors.lightBlue[50],
       primaryColorDark: Colors.blue,
+      secondaryHeaderColor: Colors.blueGrey,
 
       brightness: Brightness.dark,
       // Add other customizations here
@@ -64,6 +70,10 @@ class ThemeProvider with ChangeNotifier {
             fontWeight: FontWeight.w800),
         headlineMedium: TextStyle(color: Colors.white, fontSize: 24.0),
         titleMedium: TextStyle(color: Colors.white70, fontSize: 18.0),
+        labelMedium: TextStyle(
+            color: Colors.grey[200],
+            fontSize: 18,
+            fontWeight: FontWeight.normal),
       ),
       // Cards
       cardColor: Colors.blueGrey[900],

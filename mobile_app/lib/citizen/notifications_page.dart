@@ -59,7 +59,7 @@ class NotificationsPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-          appBar: appBar('التنبيهات'),
+          appBar: AppBar(title: Text("التنبيهات")),
           body: ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: notifications.length,

@@ -204,7 +204,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor),
                     SizedBox(
                       height: 30,
                     ),
@@ -218,7 +219,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                   children: [
                     // state filters
                     DropdownButtonFormField<String>(
-                      dropdownColor: Theme.of(context).primaryColorLight,
+                      dropdownColor: Theme.of(context).cardColor,
                       decoration: InputDecoration(
                         labelText: 'الولاية',
                         labelStyle: TextStyle(color: Colors.grey),
@@ -237,10 +238,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                               value: e,
                               child: Text(
                                 e,
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColorDark,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context).textTheme.labelMedium,
                               )))
                           .toList(),
                       onChanged: (val) {
@@ -258,7 +256,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
                     // locality fillter
                     DropdownButtonFormField<String>(
-                      dropdownColor: Theme.of(context).primaryColorLight,
+                      dropdownColor: Theme.of(context).cardColor,
                       decoration: InputDecoration(
                         labelText: 'المحلية',
                         labelStyle: TextStyle(color: Colors.grey),
@@ -277,9 +275,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                               value: e,
                               child: Text(
                                 e,
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColorDark,
-                                    fontWeight: FontWeight.bold),
+                                style: Theme.of(context).textTheme.labelMedium,
                               )))
                           .toList(),
                       onChanged: (val) {
@@ -311,11 +307,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
                                   child: ListTile(
                                     title: Text(hospital.name,
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.w300,
+                                            fontWeight: FontWeight.normal,
                                             fontSize: 16)),
                                     subtitle: Text(hospital.phone,
-                                        style: const TextStyle(
-                                            color: Colors.redAccent)),
+                                        style:
+                                            const TextStyle(color: Colors.red)),
                                     trailing: IconButton(
                                       icon: const Icon(Icons.call,
                                           color: Colors.green),
@@ -339,7 +335,13 @@ class _EmergencyPageState extends State<EmergencyPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(': اتصال بالرقم', textAlign: TextAlign.right),
+        title: Text(
+          ': اتصال بالرقم',
+          textAlign: TextAlign.right,
+          style: TextStyle(
+              color: Theme.of(context).secondaryHeaderColor,
+              fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Theme.of(context).primaryColorLight,
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -348,7 +350,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
               phone,
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.redAccent,
+                color: Colors.red,
               ),
             ),
             const SizedBox(height: 20),

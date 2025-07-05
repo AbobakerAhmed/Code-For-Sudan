@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:mobile_app/citizen/notifications_page.dart';
 //import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/firebase_options.dart';
 //import login page
@@ -13,7 +14,6 @@ import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
-import 'package:mobile_app/citizen/test_appointments.dart';
 
 // import provider to control all the app theme at once
 import 'package:provider/provider.dart';
@@ -61,7 +61,7 @@ class HealthCareSudan extends StatelessWidget {
               //     ),
               'booking_page': (context) => const BookingPage(),
               'emergency_page': (context) => const EmergencyPage(),
-              'notifications_page': (context) => AppointmentTestScreen(),
+              'notifications_page': (context) => NotificationsPage(),
               'medical_advices': (context) => const MedicalAdvicesPage(),
             },
             debugShowCheckedModeBanner: false,
