@@ -84,7 +84,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   // in my registrar object, I have assumed that it has departments field only not doctors to
 // so, edit this fun and connect with the database here to bring doctros of each department
   List<String> _getDoctorsInSelectedDepartment() {
-    final selectedDept = widget.registrar.departments[_selectedDepartmentIndex];
+    final selectedDept =
+        widget.registrar.departmentsNames[_selectedDepartmentIndex];
     return _allAppointments
         .where((a) => a.department == selectedDept)
         .map((a) => a.doctor)
@@ -109,8 +110,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   Future<void> _showAddEditAppointmentDialog(
       {Appointment? existingAppointment}) async {
     String selectedDepartment = existingAppointment?.department ??
-        (widget.registrar.departments.isNotEmpty
-            ? widget.registrar.departments[0]
+        (widget.registrar.departmentsNames.isNotEmpty
+            ? widget.registrar.departmentsNames[0]
             : '');
     List<String> doctorsForDepartment = _allAppointments
         .where((a) => a.department == selectedDepartment)
@@ -233,7 +234,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                     DropdownButtonFormField<String>(
                       value: selectedDepartment,
                       decoration: const InputDecoration(labelText: 'القسم'),
-                      items: widget.registrar.departments.map((dept) {
+                      items: widget.registrar.departmentsNames.map((dept) {
                         return DropdownMenuItem(value: dept, child: Text(dept));
                       }).toList(),
                       onChanged: (value) {
@@ -349,7 +350,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
       currentIndex: _selectedDepartmentIndex,
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
-      items: widget.registrar.departments
+      items: widget.registrar.departmentsNames
           .map((dept) => BottomNavigationBarItem(
               icon: const Icon(Icons.monitor_heart), label: dept))
           .toList(),
@@ -360,8 +361,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   // build fun
   @override
   Widget build(BuildContext context) {
-    final selectedDept = widget
-        .registrar.departments[_selectedDepartmentIndex]; // for the button bar
+    final selectedDept = widget.registrar
+        .departmentsNames[_selectedDepartmentIndex]; // for the button bar
     final doctors = _getDoctorsInSelectedDepartment(); // for the top taps
     // checking if the department has no doctors
     if (doctors.isEmpty) {

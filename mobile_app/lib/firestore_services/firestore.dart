@@ -103,7 +103,7 @@ class FirestoreService {
         .get();
 
     final Registrar reg = await Registrar.fromJson(snapshot.docs.first.data());
-    print(reg.toString());
+
     return reg;
   }
 

@@ -25,7 +25,7 @@ class RegistrarProfilePage extends StatelessWidget {
               const CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage(
-                    'assets/registrar_avatar.png'), // adding image or icon or anything
+                    'lib/assets/registrar_avatar.png'), // adding image or icon or anything
               ),
               const SizedBox(height: 16), // between image and the name
 
@@ -58,7 +58,7 @@ class RegistrarProfilePage extends StatelessWidget {
                 title: const Text('الأقسام المسؤولة عنها'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: registrar.departments
+                  children: registrar.departmentsNames
                       .map((dep) => Text('• $dep'))
                       .toList(),
                 ),

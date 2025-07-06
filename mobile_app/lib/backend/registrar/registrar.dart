@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/hospital_employee.dart';
 import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
 class Registrar extends HospitalEmployee {
-  List<String> _departments = [];
+  List<Department> _departments = [];
 
   Registrar(
     super.name,
@@ -17,21 +18,26 @@ class Registrar extends HospitalEmployee {
   Future<void> fetchDepartments() async {
     Hospital hos =
         await FirestoreService().getHospital(state, locality, hospitalName);
-    _departments = hos.departmentsToString();
+    _departments = hos.departments;
   }
 
-  List<String> get departments => _departments;
-
-  @override
-  Map<String, dynamic> toJson() {
-    final baseJson = super.toJson();
-    return {
-      ...baseJson,
-      //'departments': _departments,
-    };
+  List<String> get departmentsNames {
+    List<String> list = [];
+    for (final dep in _departments) {
+      list.add(dep.name);
+    }
+    return list;
   }
 
-  /// ✅ This async constructor handles the fetch safely
+  // @override
+  // Map<String, dynamic> toJson() {
+  //   final baseJson = super.toJson();
+  //   return {
+  //     ...baseJson,
+  //     //'departments': _departments,
+  //   };
+  // }
+
   static Future<Registrar> fromJson(Map<String, dynamic> json) async {
     Registrar reg = Registrar(
       json['name'],
@@ -41,21 +47,28 @@ class Registrar extends HospitalEmployee {
       json['locality'],
       json['hospitalName'],
     );
-    await reg.fetchDepartments();
+    //await reg.fetchDepartments();
     return reg;
   }
 
-  //static Future<Registrar> fromJson(Map<String, dynamic> data) async {}
+  static Future<Registrar> create(
+    String name,
+    String phoneNumber,
+    String password,
+    String state,
+    String locality,
+    String hospitalName,
+  ) async {
+    final reg = Registrar(
+      name,
+      phoneNumber,
+      password,
+      state,
+      locality,
+      hospitalName,
+    );
 
-  // factory Registrar.fromJson(Map<String, dynamic> json) {
-  //   return Registrar(
-  //     json['name'],
-  //     json['phoneNumber'],
-  //     json['password'],
-  //     json['state'],
-  //     json['locality'],
-  //     json['hospitalName'],
-  //     //List<String>.from(json['departments']),
-  //   );
-  // }
+    await reg.fetchDepartments();
+    return reg;
+  }
 }

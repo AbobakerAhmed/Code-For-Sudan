@@ -50,7 +50,8 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _citizenFoundInDb = false;
   bool _registrarFoundInDb = false;
-  bool _correctPassword = false;
+  bool _correctCitizenPassword = false;
+  bool _correctRegistrarPassword = false;
 
   // this fun will validate the username and password and check if it's in citizens_data.dart
   //TODO: instead CitizensData use firebase to validate the login
@@ -60,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
           .searchCitizen(_phoneNumberController.text, _passwordController.text);
       setState(() {
         _citizenFoundInDb = foundAndCorrectPassword.$1;
-        _correctPassword = foundAndCorrectPassword.$2;
+        _correctCitizenPassword = foundAndCorrectPassword.$2;
       });
     }
   } // _login
@@ -75,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
               _phoneNumberController.text, _passwordController.text);
       setState(() {
         _registrarFoundInDb = foundAndCorrectPassword.$1;
-        _correctPassword = foundAndCorrectPassword.$2;
+        _correctRegistrarPassword = foundAndCorrectPassword.$2;
       });
     }
     // if (_formKey.currentState!.validate()) {
@@ -227,10 +228,11 @@ class _LoginPageState extends State<LoginPage> {
                     //   'الخرطوم',
                     //   'بحري',
                     // );
-                    if (_citizenFoundInDb && _correctPassword) {
+                    if (_citizenFoundInDb && _correctCitizenPassword) {
                       _registrarFoundInDb = false;
                       _citizenFoundInDb = false;
-                      _correctPassword = false;
+                      _correctCitizenPassword = false;
+                      _correctRegistrarPassword = false;
                       Citizen currentCitizen =
                           await _firestoreService.getCitizen(
                               _phoneNumberController.text,
@@ -243,19 +245,17 @@ class _LoginPageState extends State<LoginPage> {
                                   currentCitizen), // send the citizen object to the citizen home page
                         ),
                       );
-                    } else if (_registrarFoundInDb && _correctPassword) {
+                    } else if (_registrarFoundInDb &&
+                        _correctRegistrarPassword) {
                       _registrarFoundInDb = false;
                       _citizenFoundInDb = false;
-                      _correctPassword = false;
-
-                      Registrar reg = Registrar('ahmad', '0118718014',
-                          '123456@Yassin', 'الخرطوم', 'بحري', 'مستشفى بحري');
-                      await reg.fetchDepartments();
+                      _correctCitizenPassword = false;
+                      _correctRegistrarPassword = false;
                       Registrar currentRegistrar =
                           await _firestoreService.getRegistrar(
                               _phoneNumberController.text,
                               _passwordController.text);
-                      currentRegistrar.fetchDepartments();
+                      await currentRegistrar.fetchDepartments();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
