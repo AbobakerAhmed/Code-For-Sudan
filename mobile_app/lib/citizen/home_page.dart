@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/citizen/citizens_data.dart';
@@ -105,6 +106,20 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) =>
                       CitizenProfilePage(citizen: this.widget.citizen),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sticky_note_2),
+            title: const Text('السجل المرضي'), // Translated
+            onTap: () {
+              //Navigator.pop(context); // Close the drawer
+              // got to the progile page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MedicalHistoryPage(),
                 ),
               );
             },

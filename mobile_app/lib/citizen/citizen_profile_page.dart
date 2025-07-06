@@ -77,11 +77,7 @@ class CitizenProfilePage extends StatelessWidget {
                 ),
                 onPressed: () {
                   _showEditDialog(context);
-// edit the registrar data (only name, phone number, password)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('ميزة تعديل البيانات غير مفعلة حالياً')),
-                  );
+// edit the citizen data (only name, phone number, password, address)
                 },
               ),
             ],
@@ -263,7 +259,7 @@ class CitizenProfilePage extends StatelessWidget {
                     ),
                   ),
                   // there is a problem here
-                  // when adding the appointment to the same page it is not be shown directly
+                  // when adding the new info to the same page it is not be shown directly
                   onPressed: () {}, // onPress
                 ),
               ],

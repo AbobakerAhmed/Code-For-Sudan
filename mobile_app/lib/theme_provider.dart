@@ -39,6 +39,11 @@ class ThemeProvider with ChangeNotifier {
             color: Colors.grey[800],
             fontSize: 18,
             fontWeight: FontWeight.normal),
+        labelSmall: TextStyle(
+            color: Colors.blueGrey,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline),
       ),
       // Cards
       cardColor: Colors.grey[50],
@@ -74,6 +79,11 @@ class ThemeProvider with ChangeNotifier {
             color: Colors.grey[200],
             fontSize: 18,
             fontWeight: FontWeight.normal),
+        labelSmall: TextStyle(
+            color: Colors.blueGrey[200],
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline),
       ),
       // Cards
       cardColor: Colors.blueGrey[900],
