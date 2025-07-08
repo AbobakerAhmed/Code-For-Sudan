@@ -123,9 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 import 'package:flutter/material.dart';
 // Import the LoginScreen from its dedicated file
-import 'package:pc_apps/flutter_login_screen.dart';
+import 'package:pc_apps/flutter_login_screen.dart'; // Ensure this file defines and exports LoginScreen
 // Import the DashboardScreen from its dedicated file
-import 'package:pc_apps/flutter_main_screen.dart';
+// Note: flutter_main_screen.dart now internally imports flutter_notification_screen.dart
+//import 'package:pc_apps/flutter_main_screen.dart';
 
 // The main function that starts the Flutter application.
 void main() {
@@ -146,7 +147,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter', // Specifies the default font family for the app
       ),
       home:
-          const LoginScreen(), // Sets the initial screen of the app to LoginScreen
+          LoginScreen(), // Sets the initial screen of the app to LoginScreen (remove const if LoginScreen is not a const constructor)
     );
   }
 }

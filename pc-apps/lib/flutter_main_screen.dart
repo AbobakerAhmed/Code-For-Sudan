@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:pc_apps/flutter_notification_screen.dart';
+
 // DashboardScreen is a StatelessWidget as it doesn't manage mutable state.
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -75,56 +77,72 @@ class DashboardScreen extends StatelessWidget {
         ),
         leadingWidth: 150, // Adjust this based on logo size and text
       ),
-      body: Padding(
-        // Reduced padding to make the grid more compact and less likely to scroll
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2, // Two columns in the grid
-          // Reduced spacing between cards for a more compact layout
-          crossAxisSpacing: 16.0, // Horizontal spacing between cards
-          mainAxisSpacing: 16.0, // Vertical spacing between cards
-          // The GridView itself will automatically become scrollable if its content
-          // exceeds the available screen height. This layout is optimized to fit
-          // on most standard mobile screens without needing to scroll.
-          children: <Widget>[
-            // Dashboard Card for 'Reports'
-            _buildDashboardCard(
-              context,
-              icon: Icons.description,
-              text: 'التقارير', // Reports (Arabic)
-              onTap: () {
-                print('Reports tapped');
-              },
+      body: Column(
+        // Wrapped the body content in a Column
+        children: [
+          Expanded(
+            // Made the Padding (and thus the GridView) take up remaining space
+            child: Padding(
+              // Reduced padding to make the grid more compact and less likely to scroll
+              padding: const EdgeInsets.all(16.0),
+              child: GridView.count(
+                crossAxisCount: 2, // Two columns in the grid
+                // Reduced spacing between cards for a more compact layout
+                crossAxisSpacing: 16.0, // Horizontal spacing between cards
+                mainAxisSpacing: 16.0, // Vertical spacing between cards
+                // The GridView itself will automatically become scrollable if its content
+                // exceeds the available screen height. This layout is optimized to fit
+                // on most standard mobile screens without needing to scroll.
+                childAspectRatio:
+                    2.3, // Add this line (higher = wider, lower = taller; try 1.2 or 1.0)
+                children: <Widget>[
+                  // Dashboard Card for 'Reports'
+                  _buildDashboardCard(
+                    context,
+                    icon: Icons.description,
+                    text: 'التقارير', // Reports (Arabic)
+                    onTap: () {
+                      print('Reports tapped');
+                    },
+                  ),
+                  // Dashboard Card for 'Add Hospital'
+                  _buildDashboardCard(
+                    context,
+                    icon: Icons.add_circle,
+                    text: 'اضافة مستشفى', // Add Hospital (Arabic)
+                    onTap: () {
+                      print('Add Hospital tapped');
+                    },
+                  ),
+                  // Dashboard Card for 'Notifications'
+                  _buildDashboardCard(
+                    context,
+                    icon: Icons.notifications_active,
+                    text: 'الاشعارات', // Notifications (Arabic)
+                    onTap: () {
+                      print('Notifications tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NotificationsScreen(),
+                        ),
+                      ); // Navigate to NotificationScreen
+                    },
+                  ),
+                  // Dashboard Card for 'Send Notifications'
+                  _buildDashboardCard(
+                    context,
+                    icon: Icons.send,
+                    text: 'ارسال الاشعارات', // Send Notifications (Arabic)
+                    onTap: () {
+                      print('Send Notifications tapped');
+                    },
+                  ),
+                ],
+              ),
             ),
-            // Dashboard Card for 'Add Hospital'
-            _buildDashboardCard(
-              context,
-              icon: Icons.add_circle,
-              text: 'اضافة مستشفى', // Add Hospital (Arabic)
-              onTap: () {
-                print('Add Hospital tapped');
-              },
-            ),
-            // Dashboard Card for 'Notifications'
-            _buildDashboardCard(
-              context,
-              icon: Icons.notifications_active,
-              text: 'الاشعارات', // Notifications (Arabic)
-              onTap: () {
-                print('Notifications tapped');
-              },
-            ),
-            // Dashboard Card for 'Send Notifications'
-            _buildDashboardCard(
-              context,
-              icon: Icons.send,
-              text: 'ارسال الاشعارات', // Send Notifications (Arabic)
-              onTap: () {
-                print('Send Notifications tapped');
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
