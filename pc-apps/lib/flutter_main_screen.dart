@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:pc_apps/flutter_notification_screen.dart';
+import 'package:pc_apps/flutter_profile_screen.dart';
+import 'package:pc_apps/flutter_settings_screen.dart';
 
 // DashboardScreen is a StatelessWidget as it doesn't manage mutable state.
 class DashboardScreen extends StatelessWidget {
@@ -19,6 +21,10 @@ class DashboardScreen extends StatelessWidget {
             icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
               print('Settings tapped');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsScreen()),
+              ); // Navigate to SettingsScreen
             },
           ),
           // Profile icon button
@@ -26,6 +32,10 @@ class DashboardScreen extends StatelessWidget {
             icon: const Icon(Icons.person, color: Colors.black),
             onPressed: () {
               print('Profile tapped');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
+              ); // Navigate to ProfileScreen
             },
           ),
           const SizedBox(width: 16), // Horizontal space
