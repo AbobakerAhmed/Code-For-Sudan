@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:pc_apps/flutter_notification_screen.dart';
 import 'package:pc_apps/flutter_profile_screen.dart';
 import 'package:pc_apps/flutter_settings_screen.dart';
+import 'package:pc_apps/flutter_notification_sending_screen.dart';
+import 'package:pc_apps/flutter_reporting_screen.dart';
+import 'package:pc_apps/flutter_adding_hospitals_screen.dart';
 
 // DashboardScreen is a StatelessWidget as it doesn't manage mutable state.
 class DashboardScreen extends StatelessWidget {
@@ -113,6 +116,13 @@ class DashboardScreen extends StatelessWidget {
                     text: 'التقارير', // Reports (Arabic)
                     onTap: () {
                       print('Reports tapped');
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReportingScreen(),
+                        ),
+                      ); // Navigate to ReportingScreen
                     },
                   ),
                   // Dashboard Card for 'Add Hospital'
@@ -122,6 +132,13 @@ class DashboardScreen extends StatelessWidget {
                     text: 'اضافة مستشفى', // Add Hospital (Arabic)
                     onTap: () {
                       print('Add Hospital tapped');
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddingHospitalsScreen(),
+                        ),
+                      ); // Navigate to AddingHospitalScreen
                     },
                   ),
                   // Dashboard Card for 'Notifications'
@@ -146,6 +163,13 @@ class DashboardScreen extends StatelessWidget {
                     text: 'ارسال الاشعارات', // Send Notifications (Arabic)
                     onTap: () {
                       print('Send Notifications tapped');
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NotificationSendingScreen(),
+                        ),
+                      ); // Navigate to notification sending screen
                     },
                   ),
                 ],
