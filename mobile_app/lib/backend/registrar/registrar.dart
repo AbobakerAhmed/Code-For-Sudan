@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/hospital_employee.dart';
 import 'package:mobile_app/backend/citizen/hospital.dart';
+import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
 class Registrar extends HospitalEmployee {
@@ -14,6 +14,8 @@ class Registrar extends HospitalEmployee {
     super.locality,
     super.hospitalName,
   );
+
+  List<Department> get departments => _departments;
 
   Future<void> fetchDepartments() async {
     Hospital hos =
@@ -51,24 +53,24 @@ class Registrar extends HospitalEmployee {
     return reg;
   }
 
-  static Future<Registrar> create(
-    String name,
-    String phoneNumber,
-    String password,
-    String state,
-    String locality,
-    String hospitalName,
-  ) async {
-    final reg = Registrar(
-      name,
-      phoneNumber,
-      password,
-      state,
-      locality,
-      hospitalName,
-    );
+//   static Future<Registrar> create(
+//     String name,
+//     String phoneNumber,
+//     String password,
+//     String state,
+//     String locality,
+//     String hospitalName,
+//   ) async {
+//     final reg = Registrar(
+//       name,
+//       phoneNumber,
+//       password,
+//       state,
+//       locality,
+//       hospitalName,
+//     );
 
-    await reg.fetchDepartments();
-    return reg;
-  }
+//     await reg.fetchDepartments();
+//     return reg;
+//   }
 }

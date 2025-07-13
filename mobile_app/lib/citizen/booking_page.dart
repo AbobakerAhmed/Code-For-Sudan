@@ -4,7 +4,7 @@
 import 'dart:core';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/citizen/appointment.dart';
+import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
@@ -435,16 +435,17 @@ class _BookingPageState extends State<BookingPage> {
                               _formKey.currentState!.validate()) {
                             // save info in database
                             _firestoreService.createAppointment(Appointment(
-                                fullName!,
-                                age!,
-                                gender!,
-                                phoneNumber!,
-                                address!,
-                                selectedState!,
-                                selectedLocality!,
-                                selectedHospital!,
-                                selectedDepartment!,
-                                selectedDoctor!));
+                                name: fullName!,
+                                gender: gender!,
+                                age: age!,
+                                address: address!,
+                                phoneNumber: phoneNumber!,
+                                state: selectedState!,
+                                locality: selectedLocality!,
+                                hospital: selectedHospital!,
+                                department: selectedDepartment!,
+                                doctor: selectedDoctor!,
+                                time: DateTime.now()));
 
                             // clear fields
                             setState(() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/citizen/appointment.dart';
+import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:mobile_app/styles.dart';
 
@@ -57,11 +57,9 @@ class _AppointmentTestScreenState extends State<AppointmentTestScreen> {
                     itemBuilder: (context, index) {
                       final appointment = _appointments[index];
                       return ListTile(
-                        title: Text(appointment.patientName ?? 'No Name'),
-                        subtitle:
-                            Text('Age: ${appointment.patientAge ?? 'N/A'}'),
-                        trailing:
-                            Text(appointment.selectedDoctor ?? 'No Doctor'),
+                        title: Text(appointment.name ?? 'No Name'),
+                        subtitle: Text('Age: ${appointment.age ?? 'N/A'}'),
+                        trailing: Text(appointment.doctor ?? 'No Doctor'),
                       );
                     },
                   ),

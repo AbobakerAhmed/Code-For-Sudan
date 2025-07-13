@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mobile_app/backend/citizen/appointment.dart';
+import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
@@ -33,14 +33,15 @@ const String FIELD_STATE = "الولاية";
 const String FIELD_LOCALITY = "المحلية";
 const String FIELD_HOSPITAL = "المستشفى";
 const String FIELD_DEPARTMENT = "القسم";
+const String FIELD_TIME = 'موعد الحجز';
 
 class FirestoreService {
-  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void _logError(String method, Object e) => print("[$method] Error: $e");
 
   //we can optimize the code by refering to hospital collection instead if doing multiple reads
-  static CollectionReference<Map<String, dynamic>> _hospitalCollection(
+  CollectionReference<Map<String, dynamic>> _hospitalCollection(
           String state, String locality) =>
       _firestore
           .collection(HOSPITALS)
@@ -121,28 +122,29 @@ class FirestoreService {
     try {
       final departmentDoc = await _firestore
           .collection(HOSPITALS)
-          .doc(appointment.selectedState)
+          .doc(appointment.state)
           .collection(LOCALITIES)
-          .doc(appointment.selectedLocality)
+          .doc(appointment.locality)
           .collection(DATA)
-          .doc(appointment.selectedHospital)
+          .doc(appointment.hospital)
           .collection(DEPARTMENTS)
-          .doc(appointment.selectedDepartment)
+          .doc(appointment.department)
           .get();
 
       if (!departmentDoc.exists) throw Exception("Department does not exist");
 
       await departmentDoc.reference.collection("appointments").add({
-        FIELD_NAME: appointment.patientName,
-        FIELD_AGE: appointment.patientAge,
-        FIELD_GENDER: appointment.patientGender,
-        FIELD_PHONE: appointment.patientPhoneNumber,
-        FIELD_ADDRESS: appointment.patientAddress,
-        FIELD_DOCTOR: appointment.selectedDoctor,
-        FIELD_STATE: appointment.selectedState,
-        FIELD_LOCALITY: appointment.selectedLocality,
-        FIELD_HOSPITAL: appointment.selectedHospital,
-        FIELD_DEPARTMENT: appointment.selectedDepartment,
+        FIELD_NAME: appointment.name,
+        FIELD_AGE: appointment.age,
+        FIELD_GENDER: appointment.gender,
+        FIELD_PHONE: appointment.phoneNumber,
+        FIELD_ADDRESS: appointment.address,
+        FIELD_DOCTOR: appointment.doctor,
+        FIELD_STATE: appointment.state,
+        FIELD_LOCALITY: appointment.locality,
+        FIELD_HOSPITAL: appointment.hospital,
+        FIELD_DEPARTMENT: appointment.department,
+        FIELD_TIME: appointment.time
       });
 
       print("Appointment created successfully");
@@ -255,21 +257,92 @@ class FirestoreService {
           await departmentDoc.reference.collection("appointments").get();
       return appointmentsSnapshot.docs
           .map((doc) => Appointment(
-                doc.get(FIELD_NAME),
-                doc.get(FIELD_AGE),
-                doc.get(FIELD_GENDER),
-                doc.get(FIELD_PHONE),
-                doc.get(FIELD_ADDRESS),
-                state,
-                locality,
-                hospitalName,
-                departmentName,
-                doc.get(FIELD_DOCTOR),
-              ))
+              name: doc.get(FIELD_NAME),
+              age: doc.get(FIELD_AGE),
+              gender: doc.get(FIELD_GENDER),
+              phoneNumber: doc.get(FIELD_PHONE),
+              address: doc.get(FIELD_ADDRESS),
+              state: state,
+              locality: locality,
+              hospital: hospitalName,
+              department: departmentName,
+              doctor: doc.get(FIELD_DOCTOR),
+              time: (doc.get(FIELD_TIME) as Timestamp).toDate()))
           .toList();
     } catch (e) {
       _logError("getAppointments", e);
       return [];
+    }
+  }
+
+  /// update an existing appointment
+  Future<void> updateAppointment(Appointment appointment) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.state)
+          .collection(LOCALITIES)
+          .doc(appointment.locality)
+          .collection(DATA)
+          .doc(appointment.hospital)
+          .collection(DEPARTMENTS)
+          .doc(appointment.department)
+          .collection("appointments")
+          .where('الهاتف', isEqualTo: appointment.phoneNumber)
+          .limit(1) // safety: get only one
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "Appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+      await doc.reference.update({
+        FIELD_NAME: appointment.name,
+        FIELD_AGE: appointment.age,
+        FIELD_GENDER: appointment.gender,
+        FIELD_PHONE: appointment.phoneNumber,
+        FIELD_ADDRESS: appointment.address,
+        FIELD_DOCTOR: appointment.doctor,
+        FIELD_TIME: appointment.time,
+      });
+
+      print("Appointment updated successfully");
+    } catch (e) {
+      _logError("updateAppointment", e);
+    }
+  }
+
+  /// delete an existing appointment
+  Future<void> deleteAppointment(Appointment appointment) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.state)
+          .collection(LOCALITIES)
+          .doc(appointment.locality)
+          .collection(DATA)
+          .doc(appointment.hospital)
+          .collection(DEPARTMENTS)
+          .doc(appointment.department)
+          .collection("appointments")
+          .where('الهاتف', isEqualTo: appointment.phoneNumber)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "Appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+
+      await doc.reference.delete();
+
+      print("Appointment deleted successfully");
+    } catch (e) {
+      _logError("deleteAppointment", e);
     }
   }
 

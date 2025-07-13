@@ -19,18 +19,6 @@ import 'package:mobile_app/citizen/test_appointments.dart';
 import 'package:provider/provider.dart';
 import 'theme_provider.dart'; // Import your theme provider
 
-//current login data
-// Registrar(
-//   'Mohammed abdulsalam',
-//   'alamal hospital',
-//   ['العيون', 'الجلدية', 'الباطنية'],
-//   '0912345678',
-//   '123456@Registrar', // password
-// );
-
-//the data for citizens are in citizen-->backend-->citizens_data
-//they are temporary data until we connect the database to login and signup successfully
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
