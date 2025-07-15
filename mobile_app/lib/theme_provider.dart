@@ -17,7 +17,6 @@ class ThemeProvider with ChangeNotifier {
       primaryColorLight: Colors.lightBlue[50],
       primaryColorDark: Colors.blue,
       secondaryHeaderColor: Colors.blueGrey,
-
       brightness: Brightness.light,
       // Add other customizations here
       appBarTheme: AppBarTheme(
@@ -29,24 +28,39 @@ class ThemeProvider with ChangeNotifier {
       ),
       // Define other properties like button themes, text themes, etc.
       textTheme: TextTheme(
-        headlineLarge: TextStyle(
-            color: Colors.blueGrey,
-            fontSize: 24.0,
-            fontWeight: FontWeight.w800),
-        headlineMedium: TextStyle(color: Colors.white, fontSize: 24.0),
-        titleMedium: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
-        labelMedium: TextStyle(
-            color: Colors.grey[800],
-            fontSize: 18,
-            fontWeight: FontWeight.normal),
-        labelSmall: TextStyle(
-            color: Colors.blueGrey,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline),
-      ),
+          headlineLarge: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 24.0,
+              fontWeight: FontWeight.w800),
+          headlineMedium: TextStyle(color: Colors.white, fontSize: 24.0),
+          titleMedium: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+          labelMedium: TextStyle(
+              color: Colors.grey[800],
+              fontSize: 18,
+              fontWeight: FontWeight.normal),
+          labelSmall: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline),
+          displaySmall: TextStyle(
+              color: Colors.blueGrey,
+              fontSize: 18,
+              fontWeight: FontWeight.normal)),
       // Cards
       cardColor: Colors.grey[50],
+
+      // Tab Bar
+      tabBarTheme: TabBarThemeData(
+        labelColor: Colors.white,
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.blue[900],
+        ),
+      ),
     );
   }
 
@@ -84,9 +98,26 @@ class ThemeProvider with ChangeNotifier {
             fontSize: 12,
             fontWeight: FontWeight.bold,
             decoration: TextDecoration.underline),
+        displaySmall: TextStyle(
+            color: Colors.blueGrey,
+            fontSize: 18,
+            fontWeight: FontWeight.normal),
       ),
       // Cards
       cardColor: Colors.blueGrey[900],
+
+      // Tab Bar
+      tabBarTheme: TabBarThemeData(
+        labelColor: Colors.white,
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle:
+            TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.blue[900],
+        ),
+      ),
     );
   }
 }

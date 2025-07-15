@@ -15,17 +15,21 @@ class RegistrarProfilePage extends StatelessWidget {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('الملف الشخصي للمسجل'),
+          title: Text('الملف الشخصي للمسجل'),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const CircleAvatar(
+              CircleAvatar(
+                foregroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
-                backgroundImage: AssetImage(
-                    'assets/registrar_avatar.png'), // adding image or icon or anything
+                child: Text(
+                  registrar.name.substring(0, 2).toUpperCase(),
+                  style: TextStyle(fontSize: 50),
+                ), // adding image or icon or anything
               ),
               const SizedBox(height: 16), // between image and the name
 
@@ -68,15 +72,16 @@ class RegistrarProfilePage extends StatelessWidget {
 
               // eidting button
               ElevatedButton.icon(
-                icon: const Icon(Icons.edit),
-                label: const Text('تعديل البيانات'),
+                icon: Icon(Icons.edit, color: Theme.of(context).primaryColor),
+                label: Text(
+                  'تعديل البيانات',
+                  style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold),
+                ),
                 onPressed: () {
                   _showEditDialog(context);
 // edit the registrar data (only name, phone number, password)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('ميزة تعديل البيانات غير مفعلة حالياً')),
-                  );
                 },
               ),
             ],
@@ -96,80 +101,142 @@ class RegistrarProfilePage extends StatelessWidget {
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            title: Text("تعديل بيانات المسجل"),
-            content: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // edit the name
-                    TextFormField(
-                      initialValue: currentRegistrar?.name,
-                      decoration: const InputDecoration(labelText: 'الاسم'),
-                      validator: (value) {
-// validate the name here
-                        if (value == null || value.isEmpty) {
-                          return 'الرجاء إدخال الاسم';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => currentRegistrar?.name = value,
-                    ),
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              backgroundColor: Theme.of(context).primaryColorLight,
+              title: Text(
+                "تعديل بيانات المسجل",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).secondaryHeaderColor),
+              ),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // edit the name
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentRegistrar?.name,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'الاسم',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        validator: (value) {
+                          // validate the name here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال الاسم';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => currentRegistrar?.name = value,
+                      ),
 
-                    const SizedBox(height: 10), // between name and phone number
+                      const SizedBox(
+                          height: 10), // between name and phone number
 
-                    // enter phone number
-                    TextFormField(
-                      initialValue: currentRegistrar?.phoneNumber.toString(),
-                      decoration:
-                          const InputDecoration(labelText: 'رقم الهاتف'),
-                      keyboardType: TextInputType.phone,
-// validate the phone number here
-                      onChanged: (value) =>
-                          currentRegistrar?.phoneNumber = value,
-                    ),
+                      // enter phone number
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentRegistrar?.phoneNumber.toString(),
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                            labelText: 'رقم الهاتف',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor),
+                            floatingLabelStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            )),
 
-                    const SizedBox(height: 10), // between age and neighborhood
+                        keyboardType: TextInputType.phone,
+                        // validate the phone number here
+                        onChanged: (value) =>
+                            currentRegistrar?.phoneNumber = value,
+                      ),
+                      const SizedBox(
+                          height: 10), // between age and neighborhood
 
-                    // enter neighborhood
-                    TextFormField(
-                      initialValue: currentRegistrar?.password,
-                      decoration:
-                          const InputDecoration(labelText: 'كلمة المرور'),
-                      validator: (value) {
-// validate the password here
-                        if (value == null || value.isEmpty) {
-                          return 'الرجاء إدخال كلمة المرور';
-                        } // if
-                        return null;
-                      }, // validator
-// encode it
-                      onChanged: (value) => currentRegistrar?.password = value,
-                    ),
+                      // enter password
+                      TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        initialValue: currentRegistrar?.password,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                            labelText: 'كلمة المرور',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).secondaryHeaderColor),
+                            floatingLabelStyle: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                            ))),
+                        validator: (value) {
+                          // validate the password here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال كلمة المرور';
+                          } // if
+                          return null;
+                        }, // validator
+                        // encode it
+                        onChanged: (value) =>
+                            currentRegistrar?.password = value,
+                      ),
 
-                    const SizedBox(
-                        height: 10), // between phone number and gender
-                  ],
+                      const SizedBox(
+                          height: 10), // between phone number and gender
+                    ],
+                  ),
                 ),
               ),
+              actions: [
+                // chencle
+                TextButton(
+                  child: Text(
+                    'إلغاء',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                // connect to the database here to update the registrar info
+                ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                  child: Text(
+                    'تحديث',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  // there is a problem here
+                  // when adding the new info to the same page it is not be shown directly
+                  onPressed: () {}, // onPress
+                ),
+              ],
             ),
-            actions: [
-              // chencle
-              TextButton(
-                child: const Text('إلغاء'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              // added it to the appointments list
-// connect to the database here to add the new appointment
-              ElevatedButton(
-                child: Text('تحديث'),
-// there is a problem here
-// when adding the appointment to the same page it is not be shown directly
-                onPressed: () {}, // onPress
-              ),
-            ],
           );
         });
       },

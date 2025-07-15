@@ -246,8 +246,7 @@ class CitizenProfilePage extends StatelessWidget {
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                // added it to the appointments list
-                // connect to the database here to add the new appointment
+                // connect to the database here to update the citizen info
                 ElevatedButton(
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.white),

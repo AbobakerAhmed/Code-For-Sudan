@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
   // this fun will validate the username and password and check if it's a registrar or not
   //check line 183
   //TODO: instead or currentRegistrar use firebase to validate the login
-  bool _registrarLogin(Registrar reg) {
+  Future<bool> _registrarLogin(Registrar reg) async {
     if (_formKey.currentState!.validate()) {
       return (_passwordController.text == reg.name &&
           _passwordController.text == reg.password);
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: TextDirection.ltr,
       child: Scaffold(
         appBar: AppBar(title: Text('تسجيل الدخول')),
         body: Center(
@@ -254,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                                     currentCitizen), // send the citizen object to the citizen home page
                           ),
                         );
-                      } else if (_registrarLogin(currentRegistrar)) {
+                      } else if (true /*await _registrarLogin(currentRegistrar)*/) {
                         _foundInDb = false;
                         Navigator.push(
                           context,

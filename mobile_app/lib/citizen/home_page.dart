@@ -3,12 +3,9 @@ import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/citizen/citizens_data.dart';
-import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
-import 'package:mobile_app/citizen/emergency_page.dart';
-import 'package:mobile_app/citizen/medical_advices.dart';
-import 'package:mobile_app/citizen/notifications_page.dart';
-import 'package:mobile_app/styles.dart';
+
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
 // to test the home page alone
@@ -308,7 +305,7 @@ class FeatureCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 40, color: Colors.lightBlue),
+                Icon(icon, size: 40, color: Theme.of(context).primaryColor),
                 const SizedBox(height: 10),
                 Text(
                   title,
