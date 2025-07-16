@@ -551,7 +551,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                       : 'غير محدد';
 
                   final String dateString = currentAppointment.time != null
-                      ? '${currentAppointment.time.year.toString().padLeft(4, '0')}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}'
+                      ? '${currentAppointment.time.year.toString()}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}'
                       : 'غير محدد';
 
                   // how appointments are displayed

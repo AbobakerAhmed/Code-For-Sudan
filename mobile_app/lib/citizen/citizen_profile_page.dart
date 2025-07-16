@@ -59,7 +59,8 @@ class CitizenProfilePage extends StatelessWidget {
                     Icons.cake,
                   ),
                   title: const Text('الميلاد'),
-                  subtitle: Text(citizen.birthDate.toString())),
+                  subtitle: Text(
+                      '${citizen.birthDate.year.toString()}/${citizen.birthDate.month.toString().padLeft(2, '0')}/${citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
 
               const SizedBox(height: 24), // between departments and the button
 
