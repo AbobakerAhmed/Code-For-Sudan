@@ -445,7 +445,9 @@ class _BookingPageState extends State<BookingPage> {
                                 hospital: selectedHospital!,
                                 department: selectedDepartment!,
                                 doctor: selectedDoctor!,
-                                time: DateTime.now()));
+                                time: DateTime.now().subtract(const Duration(
+                                    hours: 2)) // to convert from UTC+2 to UTC
+                                ));
 
                             // clear fields
                             setState(() {

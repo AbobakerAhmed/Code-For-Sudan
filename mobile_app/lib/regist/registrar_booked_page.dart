@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/citizen/hospital.dart';
+//import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart'; // similate appointment class
 import 'package:mobile_app/backend/global_var.dart';
@@ -23,6 +23,8 @@ class BookedAppointmentsPage extends StatefulWidget {
 class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   final FirestoreService _firestore = FirestoreService();
 
+  /// this method load the appointments from the database
+  /// and put all appointments in the empty _allApointments variable
   Future<void> _fetchAppointments() async {
     for (final dep in widget.registrar.departmentsNames) {
       _allAppointments.addAll(await _firestore.getAppointments(
@@ -33,6 +35,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     }
   }
 
+  ///this method load the appointments for the registrar
   Future<void> _loadInitialAppointments() async {
     await _fetchAppointments(); // this sets _allAppointments internally
     setState(() {}); // make sure UI updates after loading
@@ -48,63 +51,9 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   void initState() {
     super.initState();
     _loadInitialAppointments();
-// connect to database here to bring appointments of all of depratments of this registrar
-    // testing data
-    // _allAppointments = [
-    //   Appointment(
-    //       name: ' أحمد علي خالد عمر',
-    //       gender: 'ذكر',
-    //       age: 30,
-    //       neighborhood: 'الرياض',
-    //       phoneNumber: '0912345678',
-    //       hospital: 'مستشفى الأمل',
-    //       department: 'العيون',
-    //       doctor: 'د. سارة محمد',
-    //       time: DateTime(2025, 6, 27, 10, 0, 15)),
-    //   Appointment(
-    //       name: 'فاطمة خالد',
-    //       gender: 'أنثى',
-    //       age: 25,
-    //       neighborhood: 'الزهور',
-    //       phoneNumber: '0918765432',
-    //       hospital: 'مستشفى الأمل',
-    //       department: 'الجلدية',
-    //       doctor: 'د. نور حسين',
-    //       time: DateTime(2025, 6, 27, 11, 0, 30)),
-    //   Appointment(
-    //       name: 'ليلى أحمد',
-    //       gender: 'أنثى',
-    //       age: 45,
-    //       neighborhood: 'النخيل',
-    //       phoneNumber: '0911223344',
-    //       hospital: 'مستشفى الأمل',
-    //       department: 'العيون',
-    //       doctor: 'د. سارة محمد',
-    //       time: DateTime(2025, 6, 27, 10, 30, 45)),
-    //   Appointment(
-    //       name: 'محمد سعيد',
-    //       gender: 'ذكر',
-    //       age: 50,
-    //       neighborhood: 'الواحة',
-    //       phoneNumber: '0919876543',
-    //       hospital: 'مستشفى الأمل',
-    //       department: 'الباطنية',
-    //       doctor: 'د. علي حسن',
-    //       time: DateTime(2025, 6, 27, 9, 0, 0)),
-    //   Appointment(
-    //       name: 'ريم منصور',
-    //       gender: 'أنثى',
-    //       age: 35,
-    //       neighborhood: 'الصفا',
-    //       hospital: 'مستشفى الأمل',
-    //       department: 'الجلدية',
-    //       doctor: 'د. نور حسين',
-    //       time: DateTime(2025, 6, 27, 11, 30, 10)),
-    // ];
-    // _checkedInAppointments = []; // we have just start
   } // initState
 
-// so, edit this fun bring doctros of each department
+  ///this fun bring doctros of each department
   List<String> _getDoctorsInSelectedDepartment() {
     final selectedDept =
         widget.registrar.departmentsNames[_selectedDepartmentIndex];
@@ -114,6 +63,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         .toSet()
         .toList();
   } // _getDoctorsInSelectedDepartment
+
+  List<Appointment> _sortAppointmentsByTime(List<Appointment> appointments) {
+    appointments.sort((a, b) => a.time.compareTo(b.time));
+    return appointments;
+  } // _sortAppointmentsByTime
 
   // after an appointment go to the doctor
   void _checkInAppointment(Appointment appointment) {
@@ -129,14 +83,9 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     } //if
   } // _checkInAppointment
 
-  // this is the dialog that poped up when pressing "إضافة حجز جديد" button
+  /// this is the dialog that poped up when pressing "إضافة حجز جديد" button
   Future<void> _showAddEditAppointmentDialog(
       {Appointment? existingAppointment}) async {
-    // String selectedDepartment = existingAppointment?.department ??
-    //     (widget.registrar.departmentsNames.isNotEmpty
-    //         ? widget.registrar.departmentsNames[0]
-    //         : '');
-
     String selectedDepartment = (existingAppointment?.department != null)
         ? existingAppointment!.department
         : widget.registrar.departmentsNames[0];
@@ -147,8 +96,6 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     List<String> doctorsForDepartment =
         getDoctorsForDepartment(selectedDepartment);
 
-    // String selectedDoctor = existingAppointment?.doctor ??
-    //     (doctorsForDepartment.isNotEmpty ? doctorsForDepartment[0] : '');
     String? selectedDoctor =
         (existingAppointment?.doctor) ?? (doctorsForDepartment[0]);
 
@@ -157,10 +104,10 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     String age = existingAppointment?.age ?? '';
     String address = existingAppointment?.address ?? '';
     String phoneNumber = existingAppointment?.phoneNumber ?? '';
-    DateTime? appointmentDate = existingAppointment?.time;
-    TimeOfDay? appointmentTime = existingAppointment != null
-        ? TimeOfDay.fromDateTime(existingAppointment.time)
-        : null;
+    //DateTime? appointmentDate = existingAppointment?.time;
+    //TimeOfDay? appointmentTime = existingAppointment != null
+    // ? TimeOfDay.fromDateTime(existingAppointment.time)
+    // : null;
 
     final _formKey = GlobalKey<FormState>();
 
@@ -169,86 +116,87 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            Widget _buildDatePickerField() {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: InkWell(
-                  onTap: () async {
-                    final selected = await showDatePicker(
-                      context: context,
-                      initialDate: appointmentDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (selected != null) {
-                      setState(() {
-                        appointmentDate = selected;
-                        print(appointmentDate.toString());
-                      });
-                    } else {
-                      print('Date not selected');
-                    }
-                  },
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'موعد الحجز',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                    ),
-                    child: Text(
-                      appointmentDate != null
-                          ? '${appointmentDate!.year}/${appointmentDate!.month.toString().padLeft(2, '0')}/${appointmentDate!.day.toString().padLeft(2, '0')}'
-                          : 'اختر موعد الحجز',
-                      style: TextStyle(
-                        color: appointmentDate != null
-                            ? Colors.black
-                            : Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
+            // Widget _buildDatePickerField() {
+            //   return Padding(
+            //     padding: const EdgeInsets.only(bottom: 16),
+            //     child: InkWell(
+            //       onTap: () async {
+            //         final selected = await showDatePicker(
+            //           context: context,
+            //           initialDate: appointmentDate ?? DateTime.now(),
+            //           firstDate: DateTime(2000),
+            //           lastDate: DateTime(2100),
+            //         );
+            //         if (selected != null) {
+            //           setState(() {
+            //             appointmentDate = selected;
+            //             print(appointmentDate.toString());
+            //           });
+            //         } else {
+            //           print('Date not selected');
+            //         }
+            //       },
+            //       child: InputDecorator(
+            //         decoration: InputDecoration(
+            //           labelText: 'موعد الحجز',
+            //           border: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(10)),
+            //           filled: true,
+            //           fillColor: Colors.grey[100],
+            //         ),
+            //         child: Text(
+            //           appointmentDate != null
+            //               ? '${appointmentDate!.year}/${appointmentDate!.month.toString().padLeft(2, '0')}/${appointmentDate!.day.toString().padLeft(2, '0')}'
+            //               : 'اختر موعد الحجز',
+            //           style: TextStyle(
+            //             color: appointmentDate != null
+            //                 ? Colors.black
+            //                 : Colors.grey[600],
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   );
+            // }
 
-            Widget _buildTimePickerField() {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: InkWell(
-                  onTap: () async {
-                    final pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: appointmentTime ?? TimeOfDay.now(),
-                    );
-                    if (pickedTime != null) {
-                      setState(() {
-                        appointmentTime = pickedTime;
-                      });
-                    }
-                  },
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'وقت الحجز',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                    ),
-                    child: Text(
-                      appointmentTime != null
-                          ? '${appointmentTime!.hour.toString().padLeft(2, '0')}:${appointmentTime!.minute.toString().padLeft(2, '0')}'
-                          : 'اختر وقت الحجز',
-                      style: TextStyle(
-                        color: appointmentTime != null
-                            ? Colors.black
-                            : Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }
+            // Widget _buildTimePickerField() {
+            //   return Padding(
+            //     padding: const EdgeInsets.only(bottom: 16),
+            //     child: InkWell(
+            //       onTap: () async {
+            //         final pickedTime = await showTimePicker(
+            //           context: context,
+            //           initialTime: appointmentTime ?? TimeOfDay.now(),
+            //         );
+            //         if (pickedTime != null) {
+            //           setState(() {
+            //             appointmentTime = pickedTime;
+            //             print(appointmentTime.toString());
+            //           });
+            //         }
+            //       },
+            //       child: InputDecorator(
+            //         decoration: InputDecoration(
+            //           labelText: 'وقت الحجز',
+            //           border: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(10)),
+            //           filled: true,
+            //           fillColor: Colors.grey[100],
+            //         ),
+            //         child: Text(
+            //           appointmentTime != null
+            //               ? '${appointmentTime!.hour.toString().padLeft(2, '0')}:${appointmentTime!.minute.toString().padLeft(2, '0')}'
+            //               : 'اختر وقت الحجز',
+            //           style: TextStyle(
+            //             color: appointmentTime != null
+            //                 ? Colors.black
+            //                 : Colors.grey[600],
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   );
+            // }
 
             return AlertDialog(
               title: Text(existingAppointment == null
@@ -361,8 +309,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                             : null,
                       ),
                       const SizedBox(height: 20),
-                      _buildDatePickerField(),
-                      _buildTimePickerField(),
+                      //_buildDatePickerField(),
+                      //_buildTimePickerField(),
                     ],
                   ),
                 ),
@@ -373,17 +321,20 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 ElevatedButton(
-                  child: Text(existingAppointment == null ? 'إضافة' : 'تحديث'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      if (appointmentDate != null && appointmentTime != null) {
-                        final fullDateTime = DateTime(
-                          appointmentDate!.year,
-                          appointmentDate!.month,
-                          appointmentDate!.day,
-                          appointmentTime!.hour,
-                          appointmentTime!.minute,
+                    child:
+                        Text(existingAppointment == null ? 'إضافة' : 'تحديث'),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        // if (appointmentDate != null && appointmentTime != null) {
+                        final fullDateTime = DateTime.utc(
+                          DateTime.now().year,
+                          DateTime.now().month,
+                          DateTime.now().day,
+                          DateTime.now().hour,
+                          DateTime.now().minute,
                         );
+                        DateTime inSudanTime =
+                            fullDateTime.add(const Duration(hours: 2));
 
                         if (existingAppointment == null) {
                           final newAppointment = Appointment(
@@ -400,27 +351,29 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                             time: fullDateTime,
                             isLocal: true,
                           );
-                          setState(() {
-                            _firestore.createAppointment(newAppointment);
-                            _allAppointments.add(newAppointment);
-                          });
+                          await _firestore.createAppointment(newAppointment);
+                          newAppointment.time = inSudanTime;
+                          _allAppointments.add(newAppointment);
+                          setState(() {});
                         } else {
+                          await _firestore
+                              .deleteAppointment(existingAppointment);
+                          existingAppointment.name = name;
+                          existingAppointment.gender = gender!;
+                          existingAppointment.age = age;
+                          existingAppointment.address = address;
+                          existingAppointment.phoneNumber = phoneNumber;
+                          existingAppointment.department = selectedDepartment;
+                          existingAppointment.doctor = selectedDoctor!;
+                          existingAppointment.hospital =
+                              widget.registrar.hospitalName;
+                          existingAppointment.time = fullDateTime;
+                          await _firestore
+                              .createAppointment(existingAppointment);
                           setState(() {
-                            existingAppointment.name = name;
-                            existingAppointment.gender = gender!;
-                            existingAppointment.age = age;
-                            existingAppointment.address = address;
-                            existingAppointment.phoneNumber = phoneNumber;
-                            existingAppointment.department = selectedDepartment;
-                            existingAppointment.doctor = selectedDoctor!;
-                            existingAppointment.hospital =
-                                widget.registrar.hospitalName;
-                            existingAppointment.time = fullDateTime;
-
-                            _firestore.updateAppointment(existingAppointment);
+                            existingAppointment.time = inSudanTime;
                             _allAppointments[_allAppointments.indexOf(
                                 existingAppointment)] = existingAppointment;
-                            //_fetchAppointments();
                           });
                         }
 
@@ -434,8 +387,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         );
                       }
                     }
-                  },
-                ),
+                    //},
+                    ),
               ],
             );
           },
@@ -496,10 +449,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
           // the bar in the top of the screen (doctors bar)
           body: TabBarView(
             children: doctors.map((doctor) {
-              final appts = _allAppointments
+              final appts = _sortAppointmentsByTime(_allAppointments
                   .where(
                       (a) => a.department == selectedDept && a.doctor == doctor)
-                  .toList();
+                  .toList());
+
               // checking there is appointments in the department
               if (appts.isEmpty) {
                 return const Center(
@@ -514,8 +468,13 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
 // gitting the appointment from _allAppointments
                 itemBuilder: (context, appointmentsCounter) {
                   final currentAppointment = appts[appointmentsCounter];
+
                   final String timeString = currentAppointment.time != null
                       ? '${currentAppointment.time.hour.toString().padLeft(2, '0')}:${currentAppointment.time.minute.toString().padLeft(2, '0')}:${currentAppointment.time.second.toString().padLeft(2, '0')}'
+                      : 'غير محدد';
+
+                  final String dateString = currentAppointment.time != null
+                      ? '${currentAppointment.time.year.toString().padLeft(4, '0')}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}'
                       : 'غير محدد';
 
                   // how appointments are displayed
@@ -545,6 +504,13 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                   currentAppointment.phoneNumber!.isNotEmpty)
                                 Text(
                                     'هاتف: ${currentAppointment.phoneNumber}'), // phone number
+                              if (dateString != 'غير محدد')
+                                Text(
+                                  'تاريخ الإنشاء: $dateString',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+
                               if (timeString != 'غير محدد')
                                 Text(
                                   'وقت الإنشاء: $timeString',
@@ -593,10 +559,12 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                 // appointments which created by the registrar itself only can be edited
                                 if (currentAppointment.isLocal)
                                   OutlinedButton(
-                                    onPressed: () =>
-                                        _showAddEditAppointmentDialog(
-                                            existingAppointment:
-                                                currentAppointment),
+                                    onPressed: () async {
+                                      await _showAddEditAppointmentDialog(
+                                          existingAppointment:
+                                              currentAppointment);
+                                      setState(() {});
+                                    },
                                     child: Row(
                                       children: [
                                         const Icon(Icons.edit),
@@ -620,8 +588,9 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
           // the floating button (إضافة موعد جديد)
           bottomNavigationBar: _buildBottomNavigationBar(),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              _showAddEditAppointmentDialog();
+            onPressed: () async {
+              await _showAddEditAppointmentDialog();
+              setState(() {});
             },
             icon: const Icon(Icons.add),
             label: const Text('إضافة موعد جديد'),

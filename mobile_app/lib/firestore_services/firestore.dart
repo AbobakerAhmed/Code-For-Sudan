@@ -146,8 +146,6 @@ class FirestoreService {
         FIELD_DEPARTMENT: appointment.department,
         FIELD_TIME: appointment.time
       });
-
-      print("Appointment created successfully");
     } catch (e) {
       _logError("createAppointment", e);
     }
@@ -267,7 +265,9 @@ class FirestoreService {
               hospital: hospitalName,
               department: departmentName,
               doctor: doc.get(FIELD_DOCTOR),
-              time: (doc.get(FIELD_TIME) as Timestamp).toDate()))
+              time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
+                  const Duration(hours: 2)) //to convert time from UTC to UTC+2
+              ))
           .toList();
     } catch (e) {
       _logError("getAppointments", e);
@@ -307,8 +307,6 @@ class FirestoreService {
         FIELD_DOCTOR: appointment.doctor,
         FIELD_TIME: appointment.time,
       });
-
-      print("Appointment updated successfully");
     } catch (e) {
       _logError("updateAppointment", e);
     }
@@ -339,8 +337,6 @@ class FirestoreService {
       final doc = querySnapshot.docs.first;
 
       await doc.reference.delete();
-
-      print("Appointment deleted successfully");
     } catch (e) {
       _logError("deleteAppointment", e);
     }
