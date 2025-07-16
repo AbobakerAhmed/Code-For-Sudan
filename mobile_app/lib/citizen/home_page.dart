@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/citizen/citizens_data.dart';
-import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
-import 'package:mobile_app/citizen/emergency_page.dart';
-import 'package:mobile_app/citizen/medical_advices.dart';
-import 'package:mobile_app/citizen/notifications_page.dart';
-import 'package:mobile_app/citizen/test_appointments.dart';
-import 'package:mobile_app/styles.dart';
+
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
 // to test the home page alone
@@ -30,13 +27,6 @@ class HomePageTest extends StatelessWidget {
       home: HomePage(
         citizen: citizen,
       ),
-      routes: {
-        'booking_page': (context) =>
-            BookingPage(), // AppointmentTestScreen(), //BookingPage(),
-        'emergency_page': (context) => const EmergencyPage(),
-        'medical_advices': (context) => const MedicalAdvicesPage(),
-        'notifications_page': (context) => const NotificationsPage(),
-      },
     );
   }
 }
@@ -113,6 +103,20 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) =>
                       CitizenProfilePage(citizen: this.widget.citizen),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sticky_note_2),
+            title: const Text('السجل المرضي'), // Translated
+            onTap: () {
+              //Navigator.pop(context); // Close the drawer
+              // got to the progile page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MedicalHistoryPage(),
                 ),
               );
             },
@@ -301,7 +305,7 @@ class FeatureCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 40, color: Colors.lightBlue),
+                Icon(icon, size: 40, color: Theme.of(context).primaryColor),
                 const SizedBox(height: 10),
                 Text(
                   title,

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/regist/registrar_booked_page.dart';
 import 'package:mobile_app/regist/registrar_notification_page.dart';
 import 'package:mobile_app/regist/registrar_profile_page.dart';
-import 'package:mobile_app/styles.dart';
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 // void main(List<String> args) {
 //   // Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
@@ -41,6 +43,7 @@ class RegistrarHomePage extends StatefulWidget {
 class _RegistrarHomePageState extends State<RegistrarHomePage> {
   final Registrar registrar; // required
   _RegistrarHomePageState({required this.registrar}); // constructor
+  bool _isDark = false;
 
   // build fun
   @override
@@ -48,7 +51,9 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: appBar('الصفحة الرئيسية'),
+        appBar: AppBar(
+          title: Text('الصفحة الرئيسية'),
+        ),
         drawer: _registrarDrawer(context), // look this fun aftre the build fun
 //        bottomNavigationBar: _RegistrarHomeBodyNavigatorBar(), // see the comment at the end of this class
         body: Padding(
@@ -58,11 +63,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
             children: [
               SizedBox(height: 50),
               Text(
-                'شنو يااا فرد\nما تشوفونا برساله ترحيبيه للزول دا',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey),
+                "حبابك ألف \n ربنا يتم العافية",
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
               SizedBox(height: 70),
               Expanded(
@@ -82,16 +84,13 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          const DrawerHeader(
+          DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Theme.of(context).primaryColor,
             ),
             child: Text(
               'قائمة المسجل', // Translated
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
           ListTile(
@@ -131,12 +130,22 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('الإعدادات'), // Translated
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-// go to sitting page or edit eidte it to edit the theme here dirctly
+          SwitchListTile(
+            activeColor: Theme.of(context).primaryColor,
+            title: Row(
+              children: [
+                const Icon(Icons.dark_mode),
+                SizedBox(
+                  width: 16,
+                ),
+                const Text("الوضع الليلي"),
+              ],
+            ),
+            value: _isDark,
+            onChanged: (val) {
+              _isDark = val;
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              //setState(() {});
             },
           ),
           const Divider(),
@@ -286,21 +295,18 @@ class FeatureCard extends StatelessWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
-        color: Colors.grey[50],
+        color: Theme.of(context).cardColor,
         child: InkWell(
           borderRadius: const BorderRadius.all(Radius.circular(16)),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 40, color: Colors.lightBlue),
+                Icon(icon, size: 40, color: Theme.of(context).primaryColor),
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blueGrey),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
             ),

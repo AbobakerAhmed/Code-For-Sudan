@@ -114,112 +114,67 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // Widget _buildDatePickerField() {
-            //   return Padding(
-            //     padding: const EdgeInsets.only(bottom: 16),
-            //     child: InkWell(
-            //       onTap: () async {
-            //         final selected = await showDatePicker(
-            //           context: context,
-            //           initialDate: appointmentDate ?? DateTime.now(),
-            //           firstDate: DateTime(2000),
-            //           lastDate: DateTime(2100),
-            //         );
-            //         if (selected != null) {
-            //           setState(() {
-            //             appointmentDate = selected;
-            //             print(appointmentDate.toString());
-            //           });
-            //         } else {
-            //           print('Date not selected');
-            //         }
-            //       },
-            //       child: InputDecorator(
-            //         decoration: InputDecoration(
-            //           labelText: 'موعد الحجز',
-            //           border: OutlineInputBorder(
-            //               borderRadius: BorderRadius.circular(10)),
-            //           filled: true,
-            //           fillColor: Colors.grey[100],
-            //         ),
-            //         child: Text(
-            //           appointmentDate != null
-            //               ? '${appointmentDate!.year}/${appointmentDate!.month.toString().padLeft(2, '0')}/${appointmentDate!.day.toString().padLeft(2, '0')}'
-            //               : 'اختر موعد الحجز',
-            //           style: TextStyle(
-            //             color: appointmentDate != null
-            //                 ? Colors.black
-            //                 : Colors.grey[600],
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   );
-            // }
-
-            // Widget _buildTimePickerField() {
-            //   return Padding(
-            //     padding: const EdgeInsets.only(bottom: 16),
-            //     child: InkWell(
-            //       onTap: () async {
-            //         final pickedTime = await showTimePicker(
-            //           context: context,
-            //           initialTime: appointmentTime ?? TimeOfDay.now(),
-            //         );
-            //         if (pickedTime != null) {
-            //           setState(() {
-            //             appointmentTime = pickedTime;
-            //             print(appointmentTime.toString());
-            //           });
-            //         }
-            //       },
-            //       child: InputDecorator(
-            //         decoration: InputDecoration(
-            //           labelText: 'وقت الحجز',
-            //           border: OutlineInputBorder(
-            //               borderRadius: BorderRadius.circular(10)),
-            //           filled: true,
-            //           fillColor: Colors.grey[100],
-            //         ),
-            //         child: Text(
-            //           appointmentTime != null
-            //               ? '${appointmentTime!.hour.toString().padLeft(2, '0')}:${appointmentTime!.minute.toString().padLeft(2, '0')}'
-            //               : 'اختر وقت الحجز',
-            //           style: TextStyle(
-            //             color: appointmentTime != null
-            //                 ? Colors.black
-            //                 : Colors.grey[600],
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   );
-            // }
-
-            return AlertDialog(
-              title: Text(existingAppointment == null
-                  ? 'إضافة موعد جديد'
-                  : 'تعديل الموعد'),
+        return StatefulBuilder(builder: (context, setState) {
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              backgroundColor: Theme.of(context).primaryColorLight,
+              title: Text(
+                existingAppointment == null
+                    ? 'إضافة موعد جديد'
+                    : 'تعديل الموعد',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).secondaryHeaderColor),
+              ),
               content: SingleChildScrollView(
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // enter name
                       TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
                         initialValue: name,
-                        decoration: const InputDecoration(labelText: 'الاسم'),
+                        decoration: InputDecoration(
+                          labelText: 'الاسم',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
                         validator: (value) => value == null || value.isEmpty
                             ? 'الرجاء إدخال الاسم'
                             : null,
                         onChanged: (value) => name = value,
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(height: 10), // between name and age
+
+                      // enter age
                       TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
                         initialValue: age,
-                        decoration: const InputDecoration(labelText: 'العمر'),
+                        decoration: InputDecoration(
+                          labelText: 'العمر',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty)
@@ -231,20 +186,53 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         },
                         onChanged: (value) => age = value,
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(
+                          height: 10), // between age and neighborhood
+
+                      // enter address
                       TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
                         initialValue: address,
-                        decoration: const InputDecoration(labelText: 'السكن'),
+                        decoration: InputDecoration(
+                          labelText: 'السكن',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
                         validator: (value) => value == null || value.isEmpty
                             ? 'الرجاء إدخال السكن'
                             : null,
                         onChanged: (value) => address = value,
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(
+                          height: 10), // between niebourhod and phone number
+
+                      // enter phone number
                       TextFormField(
+                        cursorColor: Theme.of(context).primaryColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
                         initialValue: phoneNumber,
-                        decoration:
-                            const InputDecoration(labelText: 'رقم الهاتف '),
+                        decoration: InputDecoration(
+                          labelText: 'رقم الهاتف',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
                         keyboardType: TextInputType.phone,
                         onChanged: (value) => phoneNumber = value,
                         validator: (value) {
@@ -254,30 +242,84 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(
+                          height: 10), // between phone number and gender
+
+                      // chose gender
                       DropdownButtonFormField<String>(
+                        iconEnabledColor:
+                            Theme.of(context).secondaryHeaderColor,
+                        iconDisabledColor:
+                            Theme.of(context).secondaryHeaderColor,
                         value: gender,
-                        decoration: const InputDecoration(labelText: 'الجنس'),
-                        items: g_gender
-                            .map((g) =>
-                                DropdownMenuItem(value: g, child: Text(g)))
-                            .toList(),
+                        validator: (value) {
+                          // validate the gender here
+                          if (value == null || value.isEmpty) {
+                            return 'الرجاء إدخال الجنس';
+                          } // if
+                          return null;
+                        },
+                        dropdownColor: Theme.of(context).cardColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'الجنس',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        items: g_gender.map((g) {
+                          return DropdownMenuItem(
+                            value: g,
+                            child: Text(g,
+                                style:
+                                    Theme.of(context).textTheme.displaySmall),
+                          );
+                        }).toList(),
                         onChanged: (value) {
-                          //if (value != null)
                           setState(() => gender = value);
                         },
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(
+                          height: 10), // between gender and department
+
+                      // chose the department
                       DropdownButtonFormField<String>(
+                        iconEnabledColor:
+                            Theme.of(context).secondaryHeaderColor,
+                        iconDisabledColor:
+                            Theme.of(context).secondaryHeaderColor,
                         value: selectedDepartment,
-                        decoration: const InputDecoration(labelText: 'القسم'),
-                        items: widget.registrar.departmentsNames
-                            .map((dept) => DropdownMenuItem(
-                                value: dept, child: Text(dept)))
-                            .toList(),
+                        dropdownColor: Theme.of(context).cardColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'القسم',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        items: widget.registrar.departmentsNames.map((dept) {
+                          return DropdownMenuItem(
+                              value: dept,
+                              child: Text(dept,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displaySmall));
+                        }).toList(),
                         onChanged: (value) {
-                          //&& value != selectedDepartment
-                          //if (value != null) {
                           setState(() {
                             selectedDepartment = value!;
 
@@ -292,16 +334,40 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                           });
                         },
                       ),
-                      const SizedBox(height: 10),
+
+                      const SizedBox(
+                          height: 10), // between department and doctor
+
+                      // chose the doctor depending on the department
+                      // make sure the doctor depending on the department
                       DropdownButtonFormField<String>(
-                        value:
-                            //selectedDoctor.isNotEmpty ? selectedDoctor : null,
-                            selectedDoctor,
-                        decoration: const InputDecoration(labelText: 'الطبيب'),
-                        items: doctorsForDepartment
-                            .map((doc) =>
-                                DropdownMenuItem(value: doc, child: Text(doc)))
-                            .toList(),
+                        iconEnabledColor:
+                            Theme.of(context).secondaryHeaderColor,
+                        iconDisabledColor:
+                            Theme.of(context).secondaryHeaderColor,
+                        value: selectedDoctor,
+                        dropdownColor: Theme.of(context).cardColor,
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'الطبيب',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                          )),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                        items: doctorsForDepartment.map((doc) {
+                          return DropdownMenuItem(
+                              value: doc,
+                              child: Text(doc,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displaySmall));
+                        }).toList(),
                         onChanged: (value) =>
                             setState(() => selectedDoctor = value ?? ''),
                         validator: (value) => (value == null || value.isEmpty)
@@ -309,20 +375,32 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                             : null,
                       ),
                       const SizedBox(height: 20),
-                      //_buildDatePickerField(),
-                      //_buildTimePickerField(),
                     ],
                   ),
                 ),
               ),
               actions: [
+                // chencle
                 TextButton(
-                  child: const Text('إلغاء'),
+                  child: const Text(
+                    'إلغاء',
+                    style: TextStyle(color: Colors.red),
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
+                // added it to the appointments list
+                // connect to the database here to add the new appointment
                 ElevatedButton(
-                    child:
-                        Text(existingAppointment == null ? 'إضافة' : 'تحديث'),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                    child: Text(
+                      existingAppointment == null ? 'إضافة' : 'تحديث',
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    // there is a problem here
+                    // when adding the appointment to the same page it is not be shown directly
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         // if (appointmentDate != null && appointmentTime != null) {
@@ -386,13 +464,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                   Text('الرجاء التحقق من ادخال كل البيانات')),
                         );
                       }
-                    }
-                    //},
-                    ),
+                    }),
               ],
-            );
-          },
-        );
+            ),
+          );
+        });
       },
     );
   }
@@ -440,11 +516,12 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         length: doctors.length,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('المواعيد - $selectedDept'),
+            title: Text('المواعيد ($selectedDept)'),
             // the bar in the bottom of the sceen (departments bar)
             bottom: TabBar(
-                isScrollable: true,
-                tabs: doctors.map((d) => Tab(text: d)).toList()),
+              isScrollable: true,
+              tabs: doctors.map((d) => Tab(text: d)).toList(),
+            ),
           ),
           // the bar in the top of the screen (doctors bar)
           body: TabBarView(
@@ -483,6 +560,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                     child: ListTile(
                       // numbering appointments
                       leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Theme.of(context).cardColor,
                         child: Text(
                           '${appointmentsCounter + 1}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -525,10 +604,14 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 ElevatedButton(
+                                  style: ButtonStyle(
+                                    iconColor:
+                                        WidgetStatePropertyAll(Colors.green),
+                                    side: WidgetStatePropertyAll(
+                                        BorderSide(color: Colors.green)),
+                                  ),
                                   onPressed: () =>
                                       _checkInAppointment(currentAppointment),
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green),
                                   child: const Icon(
                                       Icons.check), //const Text('دخول'),
 // here we should send the appointment data to the doctor
@@ -540,6 +623,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
 //someone booked an appointment and doesn't come in his order did came,
 // is hemust be removed dirctly from here?
                                 OutlinedButton(
+                                  style: ButtonStyle(
+                                      iconColor:
+                                          WidgetStatePropertyAll(Colors.red),
+                                      side: WidgetStatePropertyAll(
+                                          BorderSide(color: Colors.red))),
                                   onPressed: () async {
                                     await _firestore
                                         .deleteAppointment(currentAppointment);
@@ -567,11 +655,18 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                     },
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.edit),
+                                        Icon(
+                                          Icons.edit,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
                                         const SizedBox(
                                           width: 8,
                                         ),
-                                        const Text('تعديل'),
+                                        Text('تعديل',
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            )),
                                       ],
                                     ),
                                   ),
@@ -584,7 +679,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
               );
             }).toList(),
           ),
-
+          floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
           // the floating button (إضافة موعد جديد)
           bottomNavigationBar: _buildBottomNavigationBar(),
           floatingActionButton: FloatingActionButton.extended(
@@ -592,6 +687,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
               await _showAddEditAppointmentDialog();
               setState(() {});
             },
+            foregroundColor: Theme.of(context).primaryColorDark,
+            backgroundColor: Theme.of(context).cardColor,
             icon: const Icon(Icons.add),
             label: const Text('إضافة موعد جديد'),
           ),

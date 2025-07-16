@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/styles.dart';
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 
 /*
@@ -50,7 +50,9 @@ class RegistrarNotificationsPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-          appBar: appBar('التنبيهات'),
+          appBar: AppBar(
+            title: Text('التنبيهات'),
+          ),
           body: ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: notifications.length,
