@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/medical_history_page.dart';
+import 'package:mobile_app/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/citizen/citizens_data.dart';
@@ -8,32 +10,11 @@ import 'package:mobile_app/citizen/citizen_profile_page.dart';
 //import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
-// to test the home page alone
-void main() {
-  runApp(HomePageTest());
-}
-
 bool _isDark = false;
 
-class HomePageTest extends StatelessWidget {
-  HomePageTest({super.key});
-  Citizen citizen = CitizensData.data[
-      0]; // default citizen, it does not affcet directly unless when test this page directly
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(
-        citizen: citizen,
-      ),
-    );
-  }
-}
-
 class HomePage extends StatefulWidget {
-  final Citizen citizen;
-  const HomePage({super.key, required this.citizen});
+  final Citizen? citizen;
+  const HomePage({super.key, this.citizen});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -61,7 +42,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 70),
               Expanded(
-                child: _HomeGrid(), // look at the next class
+                child: _HomeGrid(widget.citizen), // look at the next class
               ),
             ],
           ),
@@ -70,7 +51,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // registrar drawer
+  // citizen drawer
   Drawer _citizenDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -96,29 +77,43 @@ class _HomePageState extends State<HomePage> {
             leading: const Icon(Icons.person),
             title: const Text('الملف الشخصي'), // Translated
             onTap: () {
-              //Navigator.pop(context); // Close the drawer
+              if (widget.citizen != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CitizenProfilePage(citizen: widget.citizen!),
+                  ),
+                );
+              } else {
+                Navigator.pop(context); // Close the drawer
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولا')),
+                );
+              }
+
               // got to the progile page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      CitizenProfilePage(citizen: this.widget.citizen),
-                ),
-              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.sticky_note_2),
             title: const Text('السجل المرضي'), // Translated
             onTap: () {
-              //Navigator.pop(context); // Close the drawer
+              if (widget.citizen != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MedicalHistoryPage(),
+                  ),
+                );
+              } else {
+                Navigator.pop(context); // Close the drawer
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولا')),
+                );
+              }
+
               // got to the progile page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MedicalHistoryPage(),
-                ),
-              );
             },
           ),
           SwitchListTile(
@@ -140,59 +135,76 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('تسجيل الخروج'), // Translated
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-// add logout logic here
-              Navigator.of(context).popUntil((route) => route.isFirst);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
-              );
-            },
-          ),
+          if (widget.citizen != null)
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('تسجيل الخروج'),
+              onTap: () {
+                Navigator.pop(context); // Close drawer
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
+                );
+              },
+            ),
+          if (widget.citizen == null)
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('تسجيل الدخول'), // Translated
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
   }
 }
 
-// This clas contains the 4 cards in the home screen
 class _HomeGrid extends StatelessWidget {
-  const _HomeGrid(); // const to improve perfomace
-  // (stop rebuilding)
+  final Citizen? citizen;
+  const _HomeGrid(this.citizen); // Accept nullable citizen
 
-  // Static data for better performance
-  static const List<Map<String, dynamic>> _featureData = [
-    {
-      'icon': Icons.domain_add,
-      'title': 'أحجز لي',
-      'route': 'booking_page',
-    },
-    {
-      'icon': Icons.phone_in_talk,
-      'title': 'حالة مستعجلة',
-      'route': 'emergency_page',
-    },
-    {
-      'icon': Icons.volunteer_activism,
-      'title': 'نصائح طبية',
-      'route': 'medical_advices',
-    },
-    {
-      'icon': Icons.notifications_active,
-      'title': 'التنبيهات',
-      'route': 'notifications_page',
-    },
-  ];
+  List<Map<String, dynamic>> getFeatureData() {
+    return [
+      {
+        'icon': Icons.domain_add,
+        'title': 'أحجز لي',
+        if (citizen != null) 'route': 'booking_page', // Dynamic routing
+        'path': MaterialPageRoute(
+          builder: (context) => BookingPage(citizen: citizen),
+        ),
+      },
+      {
+        'icon': Icons.phone_in_talk,
+        'title': 'حالة مستعجلة',
+        'route': 'emergency_page',
+      },
+      {
+        'icon': Icons.volunteer_activism,
+        'title': 'نصائح طبية',
+        'route': 'medical_advices',
+      },
+      {
+        'icon': Icons.notifications_active,
+        'title': 'التنبيهات',
+        'route': 'notifications_page',
+      },
+    ];
+  }
 
-  // build fun
   @override
   Widget build(BuildContext context) {
-    // Fixed layout: Column + Row to maintain exact card positions
-    return const Padding(
-      padding: EdgeInsets.all(8.0),
+    final featureData = getFeatureData();
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
           // First row: 2 cards
@@ -200,21 +212,21 @@ class _HomeGrid extends StatelessWidget {
             flex: 3,
             child: Row(
               children: [
-                // First card
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: _FeatureCardWrapper(
                       index: 0,
+                      data: featureData[0],
                     ),
                   ),
                 ),
-                // Second card
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: _FeatureCardWrapper(
                       index: 1,
+                      data: featureData[1],
                     ),
                   ),
                 ),
@@ -226,50 +238,30 @@ class _HomeGrid extends StatelessWidget {
             flex: 3,
             child: Row(
               children: [
-                // Third card
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: _FeatureCardWrapper(
                       index: 2,
+                      data: featureData[2],
                     ),
                   ),
                 ),
-                // Fourth card
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: _FeatureCardWrapper(
                       index: 3,
+                      data: featureData[3],
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(''),
-          ),
+          const Expanded(flex: 2, child: Text('')),
         ],
       ),
-    );
-  } // build fun
-} // _HomeGrid
-
-// Wrapper widget to handle navigation for each card
-class _FeatureCardWrapper extends StatelessWidget {
-  final int index;
-
-  const _FeatureCardWrapper({required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return FeatureCard(
-      icon: _HomeGrid._featureData[index]['icon'],
-      title: _HomeGrid._featureData[index]['title'],
-      onTap: () =>
-          Navigator.pushNamed(context, _HomeGrid._featureData[index]['route']),
     );
   }
 }
@@ -319,3 +311,35 @@ class FeatureCard extends StatelessWidget {
     );
   } // build fun
 } // FeatureCard
+
+class _FeatureCardWrapper extends StatelessWidget {
+  final int index;
+  final Map<String, dynamic> data;
+
+  const _FeatureCardWrapper({
+    super.key,
+    required this.index,
+    required this.data,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FeatureCard(
+      icon: data['icon'],
+      title: data['title'],
+      onTap: () {
+        if (data.containsKey('route')) {
+          if (data['route'] == 'booking_page') {
+            Navigator.push(context, data['path']);
+          } else {
+            Navigator.pushNamed(context, data['route']);
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('لا يمكنك الحجز دون تسجيل الدخول')),
+          );
+        }
+      },
+    );
+  }
+}

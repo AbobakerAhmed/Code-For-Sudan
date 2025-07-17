@@ -8,27 +8,30 @@ import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
+import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// testing this page alone
-void main(List<String> args) {
-  runApp(const _BookingPageTest());
-} // main
+// void main(List<String> args) {
+//   runApp(const _BookingPageTest());
+// } // main
 
-class _BookingPageTest extends StatelessWidget {
-  const _BookingPageTest();
+// class _BookingPageTest extends StatelessWidget {
+//   const _BookingPageTest();
 
-  @override
-  Widget build(BuildContext) {
-    return const MaterialApp(home: BookingPage());
-  }
-} // BookingPageTest
+//   @override
+//   Widget build(BuildContext) {
+//     return const MaterialApp(home: BookingPage());
+//   }
+// } // BookingPageTest
 
 /// booking page builder
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key});
+  final Citizen? citizen;
+
+  const BookingPage({super.key, this.citizen}); //Accept citizen as argument
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -75,6 +78,29 @@ class _BookingPageState extends State<BookingPage> {
     - The displayed doctors will be depending on the depatment
 
 */
+
+  void _fillFormWithCitizenData(Citizen citizen) {
+    _nameController.text = citizen.name;
+    gender = citizen.gender;
+    _ageController.text = citizen.age.toString();
+    _phoneController.text = citizen.phoneNumber;
+    _addressController.text = citizen.address;
+    selectedState = citizen.state;
+    selectedLocality = citizen.locality;
+
+    // Trigger population of localities when state is set
+    _getLocalities(citizen.state).then((_) {
+      setState(() {
+        _dbLocalities = _dbLocalities; // refresh UI
+      });
+    });
+    _getHospitals(citizen.state, citizen.locality).then((_) {
+      setState(() {
+        _dbHospitals = _dbHospitals; // refresh UI
+      });
+    });
+  }
+
   Future<void> _getStates() async {
     try {
       final statesAndLocalities =
@@ -161,68 +187,6 @@ class _BookingPageState extends State<BookingPage> {
   Future<void> _checkConnectivity() async {
     _isConnected = await isConnectedToInternet();
   }
-/*
-  /// get localities depending on the state
-  List<String> get localities =>
-      selectedState != null ? g_localities[selectedState!]! : [];
-*/
-/*
-  ///get hospitals depending on the locality
-  List<Hospital> hospitals() {
-    List<Hospital> list = [];
-    if (selectedState != null && selectedLocality != null) {
-      for (Hospital hospital in hospitalsData) {
-        if (hospital.hospitalState == selectedState &&
-            hospital.hospitalLocality == selectedLocality) {
-          list.add(hospital);
-        }
-      }
-      return list;
-    } else {
-      return [];
-    }
-  }
-*/
-/*
-  ///get a list of the names of the previously selected hospitals
-  List<String> hospitalsName() {
-    List<String> list = [];
-    for (Hospital hospital in hospitals()) {
-      list.add(hospital.hospitalName!);
-    }
-    return list;
-  }
-
-  // gtt departments depending on the hospital
-  List<String> availableDepartments() {
-    for (Hospital hospital in hospitals()) {
-      if (hospital.hospitalName == selectedHospital) {
-        return hospital.hospitalDepartmentToDoctors!.keys.toList();
-      }
-    }
-    return [];
-  }
-*/
-/*
-  - There is a bugge here which is the available doctors must be depending on
-    the specific department in a specific hospital
-  - The current code displayed the abailable doctors in that department in
-    in any hospital in Sudan
-
-    *** the problem was from the Testing data (doctor), because the keys (departments) aren't depending on the local hospitals, and hence the values (doctors) aren't depending on the hospitals***
-*/
-/*
-//  get doctors depending on the department
-  List<String> availableDoctors() {
-    for (Hospital hospital in hospitals()) {
-      if (hospital.hospitalName == selectedHospital) {
-        // Check if the map is not null before accessing it
-        return hospital.hospitalDepartmentToDoctors?[selectedDepartment] ?? [];
-      }
-    }
-    return [];
-  }
-*/
 
   /// initiate state
   @override
@@ -231,6 +195,10 @@ class _BookingPageState extends State<BookingPage> {
     super.initState();
     _checkConnectivity();
     _getStates();
+    // Auto-fill if for me and citizen is passed
+    if (_forMe == 1 && widget.citizen != null) {
+      _fillFormWithCitizenData(widget.citizen!);
+    }
   }
 
   /// overriding the build method
@@ -267,18 +235,67 @@ class _BookingPageState extends State<BookingPage> {
                               title: "حجز لي",
                               value: 1,
                               groupValue: _forMe,
+                              //   onChanged: (value) {
+                              //     setState(() {
+                              //       _forMe = value!;
+                              //     });
+                              //   }
                               onChanged: (value) {
                                 setState(() {
                                   _forMe = value!;
+                                  if (_forMe == 1 && widget.citizen != null) {
+                                    _fillFormWithCitizenData(widget.citizen!);
+                                  } else {
+                                    // Optionally clear the fields when switching to "غيري"
+                                    _nameController.clear();
+                                    _ageController.clear();
+                                    gender = null;
+                                    _phoneController.clear();
+                                    _addressController.clear();
+                                    selectedState = null;
+                                    selectedLocality = null;
+                                    selectedHospital = null;
+                                    selectedDepartment = null;
+                                    selectedDoctor = null;
+                                    _dbLocalities = [];
+                                    _dbHospitals = [];
+                                    _dbDepartments = [];
+                                    _dbDoctors = [];
+                                  }
                                 });
                               }),
                           _expanadedRadio(
                               title: "حجز لغيري",
                               value: 0,
                               groupValue: _forMe,
+                              //   onChanged: (value) {
+                              //     setState(() {
+                              //       _forMe = value!;
+                              //     });
+                              //   }
                               onChanged: (value) {
                                 setState(() {
                                   _forMe = value!;
+                                  if (_forMe == 1 && widget.citizen != null) {
+                                    _fillFormWithCitizenData(widget.citizen!);
+                                  } else {
+                                    // Optionally clear the fields when switching to "غيري"
+                                    _nameController.clear();
+                                    _ageController.clear();
+                                    gender = null;
+                                    _phoneController.clear();
+                                    _addressController.clear();
+                                    selectedState = null;
+                                    selectedLocality = null;
+                                    selectedHospital = null;
+                                    selectedDepartment = null;
+                                    selectedDoctor = null;
+                                    _dbLocalities = [];
+                                    _dbLocalities = [];
+                                    _dbHospitals = [];
+                                    _dbDepartments = [];
+                                    _dbDoctors = [];
+                                  }
                                 });
                               }),
                         ],
