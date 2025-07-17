@@ -294,7 +294,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
                           ? const Center(
                               child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [CircularProgressIndicator()],
+                              children: [
+                                CircularProgressIndicator(
+                                  color: Colors.lightBlue,
+                                )
+                              ],
                             ))
                           : ListView.builder(
                               itemCount: emergencyNumbers.length,

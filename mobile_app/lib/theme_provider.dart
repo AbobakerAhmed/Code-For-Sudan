@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+// public
+ThemeMode _themeMode = ThemeMode.light;
+
 class ThemeProvider with ChangeNotifier {
   // Default theme mode
-  ThemeMode _themeMode = ThemeMode.light;
+
   ThemeMode get themeMode => _themeMode;
   void toggleTheme() {
     _themeMode =
@@ -120,4 +123,8 @@ class ThemeProvider with ChangeNotifier {
       ),
     );
   }
+}
+
+bool isDark() {
+  return _themeMode == ThemeMode.dark;
 }

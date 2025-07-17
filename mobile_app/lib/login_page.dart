@@ -1,5 +1,7 @@
 // Date: 26th of Jun 2025
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 
@@ -216,6 +218,8 @@ class _LoginPageState extends State<LoginPage> {
                     }, // validator
                   ),
 
+                  SizedBox(height: 16),
+
                   // Login Button
                   ElevatedButton(
                     child: const Text(
@@ -232,6 +236,26 @@ class _LoginPageState extends State<LoginPage> {
                             Theme.of(context).primaryColor // button color
                         ),
                     onPressed: () async {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
 // checking login data
 //                 _login();
 // if you find him a registrar, then create a registrar object and assign its data
@@ -239,6 +263,7 @@ class _LoginPageState extends State<LoginPage> {
                       // example
                       await _checkCitizenLogin();
                       await _checkRegistrarLogin();
+
                       // Registrar currentRegistrar = Registrar(
                       //   'Mohammed abdulsalam',
                       //   '0912345678',
@@ -256,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                             await _firestoreService.getCitizen(
                                 _phoneNumberController.text,
                                 _passwordController.text);
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => HomePage(
@@ -275,7 +300,7 @@ class _LoginPageState extends State<LoginPage> {
                                 _phoneNumberController.text,
                                 _passwordController.text);
                         await currentRegistrar.fetchDepartments();
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => RegistrarHomePage(
@@ -284,6 +309,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       } else {
+                        Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
                               'حدث خطأ. لم يتم تسجيل الدخول\n الرجاء التأكد من اسم المستخدم و كلمة المرور'),

@@ -13,8 +13,6 @@ void main() {
   runApp(HomePageTest());
 }
 
-bool _isDark = false;
-
 class HomePageTest extends StatelessWidget {
   HomePageTest({super.key});
   Citizen citizen = CitizensData.data[
@@ -40,6 +38,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _isDark = isDark();
+
   @override
   Widget build(BuildContext context) {
     return Directionality(

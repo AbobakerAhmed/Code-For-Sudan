@@ -43,7 +43,7 @@ class RegistrarHomePage extends StatefulWidget {
 class _RegistrarHomePageState extends State<RegistrarHomePage> {
   final Registrar registrar; // required
   _RegistrarHomePageState({required this.registrar}); // constructor
-  bool _isDark = false;
+  bool _isDark = isDark();
 
   // build fun
   @override
