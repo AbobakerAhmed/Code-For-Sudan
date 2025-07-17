@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for FilteringTextInputFormatter
 
 class AddingHospitalsScreen extends StatefulWidget {
   const AddingHospitalsScreen({super.key});
@@ -21,6 +22,74 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
       TextEditingController();
 
   String? _hospitalType; // To hold 'مستشفى حكومي' or 'مستشفى خاص'
+
+  // Add these variables for dropdowns
+  String? _selectedState;
+  String? _selectedLocality;
+  final List<String> _states = [
+    'الخرطوم',
+    'الجزيرة',
+    'النيل الأبيض',
+    'كسلا',
+    'البحر الأحمر',
+    'القضارف',
+    'سنار',
+    'النيل الأزرق',
+    'شمال كردفان',
+    'جنوب كردفان',
+    'غرب كردفان',
+    'شمال دارفور',
+    'جنوب دارفور',
+    'شرق دارفور',
+    'غرب دارفور',
+    'وسط دارفور',
+    // Add more states as needed
+  ];
+  final List<String> _localities = [
+    'Locality 1',
+    'Locality 2',
+    'Locality 3',
+    // Add more localities as needed
+  ];
+
+  // Dropdown builder method
+  Widget _buildDropdownField({
+    required String hint,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 20.0,
+          ),
+        ),
+        value: value,
+        items: items
+            .map(
+              (item) => DropdownMenuItem<String>(
+                value: item,
+                child: Text(item, textDirection: TextDirection.rtl),
+              ),
+            )
+            .toList(),
+        onChanged: onChanged,
+        isExpanded: true,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -90,19 +159,29 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // State
-            _buildLabel('الولاية'), // State (Arabic)
-            _buildTextField(
-              controller: _stateNameController,
-              hintText: 'اسم الولاية...', // State name...
+            _buildLabel('الولاية...'), // State... (Arabic)
+            _buildDropdownField(
+              hint: 'الولاية...', // State...
+              value: _selectedState,
+              items: _states,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedState = newValue;
+                });
+              },
             ),
             const SizedBox(height: 16),
-
-            // Locality
-            _buildLabel('المحلية'), // Locality (Arabic)
-            _buildTextField(
-              controller: _localityNameController,
-              hintText: 'اسم المحلية...', // Locality name...
+            // Locality dropdown for Citizens
+            _buildLabel('المحلية...'), // Locality... (Arabic)
+            _buildDropdownField(
+              hint: 'المحلية...', // Locality...
+              value: _selectedLocality,
+              items: _localities,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedLocality = newValue;
+                });
+              },
             ),
             const SizedBox(height: 16),
 
@@ -181,7 +260,10 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
                   child: _buildTextField(
                     controller: _hospitalManagerPhoneController,
                     hintText: 'الرقم...', // Number...
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.number, // Only numbers
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ], // Only digits
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -232,6 +314,18 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
                     'Manager Phone: ${_hospitalManagerPhoneController.text}',
                   );
                   print('Departments: ${_hospitalDepartmentsController.text}');
+
+                  // Clear all fields
+                  setState(() {
+                    _hospitalNameController.clear();
+                    _stateNameController.clear();
+                    _localityNameController.clear();
+                    _additionalLocationInfoController.clear();
+                    _hospitalManagerNameController.clear();
+                    _hospitalManagerPhoneController.clear();
+                    _hospitalDepartmentsController.clear();
+                    _hospitalType = null;
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
@@ -280,6 +374,7 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
     required String hintText,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters, // Add this line
   }) {
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -287,6 +382,7 @@ class _AddingHospitalsScreenState extends State<AddingHospitalsScreen> {
         controller: controller,
         maxLines: maxLines,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters, // Add this line
         textAlign: TextAlign.right, // Align text to the right
         decoration: InputDecoration(
           hintText: hintText,
