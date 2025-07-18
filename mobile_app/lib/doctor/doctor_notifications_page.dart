@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 
 /*
-This is the same as the registrar notification page
+This is the same as the doctor notification page
 */
 
-class RegistrarNotificationsPage extends StatelessWidget {
-  final Registrar registrar;
+class DoctorNotificationsPage extends StatelessWidget {
+  final Doctor doctor;
 
-  const RegistrarNotificationsPage({super.key, required this.registrar});
+  const DoctorNotificationsPage({super.key, required this.doctor});
 
   final List<Map<String, String>> notifications = const [
     {

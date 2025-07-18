@@ -4,9 +4,12 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
+import 'package:mobile_app/backend/citizen/hospital.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 
 //import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/home_page.dart';
+import 'package:mobile_app/doctor/doctor_home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
 import 'package:mobile_app/styles.dart';
@@ -14,6 +17,15 @@ import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 
 import 'package:mobile_app/firestore_services/firestore.dart';
+
+Doctor currentDoctor = Doctor(
+    "omar",
+    "0990105260",
+    "deV19omar",
+    "White-Nile",
+    "Rabak",
+    "Ebn-Khaldon",
+    Department(name: "Bones", doctors: ["omar", "ahmed"]));
 
 // test the login page here
 void main() {
@@ -309,12 +321,19 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       } else {
-                        Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
                               'حدث خطأ. لم يتم تسجيل الدخول\n الرجاء التأكد من اسم المستخدم و كلمة المرور'),
                           duration: Duration(seconds: 1),
                         ));
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DoctorHomePage(
+                                doctor:
+                                    currentDoctor), // send the registrar object to the registrar home page
+                          ),
+                        );
                       }
                     },
                   ),
