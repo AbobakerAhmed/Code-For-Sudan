@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/citizen/notifications_page.dart';
 //import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/firebase_options.dart';
@@ -42,13 +43,13 @@ class HealthCareSudan extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: MaterialApp(
-            home: const LoginPage(),
+            home: HomePage(),
             routes: {
               // 'home': (context) => HomePage(
               //       citizen: CitizensData.data[0],
               //     ),
-              'booking_page': (context) => const BookingPage(),
-              'emergency_page': (context) => const EmergencyPage(),
+              'booking_page': (context) => BookingPage(),
+              'emergency_page': (context) => EmergencyPage(),
               'notifications_page': (context) => NotificationsPage(),
               'medical_advices': (context) => const MedicalAdvicesPage(),
             },
