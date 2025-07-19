@@ -1,0 +1,197 @@
+import 'package:flutter/material.dart';
+import 'package:pc_apps/manager/flutter_employee_management_screen.dart'; // Import NotificationsScreen
+import 'package:pc_apps/manager/flutter_notification_screen.dart'; // Import SendNotificationsScreen
+import 'package:pc_apps/manager/flutter_medical_data_management_screen.dart';
+import 'package:pc_apps/manager/flutter_send_notifications_screen.dart';
+import 'package:pc_apps/manager/flutter_settings_screen.dart';
+import 'package:pc_apps/manager/flutter_profile_screen.dart';
+
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100], // Light grey background
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        // The image doesn't show a leading icon or title for the app bar,
+        // but it does show person and settings icons on the right.
+        // Assuming this might be the main dashboard for a manager/admin.
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Colors.black54, size: 30),
+            onPressed: () {
+              // Handle tap for Profile
+              print('Profile icon tapped from MainMenuScreen');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black54, size: 30),
+            onPressed: () {
+              // Handle tap for Settings
+              print('Settings icon tapped from MainMenuScreen');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2, // Two cards per row
+                crossAxisSpacing: 16.0, // Spacing between columns
+                mainAxisSpacing: 16.0, // Spacing between rows
+                childAspectRatio: 2.3, // Adjust aspect ratio for card size
+                children: [
+                  // Employee Management (إدارة الموظفين)
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons
+                        .person_add_alt_1, // A suitable icon for employee management
+                    label: 'إدارة الموظفين',
+                    onTap: () {
+                      print('Employee Management tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const EmployeeManagementScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  // Medical Data Management (إدارة البيانات الطبية)
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons.security, // A suitable icon for data management
+                    label: 'إدارة البيانات الطبية',
+                    onTap: () {
+                      print('Medical Data Management tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const MedicalDataManagementScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  // Notifications (الاشعارات)
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons.notifications_active,
+                    label: 'الاشعارات',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsScreen(),
+                        ),
+                      );
+                    },
+                    showBadge:
+                        true, // As seen in image_99dfa4.jpg (previous dashboard)
+                    badgeCount: 3,
+                  ),
+                  // Send Notifications (ارسال الاشعارات)
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons
+                        .outbox, // A suitable icon for sending notifications
+                    label: 'ارسال الاشعارات',
+                    onTap: () {
+                      print('Send Notifications tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SendNotificationsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget _buildFeatureCard(
+  BuildContext context, {
+  required IconData icon,
+  required String label,
+  required VoidCallback onTap,
+  bool showBadge = false,
+  int badgeCount = 0,
+}) {
+  return Card(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    elevation: 3,
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20.0),
+      child: Stack(
+        children: [
+          Center(
+            // Add this Center widget
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(icon, color: Colors.blue.shade700, size: 60),
+                  const SizedBox(height: 16),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (showBadge && badgeCount > 0)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                child: Text(
+                  badgeCount.toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
