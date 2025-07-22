@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 import 'package:flutter/material.dart';
 // Import the LoginScreen from its dedicated file
-import 'package:pc_apps/doctor/flutter_login_screen.dart'; // Ensure this file defines and exports LoginScreen
+import 'package:pc_apps/doctor/login_screen.dart'; // Ensure this file defines and exports LoginScreen
 // Import the DashboardScreen from its dedicated file
 // Note: flutter_main_screen.dart now internally imports flutter_notification_screen.dart
 

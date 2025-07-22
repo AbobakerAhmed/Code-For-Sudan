@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pc_apps/manager/flutter_employee_data_management_screen.dart';
-import 'package:pc_apps/manager/flutter_hospital_data_screen.dart';
+import 'package:pc_apps/manager/employee_data_management_screen.dart';
+import 'package:pc_apps/manager/hospital_data_screen.dart';
 
 class EmployeeManagementScreen extends StatelessWidget {
   const EmployeeManagementScreen({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pc_apps/manager/flutter_employee_management_screen.dart'; // Import NotificationsScreen
-import 'package:pc_apps/manager/flutter_notification_screen.dart'; // Import SendNotificationsScreen
-import 'package:pc_apps/manager/flutter_medical_data_management_screen.dart';
-import 'package:pc_apps/manager/flutter_send_notifications_screen.dart';
-import 'package:pc_apps/manager/flutter_settings_screen.dart';
-import 'package:pc_apps/manager/flutter_profile_screen.dart';
+import 'package:pc_apps/manager/employee_management_screen.dart'; // Import NotificationsScreen
+import 'package:pc_apps/manager/notification_screen.dart'; // Import SendNotificationsScreen
+import 'package:pc_apps/manager/medical_data_management_screen.dart';
+import 'package:pc_apps/manager/send_notifications_screen.dart';
+import 'package:pc_apps/manager/settings_screen.dart';
+import 'package:pc_apps/manager/profile_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});

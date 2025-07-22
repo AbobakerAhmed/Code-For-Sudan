@@ -190,6 +190,13 @@ class _SendNotificationsScreenState extends State<SendNotificationsScreen> {
                   'Sending message to Department: $department, Employee: $employee, Message: $message',
                 );
                 // TODO: Implement send notification logic
+
+                // Clear all fields
+                setState(() {
+                  _selectedDepartment = null;
+                  _selectedEmployee = null;
+                  _messageController.clear();
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple, // Purple background

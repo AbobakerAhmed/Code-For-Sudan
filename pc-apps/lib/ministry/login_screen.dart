@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pc_apps/manager/flutter_main_screen.dart'; // Assuming your project name is my_health_app
+import 'package:pc_apps/ministry/main_screen.dart'; // Assuming your project name is my_health_app
 // Make sure DashboardScreen is defined in flutter_main_screen.dart or import the correct file where DashboardScreen is defined.
 
 // LoginScreen is a StatefulWidget to manage its internal state (text controllers).

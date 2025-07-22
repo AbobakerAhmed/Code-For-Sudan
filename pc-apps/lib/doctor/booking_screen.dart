@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pc_apps/doctor/flutter_diagnosis_screen.dart';
+import 'package:pc_apps/doctor/diagnosis_screen.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pc_apps/manager/flutter_booking_screen.dart';
+import 'package:pc_apps/manager/booking_screen.dart';
+import 'package:pc_apps/manager/medical_data_screen.dart';
+import 'package:pc_apps/manager/register_medical_data_screen.dart';
 
 class MedicalDataManagementScreen extends StatelessWidget {
   const MedicalDataManagementScreen({super.key});
@@ -78,7 +80,12 @@ class MedicalDataManagementScreen extends StatelessWidget {
               text: 'البيانات الطبية', // Medical Data
               onTap: () {
                 print('Medical Data tapped');
-                // TODO: Navigate to Medical Data viewing screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MedicalDataScreen(),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 20),
@@ -90,7 +97,12 @@ class MedicalDataManagementScreen extends StatelessWidget {
               text: 'تسجيل البيانات الطبية', // Register Medical Data
               onTap: () {
                 print('Register Medical Data tapped');
-                // TODO: Navigate to Medical Data registration screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterMedicalDataScreen(),
+                  ),
+                );
               },
             ),
           ],
