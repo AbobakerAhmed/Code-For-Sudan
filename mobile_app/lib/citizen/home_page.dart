@@ -4,7 +4,6 @@ import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:mobile_app/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
-import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
 
 //import 'package:mobile_app/styles.dart';
@@ -317,7 +316,6 @@ class _FeatureCardWrapper extends StatelessWidget {
   final Map<String, dynamic> data;
 
   const _FeatureCardWrapper({
-    super.key,
     required this.index,
     required this.data,
   });

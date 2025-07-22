@@ -57,9 +57,9 @@ class _AppointmentTestScreenState extends State<AppointmentTestScreen> {
                     itemBuilder: (context, index) {
                       final appointment = _appointments[index];
                       return ListTile(
-                        title: Text(appointment.name ?? 'No Name'),
-                        subtitle: Text('Age: ${appointment.age ?? 'N/A'}'),
-                        trailing: Text(appointment.doctor ?? 'No Doctor'),
+                        title: Text(appointment.name),
+                        subtitle: Text('Age: ${appointment.age}'),
+                        trailing: Text(appointment.doctor),
                       );
                     },
                   ),

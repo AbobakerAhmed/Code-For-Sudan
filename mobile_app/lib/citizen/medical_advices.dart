@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/styles.dart';
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
 void main(List<String> args) {

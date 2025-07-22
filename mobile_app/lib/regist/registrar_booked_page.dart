@@ -416,23 +416,33 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
 
                         if (existingAppointment == null) {
                           final newAppointment = Appointment(
-                            name: name,
-                            gender: gender!,
-                            age: age,
-                            address: address,
-                            phoneNumber: phoneNumber,
-                            state: widget.registrar.state,
-                            locality: widget.registrar.locality,
-                            hospital: widget.registrar.hospitalName,
-                            department: selectedDepartment,
-                            doctor: selectedDoctor!,
-                            time: fullDateTime,
-                            isLocal: true,
-                          );
-                          await _firestore.createAppointment(newAppointment);
-                          newAppointment.time = inSudanTime;
-                          _allAppointments.add(newAppointment);
-                          setState(() {});
+                              name: name,
+                              gender: gender!,
+                              age: age,
+                              address: address,
+                              phoneNumber: phoneNumber,
+                              state: widget.registrar.state,
+                              locality: widget.registrar.locality,
+                              hospital: widget.registrar.hospitalName,
+                              department: selectedDepartment,
+                              doctor: selectedDoctor!,
+                              medicalHistory: ["None"],
+                              time: fullDateTime,
+                              isLocal: true,
+                              forMe: false);
+                          bool appointmentExist = await _firestore
+                              .checkAppointmentExist(newAppointment);
+
+                          if (!appointmentExist) {
+                            await _firestore.createAppointment(newAppointment);
+                            newAppointment.time = inSudanTime;
+                            _allAppointments.add(newAppointment);
+                            setState(() {});
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('هذا الحجز موجود بالفعل !')));
+                          }
                         } else {
                           await _firestore
                               .deleteAppointment(existingAppointment);
@@ -546,13 +556,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                 itemBuilder: (context, appointmentsCounter) {
                   final currentAppointment = appts[appointmentsCounter];
 
-                  final String timeString = currentAppointment.time != null
-                      ? '${currentAppointment.time.hour.toString().padLeft(2, '0')}:${currentAppointment.time.minute.toString().padLeft(2, '0')}:${currentAppointment.time.second.toString().padLeft(2, '0')}'
-                      : 'غير محدد';
+                  final String timeString =
+                      '${currentAppointment.time.hour.toString().padLeft(2, '0')}:${currentAppointment.time.minute.toString().padLeft(2, '0')}:${currentAppointment.time.second.toString().padLeft(2, '0')}';
 
-                  final String dateString = currentAppointment.time != null
-                      ? '${currentAppointment.time.year.toString()}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}'
-                      : 'غير محدد';
+                  final String dateString =
+                      '${currentAppointment.time.year.toString()}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}';
 
                   // how appointments are displayed
                   return Card(
@@ -579,8 +587,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                               // how the age and nbh are displayed: (العمر: 30  |  السكن: الواحة - 12)
                               Text(
                                   'العمر: ${currentAppointment.age}  \nالسكن: ${currentAppointment.address}'),
-                              if (currentAppointment.phoneNumber != null &&
-                                  currentAppointment.phoneNumber!.isNotEmpty)
+                              if (currentAppointment.phoneNumber.isNotEmpty)
                                 Text(
                                     'هاتف: ${currentAppointment.phoneNumber}'), // phone number
                               if (dateString != 'غير محدد')
@@ -645,7 +652,8 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                 ),
 
                                 // appointments which created by the registrar itself only can be edited
-                                if (currentAppointment.isLocal)
+                                if (currentAppointment.isLocal != null &&
+                                    currentAppointment.isLocal == true)
                                   OutlinedButton(
                                     onPressed: () async {
                                       await _showAddEditAppointmentDialog(

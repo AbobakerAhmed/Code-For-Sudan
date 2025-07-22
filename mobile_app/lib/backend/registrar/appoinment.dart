@@ -11,7 +11,9 @@ class Appointment {
   String department;
   String doctor;
   DateTime time;
-  bool isLocal; // مضافة لتحديد الحجوزات التي أُضيفت محليًا
+  List<String>? medicalHistory;
+  bool? isLocal; // مضافة لتحديد الحجوزات التي أُضيفت محليًا
+  bool? forMe;
 
   Appointment({
     required this.name,
@@ -25,6 +27,8 @@ class Appointment {
     required this.department,
     required this.doctor,
     required this.time,
+    this.medicalHistory,
     this.isLocal = false,
+    this.forMe = true,
   });
 }

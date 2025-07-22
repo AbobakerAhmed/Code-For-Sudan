@@ -8,7 +8,7 @@ import 'package:mobile_app/citizen/notifications_page.dart';
 //import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/firebase_options.dart';
 //import login page
-import 'package:mobile_app/login_page.dart';
+//import 'package:mobile_app/login_page.dart';
 
 //import citizens page (can be deleted later)
 //import 'package:mobile_app/citizen/home_page.dart';

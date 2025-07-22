@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
-import 'package:mobile_app/backend/citizen/hospital.dart';
+import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 
@@ -34,6 +34,9 @@ const String FIELD_LOCALITY = "المحلية";
 const String FIELD_HOSPITAL = "المستشفى";
 const String FIELD_DEPARTMENT = "القسم";
 const String FIELD_TIME = 'موعد الحجز';
+const String FIELD_MEDICAL_HISTORY = 'السجل الطبي';
+const String FIELD_IS_LOCAL = 'حجز محلي';
+const String FIELD_FOR_ME = 'حجز لي';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -144,10 +147,109 @@ class FirestoreService {
         FIELD_LOCALITY: appointment.locality,
         FIELD_HOSPITAL: appointment.hospital,
         FIELD_DEPARTMENT: appointment.department,
-        FIELD_TIME: appointment.time
+        FIELD_MEDICAL_HISTORY: appointment.medicalHistory ?? ["None"],
+        FIELD_TIME: appointment.time,
+        FIELD_IS_LOCAL: appointment.isLocal ?? false,
+        FIELD_FOR_ME: appointment.forMe ?? true,
       });
     } catch (e) {
       _logError("createAppointment", e);
+    }
+  }
+
+  ///Search if an appointment does exist
+  ///1. if the appointment is for the user the method will check for the appointments with the same phone number and the appointment is for him
+  ///2. if the appointment is not for the user the method will check for the appointments with the same phone number and name **this prevent the user from creating a dublicate appointment with the same name and phone number**
+  Future<bool> checkAppointmentExist(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection("appointments")
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection("appointments")
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      _logError("searchAppointment", e);
+      return false;
+    }
+  }
+
+  /// delete an existing appointment
+  ///1. if the appointment is for the user the method will check for the appointments with the same phone number and the appointment is for him
+  ///2. if the appointment is not for the user the method will check for the appointments with the same phone number and name
+  Future<void> deleteAppointment(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection("appointments")
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection("appointments")
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "Appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+
+      await doc.reference.delete();
+    } catch (e) {
+      _logError("deleteAppointment", e);
     }
   }
 
@@ -196,14 +298,6 @@ class FirestoreService {
       return [];
     }
   }
-
-  /// Get a hospital's details
-  // static Future<Hospital> getHospital(
-  //     String state, String locality, String hospitalName) async {
-  //   final doc =
-  //       await _hospitalCollection(state, locality).doc(hospitalName).get();
-  //   return Hospital(doc.id, doc.get(PHONE), doc.get(DEPARTMENTS));
-  // }
 
   Future<Hospital> getHospital(
       String state, String locality, String hospitalName) async {
@@ -255,90 +349,45 @@ class FirestoreService {
           await departmentDoc.reference.collection("appointments").get();
       return appointmentsSnapshot.docs
           .map((doc) => Appointment(
-              name: doc.get(FIELD_NAME),
-              age: doc.get(FIELD_AGE),
-              gender: doc.get(FIELD_GENDER),
-              phoneNumber: doc.get(FIELD_PHONE),
-              address: doc.get(FIELD_ADDRESS),
-              state: state,
-              locality: locality,
-              hospital: hospitalName,
-              department: departmentName,
-              doctor: doc.get(FIELD_DOCTOR),
-              time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
-                  const Duration(hours: 2)) //to convert time from UTC to UTC+2
+                name: doc.get(FIELD_NAME),
+                age: doc.get(FIELD_AGE),
+                gender: doc.get(FIELD_GENDER),
+                phoneNumber: doc.get(FIELD_PHONE),
+                address: doc.get(FIELD_ADDRESS),
+                state: state,
+                locality: locality,
+                hospital: hospitalName,
+                department: departmentName,
+                medicalHistory: (() {
+                  try {
+                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
+                  } catch (_) {
+                    return ["None"];
+                  }
+                })(),
+                doctor: doc.get(FIELD_DOCTOR),
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
+                    const Duration(
+                        hours: 2)), //to convert time from UTC to UTC+2
+                isLocal: (() {
+                  try {
+                    return doc.get(FIELD_IS_LOCAL);
+                  } catch (_) {
+                    return false;
+                  }
+                })(),
+                forMe: (() {
+                  try {
+                    return doc.get(FIELD_FOR_ME);
+                  } catch (_) {
+                    return true;
+                  }
+                })(),
               ))
           .toList();
     } catch (e) {
       _logError("getAppointments", e);
       return [];
-    }
-  }
-
-  /// update an existing appointment
-  Future<void> updateAppointment(Appointment appointment) async {
-    try {
-      final querySnapshot = await _firestore
-          .collection(HOSPITALS)
-          .doc(appointment.state)
-          .collection(LOCALITIES)
-          .doc(appointment.locality)
-          .collection(DATA)
-          .doc(appointment.hospital)
-          .collection(DEPARTMENTS)
-          .doc(appointment.department)
-          .collection("appointments")
-          .where('الهاتف', isEqualTo: appointment.phoneNumber)
-          .limit(1) // safety: get only one
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        throw Exception(
-            "Appointment not found for phone: ${appointment.phoneNumber}");
-      }
-
-      final doc = querySnapshot.docs.first;
-      await doc.reference.update({
-        FIELD_NAME: appointment.name,
-        FIELD_AGE: appointment.age,
-        FIELD_GENDER: appointment.gender,
-        FIELD_PHONE: appointment.phoneNumber,
-        FIELD_ADDRESS: appointment.address,
-        FIELD_DOCTOR: appointment.doctor,
-        FIELD_TIME: appointment.time,
-      });
-    } catch (e) {
-      _logError("updateAppointment", e);
-    }
-  }
-
-  /// delete an existing appointment
-  Future<void> deleteAppointment(Appointment appointment) async {
-    try {
-      final querySnapshot = await _firestore
-          .collection(HOSPITALS)
-          .doc(appointment.state)
-          .collection(LOCALITIES)
-          .doc(appointment.locality)
-          .collection(DATA)
-          .doc(appointment.hospital)
-          .collection(DEPARTMENTS)
-          .doc(appointment.department)
-          .collection("appointments")
-          .where('الهاتف', isEqualTo: appointment.phoneNumber)
-          .limit(1)
-          .get();
-
-      if (querySnapshot.docs.isEmpty) {
-        throw Exception(
-            "Appointment not found for phone: ${appointment.phoneNumber}");
-      }
-
-      final doc = querySnapshot.docs.first;
-
-      await doc.reference.delete();
-    } catch (e) {
-      _logError("deleteAppointment", e);
     }
   }
 

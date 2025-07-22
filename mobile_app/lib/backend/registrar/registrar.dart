@@ -1,6 +1,5 @@
 import 'package:mobile_app/backend/hospital_employee.dart';
-import 'package:mobile_app/backend/citizen/hospital.dart';
-import 'package:mobile_app/backend/registrar/appoinment.dart';
+import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
 class Registrar extends HospitalEmployee {

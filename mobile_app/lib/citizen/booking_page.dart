@@ -5,11 +5,11 @@ import 'dart:core';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
-import 'package:mobile_app/styles.dart'; // appBar style
+//import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
-import 'package:mobile_app/backend/citizen/hospital.dart';
+import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -63,6 +63,7 @@ class _BookingPageState extends State<BookingPage> {
   String? age;
   String? gender;
   String? phoneNumber;
+  List<String> mediacalHistory = ["None"];
   String? selectedState;
   String? selectedLocality;
   String? address;
@@ -81,12 +82,17 @@ class _BookingPageState extends State<BookingPage> {
 
   void _fillFormWithCitizenData(Citizen citizen) {
     _nameController.text = citizen.name;
+    fullName = _nameController.text;
     gender = citizen.gender;
     _ageController.text = citizen.age.toString();
+    age = _ageController.text;
     _phoneController.text = citizen.phoneNumber;
+    phoneNumber = _phoneController.text;
     _addressController.text = citizen.address;
+    address = _addressController.text;
     selectedState = citizen.state;
     selectedLocality = citizen.locality;
+    mediacalHistory = citizen.medicalHistory;
 
     // Trigger population of localities when state is set
     _getLocalities(citizen.state).then((_) {
@@ -252,6 +258,8 @@ class _BookingPageState extends State<BookingPage> {
                                     gender = null;
                                     _phoneController.clear();
                                     _addressController.clear();
+                                    mediacalHistory = ["None"];
+                                    _showMedicalHistory = false;
                                     selectedState = null;
                                     selectedLocality = null;
                                     selectedHospital = null;
@@ -268,11 +276,6 @@ class _BookingPageState extends State<BookingPage> {
                               title: "حجز لغيري",
                               value: 0,
                               groupValue: _forMe,
-                              //   onChanged: (value) {
-                              //     setState(() {
-                              //       _forMe = value!;
-                              //     });
-                              //   }
                               onChanged: (value) {
                                 setState(() {
                                   _forMe = value!;
@@ -404,7 +407,7 @@ class _BookingPageState extends State<BookingPage> {
                         },
                       ),
 
-                      // home details: neighborhod - block
+                      // home details: adress
                       _buildTextField(
                         'الحي - المربع (مثال: الواحة - 4)',
                         textDirection: TextDirection.rtl,
@@ -454,7 +457,6 @@ class _BookingPageState extends State<BookingPage> {
                       // selecting a doctor depending on the department
                       _buildDropdown(
                         label: 'الطبيب',
-                        // look the bugg above (in the doctors testing data)
                         value: selectedDoctor,
                         items: _dbDoctors,
                         onChanged: (val) {
@@ -463,7 +465,6 @@ class _BookingPageState extends State<BookingPage> {
                           });
                         },
                       ),
-                      //const SizedBox(height: 10),
 
                       // show my medical history
                       CheckboxListTile(
@@ -475,6 +476,9 @@ class _BookingPageState extends State<BookingPage> {
                           onChanged: (value) {
                             setState(() {
                               _showMedicalHistory = value!;
+                              mediacalHistory = (_showMedicalHistory)
+                                  ? widget.citizen!.medicalHistory
+                                  : ["None"];
                             });
                           }),
 
@@ -487,46 +491,62 @@ class _BookingPageState extends State<BookingPage> {
                         style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.green,
                             minimumSize: const Size(10, 10)),
-                        onPressed: () {
+                        onPressed: () async {
                           /*
   Validation of a field can be in its text field or here
   */
 
                           if (_isFormValid() &&
                               _formKey.currentState!.validate()) {
-                            // save info in database
-                            _firestoreService.createAppointment(Appointment(
-                                name: fullName!,
-                                gender: gender!,
-                                age: age!,
-                                address: address!,
-                                phoneNumber: phoneNumber!,
-                                state: selectedState!,
-                                locality: selectedLocality!,
-                                hospital: selectedHospital!,
-                                department: selectedDepartment!,
-                                doctor: selectedDoctor!,
-                                time: DateTime.now().subtract(const Duration(
-                                    hours: 2)) // to convert from UTC+2 to UTC
-                                ));
+                            Appointment appointment = Appointment(
+                              name: fullName!,
+                              gender: gender!,
+                              age: age!,
+                              address: address!,
+                              phoneNumber: phoneNumber!,
+                              state: selectedState!,
+                              locality: selectedLocality!,
+                              hospital: selectedHospital!,
+                              department: selectedDepartment!,
+                              doctor: selectedDoctor!,
+                              medicalHistory: mediacalHistory,
+                              time: DateTime.now().subtract(const Duration(
+                                  hours: 2)), // to convert from UTC+2 to UTC
+                              forMe: _forMe == 1 ? true : false,
+                            );
 
-                            // clear fields
-                            setState(() {
-                              _nameController.clear();
-                              _ageController.clear();
-                              gender = null;
-                              _phoneController.clear();
-                              _addressController.clear();
-                              selectedState = null;
-                              selectedLocality = null;
-                              selectedHospital = null;
-                              selectedDepartment = null;
-                              selectedDoctor = null;
-                            });
+                            //check if the appointment already exist
+                            bool appointmentExist = await _firestoreService
+                                .checkAppointmentExist(appointment);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('تم إرسال الحجز بنجاح 🎉')));
+                            if (!appointmentExist) {
+                              _firestoreService.createAppointment(appointment);
+                              // clear fields
+                              setState(() {
+                                _nameController.clear();
+                                _ageController.clear();
+                                gender = null;
+                                _phoneController.clear();
+                                _addressController.clear();
+                                mediacalHistory = ["None"];
+                                _showMedicalHistory = false;
+                                selectedState = null;
+                                selectedLocality = null;
+                                selectedHospital = null;
+                                selectedDepartment = null;
+                                selectedDoctor = null;
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('تم إرسال الحجز بنجاح 🎉')));
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('هذا الحجز موجود بالفعل!')));
+                            }
                           } // if
                           else {
                             ScaffoldMessenger.of(context).showSnackBar(

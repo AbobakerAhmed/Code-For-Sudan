@@ -249,16 +249,17 @@ class _SignupPageState extends State<SignupPage> {
                           return;
                         } else if (!_alreadySignedUp) {
                           _alreadySignedUp = false;
+                          // Create a new citizen
                           Citizen citizen = Citizen(
-                            _nameController.text,
-                            _phoneController.text,
-                            _passwordController.text,
+                            _userName!,
+                            _phoneNumber!,
+                            _password!,
                             _gender!,
                             _birthDate!,
                             ['None'],
                             _state!,
                             _locality!,
-                            _addressController.text,
+                            _address!,
                           );
 
                           _firestoreService.createCitizen(citizen);

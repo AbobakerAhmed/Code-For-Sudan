@@ -7,7 +7,7 @@ import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
-import 'package:mobile_app/styles.dart';
+//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 
