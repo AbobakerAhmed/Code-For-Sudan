@@ -1,4 +1,4 @@
-import 'package:mobile_app/backend/citizen/hospital.dart';
+import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/backend/hospital_employee.dart';
 
 class Doctor extends HospitalEmployee {
