@@ -14,7 +14,7 @@ class DoctorProfilePage extends StatelessWidget {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: AppBar(
-          title: Text('الملف الشخصي للدكتور'),
+          title: Text('الملف الشخصي'),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -58,7 +58,7 @@ class DoctorProfilePage extends StatelessWidget {
               // departments
               ListTile(
                 leading: const Icon(Icons.category),
-                title: const Text('الأقسام المسؤولة عنها'),
+                title: const Text('القسم'),
                 subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -104,7 +104,7 @@ class DoctorProfilePage extends StatelessWidget {
             child: AlertDialog(
               backgroundColor: Theme.of(context).primaryColorLight,
               title: Text(
-                "تعديل بيانات المسجل",
+                "تعديل بيانات الدكتور",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).secondaryHeaderColor),

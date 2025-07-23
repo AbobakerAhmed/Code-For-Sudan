@@ -56,7 +56,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
             children: [
               SizedBox(height: 50),
               Text(
-                "حبابك ألف \n ربنا يتم العافية",
+                "أهلا وسهلا \n نورتنا يا دكتور",
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               SizedBox(height: 70),

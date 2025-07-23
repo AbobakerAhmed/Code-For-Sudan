@@ -15,7 +15,7 @@ class RegistrarProfilePage extends StatelessWidget {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: AppBar(
-          title: Text('الملف الشخصي للمسجل'),
+          title: Text('الملف الشخصي'),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),

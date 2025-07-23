@@ -526,13 +526,12 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text('المواعيد ($selectedDept)'),
-            // the bar in the bottom of the sceen (departments bar)
+            // the bar in the bottom of the app bar (doctors bar)
             bottom: TabBar(
               isScrollable: true,
               tabs: doctors.map((d) => Tab(text: d)).toList(),
             ),
           ),
-          // the bar in the top of the screen (doctors bar)
           body: TabBarView(
             children: doctors.map((doctor) {
               final appts = _sortAppointmentsByTime(_allAppointments
