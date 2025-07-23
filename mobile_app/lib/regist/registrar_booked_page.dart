@@ -507,14 +507,23 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     final doctors = _getDoctorsInSelectedDepartment(); // for the top taps
     // checking if the department has no doctors
     if (doctors.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: Text('لا يوجد أطباء في قسم $selectedDept')),
-        body: const Center(child: Text('لا توجد مواعيد لهذا القسم')),
-        bottomNavigationBar: _buildBottomNavigationBar(),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showAddEditAppointmentDialog(),
-          icon: const Icon(Icons.add),
-          label: const Text('إضافة موعد جديد'),
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          appBar: AppBar(title: Text('المواعيد')),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(
+                    color: Theme.of(context).primaryColor),
+                SizedBox(
+                  height: 30,
+                ),
+                Text("كيف حالك"),
+              ],
+            ),
+          ),
         ),
       );
     } // if
@@ -527,13 +536,12 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text('المواعيد ($selectedDept)'),
-            // the bar in the bottom of the sceen (departments bar)
+            // the bar in the bottom of the app bar (doctors bar)
             bottom: TabBar(
               isScrollable: true,
               tabs: doctors.map((d) => Tab(text: d)).toList(),
             ),
           ),
-          // the bar in the top of the screen (doctors bar)
           body: TabBarView(
             children: doctors.map((doctor) {
               final appts = _sortAppointmentsByTime(_allAppointments

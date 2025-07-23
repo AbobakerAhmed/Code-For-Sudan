@@ -9,7 +9,7 @@ import 'package:mobile_app/citizen/citizen_profile_page.dart';
 //import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
-bool _isDark = false;
+bool _isDark = isDark();
 
 class HomePage extends StatefulWidget {
   final Citizen? citizen;
@@ -20,6 +20,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _isDark = isDark();
+
   @override
   Widget build(BuildContext context) {
     return Directionality(

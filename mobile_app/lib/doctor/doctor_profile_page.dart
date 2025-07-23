@@ -1,12 +1,11 @@
-// Date: 26th of Jun 2025
+// Date: 18th of Jul 2025
 
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 
-class RegistrarProfilePage extends StatelessWidget {
-  final Registrar registrar; // required (see registrar.dart)
-  const RegistrarProfilePage(
-      {super.key, required this.registrar}); // constructor
+class DoctorProfilePage extends StatelessWidget {
+  final Doctor doctor; // required (see doctor.dart)
+  const DoctorProfilePage({super.key, required this.doctor}); // constructor
 
   // build fun
   @override
@@ -27,15 +26,15 @@ class RegistrarProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  registrar.name.substring(0, 2).toUpperCase(),
+                  doctor.name.substring(0, 2).toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
               const SizedBox(height: 16), // between image and the name
 
-              // registrar name
+              // doctor name
               Text(
-                registrar.name,
+                doctor.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -46,26 +45,25 @@ class RegistrarProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: const Text('رقم الهاتف'),
-                subtitle: Text(registrar.phoneNumber),
+                subtitle: Text(doctor.phoneNumber),
               ),
 
               // hsopital
               ListTile(
                 leading: const Icon(Icons.local_hospital),
                 title: const Text('المستشفى'),
-                subtitle: Text(registrar.hospitalName),
+                subtitle: Text(doctor.hospitalName),
               ),
 
               // departments
               ListTile(
                 leading: const Icon(Icons.category),
-                title: const Text('الأقسام المسؤولة عنها'),
+                title: const Text('القسم'),
                 subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: registrar.departmentsNames
-                      .map((dep) => Text('• $dep'))
-                      .toList(),
-                ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(doctor.departments.name),
+                    ]),
               ),
 
               const SizedBox(height: 24), // between departments and the button
@@ -81,7 +79,7 @@ class RegistrarProfilePage extends StatelessWidget {
                 ),
                 onPressed: () {
                   _showEditDialog(context);
-// edit the registrar data (only name, phone number, password)
+// edit the doctor data (only name, phone number, password)
                 },
               ),
             ],
@@ -91,9 +89,9 @@ class RegistrarProfilePage extends StatelessWidget {
     );
   } // build fun
 
-// this is the dialog for editing the registrar data
+// this is the dialog for editing the doctor data
   Future<void> _showEditDialog(BuildContext context,
-      {Registrar? currentRegistrar}) async {
+      {Doctor? currentDoctor}) async {
     final _formKey = GlobalKey<FormState>(); // global key
 
     // that will be pobed up only when pressing the button
@@ -106,7 +104,7 @@ class RegistrarProfilePage extends StatelessWidget {
             child: AlertDialog(
               backgroundColor: Theme.of(context).primaryColorLight,
               title: Text(
-                "تعديل بيانات المسجل",
+                "تعديل بيانات الدكتور",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).secondaryHeaderColor),
@@ -120,7 +118,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // edit the name
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.name,
+                        initialValue: currentDoctor?.name,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -141,7 +139,7 @@ class RegistrarProfilePage extends StatelessWidget {
                           }
                           return null;
                         },
-                        onChanged: (value) => currentRegistrar?.name = value,
+                        onChanged: (value) => currentDoctor?.name = value,
                       ),
 
                       const SizedBox(
@@ -150,7 +148,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // enter phone number
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.phoneNumber.toString(),
+                        initialValue: currentDoctor?.phoneNumber.toString(),
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -169,7 +167,7 @@ class RegistrarProfilePage extends StatelessWidget {
                         keyboardType: TextInputType.phone,
                         // validate the phone number here
                         onChanged: (value) =>
-                            currentRegistrar?.phoneNumber = value,
+                            currentDoctor?.phoneNumber = value,
                       ),
                       const SizedBox(
                           height: 10), // between age and neighborhood
@@ -177,7 +175,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // enter password
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.password,
+                        initialValue: currentDoctor?.password,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -199,8 +197,7 @@ class RegistrarProfilePage extends StatelessWidget {
                           return null;
                         }, // validator
                         // encode it
-                        onChanged: (value) =>
-                            currentRegistrar?.password = value,
+                        onChanged: (value) => currentDoctor?.password = value,
                       ),
 
                       const SizedBox(
@@ -220,7 +217,7 @@ class RegistrarProfilePage extends StatelessWidget {
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
-                // connect to the database here to update the registrar info
+                // connect to the database here to update the doctor info
                 ElevatedButton(
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.white),
@@ -242,4 +239,4 @@ class RegistrarProfilePage extends StatelessWidget {
       },
     );
   } // _showEditDialog
-} // RegistrarProfilePage
+} // doctorProfilePage

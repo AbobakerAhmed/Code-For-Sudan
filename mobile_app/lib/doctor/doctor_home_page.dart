@@ -1,48 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/regist/registrar_booked_page.dart';
-import 'package:mobile_app/regist/registrar_notification_page.dart';
-import 'package:mobile_app/regist/registrar_profile_page.dart';
-//import 'package:mobile_app/styles.dart';
-import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/doctor/doctor_booking_page.dart';
+import 'package:mobile_app/doctor/doctor_notifications_page.dart';
+import 'package:mobile_app/doctor/doctor_profile_page.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 
-// void main(List<String> args) {
-//   // Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
-//   //     "al-sanousy", 'الجزيرة', 'ود مدني', ["dentsit", "brain"]);
-//   runApp(RegistrarHomePageTest(registrar: registrar));
-// }
+class DoctorHomePageTest extends StatelessWidget {
+  final Doctor doctor;
 
-class RegistrarHomePageTest extends StatelessWidget {
-  final Registrar registrar;
-
-  const RegistrarHomePageTest({super.key, required this.registrar});
+  const DoctorHomePageTest({super.key, required this.doctor});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RegistrarHomePage(
-        registrar: registrar,
+      home: DoctorHomePage(
+        doctor: doctor,
       ),
-//      routes: {      }, // no routes here because we will send registrar object to the next page
+//      routes: {      }, // no routes here because we will send doctor object to the next page
     );
   }
 }
 
-// registrar home page
-class RegistrarHomePage extends StatefulWidget {
-  final Registrar registrar; // this page will be only for registrars
-  const RegistrarHomePage({super.key, required this.registrar}); // constructor
+// doctor home page
+class DoctorHomePage extends StatefulWidget {
+  final Doctor doctor; // this page will be only for doctors
+  const DoctorHomePage({super.key, required this.doctor}); // constructor
   @override
-  State<StatefulWidget> createState() =>
-      _RegistrarHomePageState(registrar: registrar);
-} // RegistrarHomePage
+  State<StatefulWidget> createState() => _doctorHomePageState(doctor: doctor);
+} // doctorHomePage
 
 // home page content
-class _RegistrarHomePageState extends State<RegistrarHomePage> {
-  final Registrar registrar; // required
-  _RegistrarHomePageState({required this.registrar}); // constructor
+class _doctorHomePageState extends State<DoctorHomePage> {
+  final Doctor doctor; // required
+  _doctorHomePageState({required this.doctor}); // constructor
   bool _isDark = isDark();
 
   // build fun
@@ -54,8 +47,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
         appBar: AppBar(
           title: Text('الصفحة الرئيسية'),
         ),
-        drawer: _registrarDrawer(context), // look this fun aftre the build fun
-//        bottomNavigationBar: _RegistrarHomeBodyNavigatorBar(), // see the comment at the end of this class
+        drawer: _doctorDrawer(context), // look this fun aftre the build fun
+//        bottomNavigationBar: _doctorHomeBodyNavigatorBar(), // see the comment at the end of this class
         body: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -63,13 +56,13 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
             children: [
               SizedBox(height: 50),
               Text(
-                "حبابك ألف \n ربنا يتم العافية",
+                "أهلا وسهلا \n نورتنا يا دكتور",
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               SizedBox(height: 70),
               Expanded(
-                child: _registrarHomeCards(
-                    context), // look at the next class and the function after _registrarDrawer
+                child: _doctorHomeCards(
+                    context), // look at the next class and the function after _doctorDrawer
               ),
             ],
           ),
@@ -78,8 +71,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
     );
   } // build fun
 
-  // registrar drawer
-  Drawer _registrarDrawer(BuildContext context) {
+  // doctor drawer
+  Drawer _doctorDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -89,7 +82,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               color: Theme.of(context).primaryColor,
             ),
             child: Text(
-              'قائمة المسجل', // Translated
+              'قائمة الدكتور', // Translated
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
@@ -109,8 +102,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      RegistrarProfilePage(registrar: registrar),
+                  builder: (context) => DoctorProfilePage(doctor: doctor),
                 ),
               );
             },
@@ -124,8 +116,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      RegistrarNotificationsPage(registrar: registrar),
+                  builder: (context) => DoctorNotificationsPage(doctor: doctor),
                 ),
               );
             },
@@ -164,10 +155,10 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
         ],
       ),
     );
-  } // _registrarDrawer
+  } // _doctorDrawer
 
-  // registrar cards in the home page
-  Padding _registrarHomeCards(BuildContext context) {
+  // doctor cards in the home page
+  Padding _doctorHomeCards(BuildContext context) {
     // We have only 2 cards here: appointments and notifications
     return Padding(
       padding: EdgeInsets.all(8.0),
@@ -198,8 +189,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => BookedAppointmentsPage(
-                                      registrar: registrar)));
+                                  builder: (context) =>
+                                      BookedAppointmentsPage(doctor: doctor)));
                         },
                       )),
                 ),
@@ -218,8 +209,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    RegistrarNotificationsPage(
-                                        registrar: registrar)));
+                                    DoctorNotificationsPage(doctor: doctor)));
                       },
                     ),
                   ),
@@ -236,43 +226,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
       ),
     );
   } // build fun
-
-//        bottomNavigationBar: _RegistrarHomeBodyNavigatorBar(),
-  // registrar home navigator bar
-/*
-  BottomNavigationBar _RegistrarHomeBodyNavigatorBar() {
-    int _selectedIndex = 0; // مؤشر العنصر المحدد في شريط التنقل السفلي
-
-    // it invoked in the bottom par
-    void _onItemTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'الرئيسية', // Translated
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today),
-          label: 'المواعيد', // Translated
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'الإشعارات', // Translated
-        ),
-      ],
-      currentIndex: _selectedIndex, // العنصر المحدد حاليا
-      selectedItemColor: Colors.blue[800], // لون العنصر المحدد
-      unselectedItemColor: Colors.grey, // لون العناصر غير المحددة
-      onTap: _onItemTapped, // الدالة التي تُستدعى عند النقر
-    );
-  } //
-*/
-} // registrar home page
+} // doctor home page
 
 // Componnect of the card
 class FeatureCard extends StatelessWidget {
