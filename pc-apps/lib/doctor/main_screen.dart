@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pc_apps/doctor/booking_screen.dart';
+import 'package:pc_apps/doctor/notification_screen.dart';
+import 'package:pc_apps/doctor/settings_screen.dart';
+import 'package:pc_apps/doctor/profile_screen.dart';
 
-import 'package:pc_apps/ministry/flutter_notification_screen.dart';
-import 'package:pc_apps/ministry/flutter_profile_screen.dart';
-import 'package:pc_apps/ministry/flutter_settings_screen.dart';
-import 'package:pc_apps/ministry/flutter_notification_sending_screen.dart';
-import 'package:pc_apps/ministry/flutter_reporting_screen.dart';
-import 'package:pc_apps/ministry/flutter_adding_hospitals_screen.dart';
-
-// DashboardScreen is a StatelessWidget as it doesn't manage mutable state.
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
@@ -19,26 +15,24 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: Colors.white, // White app bar background
         elevation: 0, // No shadow under the app bar
         actions: [
-          // Settings icon button
+          // Settings icon button - Navigates to SettingsScreen
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              print('Settings tapped');
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsScreen()),
-              ); // Navigate to SettingsScreen
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             },
           ),
-          // Profile icon button
+          // Profile icon button - Navigates to ProfileScreen
           IconButton(
             icon: const Icon(Icons.person, color: Colors.black),
             onPressed: () {
-              print('Profile tapped');
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              ); // Navigate to ProfileScreen
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
           const SizedBox(width: 16), // Horizontal space
@@ -94,82 +88,46 @@ class DashboardScreen extends StatelessWidget {
         // Wrapped the body content in a Column
         children: [
           Expanded(
-            // Made the Padding (and thus the GridView) take up remaining space
+            // Make the content take up remaining vertical space
             child: Padding(
-              // Reduced padding to make the grid more compact and less likely to scroll
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 32.0,
+              ),
               child: GridView.count(
                 crossAxisCount: 2, // Two columns in the grid
-                // Reduced spacing between cards for a more compact layout
-                crossAxisSpacing: 16.0, // Horizontal spacing between cards
-                mainAxisSpacing: 16.0, // Vertical spacing between cards
-                // The GridView itself will automatically become scrollable if its content
-                // exceeds the available screen height. This layout is optimized to fit
-                // on most standard mobile screens without needing to scroll.
-                childAspectRatio:
-                    2.3, // Add this line (higher = wider, lower = taller; try 1.2 or 1.0)
+                crossAxisSpacing: 24.0, // Horizontal spacing between cards
+                mainAxisSpacing: 24.0, // Vertical spacing between cards
+                childAspectRatio: 1.0, // Make cards square
                 children: <Widget>[
-                  // Dashboard Card for 'Reports'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.description,
-                    text: 'التقارير', // Reports (Arabic)
-                    onTap: () {
-                      print('Reports tapped');
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReportingScreen(),
-                        ),
-                      ); // Navigate to ReportingScreen
-                    },
-                  ),
-                  // Dashboard Card for 'Add Hospital'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.add_circle,
-                    text: 'اضافة مستشفى', // Add Hospital (Arabic)
-                    onTap: () {
-                      print('Add Hospital tapped');
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddingHospitalsScreen(),
-                        ),
-                      ); // Navigate to AddingHospitalScreen
-                    },
-                  ),
                   // Dashboard Card for 'Notifications'
                   _buildDashboardCard(
                     context,
                     icon: Icons.notifications_active,
                     text: 'الاشعارات', // Notifications (Arabic)
                     onTap: () {
-                      print('Notifications tapped');
+                      // Navigate to the NotificationsScreen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => NotificationsScreen(),
+                          builder: (context) => const NotificationsScreen(),
                         ),
-                      ); // Navigate to NotificationScreen
+                      );
                     },
                   ),
-                  // Dashboard Card for 'Send Notifications'
+                  // Dashboard Card for 'Reservations'
                   _buildDashboardCard(
                     context,
-                    icon: Icons.send,
-                    text: 'ارسال الاشعارات', // Send Notifications (Arabic)
+                    icon: Icons
+                        .event_note, // Using event_note icon for reservations
+                    text: 'الحجوزات', // Reservations (Arabic)
                     onTap: () {
-                      print('Send Notifications tapped');
-
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => NotificationSendingScreen(),
+                          builder: (context) => const BookingsScreen(),
                         ),
-                      ); // Navigate to notification sending screen
+                      );
                     },
                   ),
                 ],
@@ -209,17 +167,17 @@ class DashboardScreen extends StatelessWidget {
           children: [
             Icon(
               icon, // Icon for the card
-              size: 60,
+              size: 80, // Increased icon size to match the new image
               color: Colors.blue, // Example color for icons
             ),
-            const SizedBox(height: 16), // Vertical space
+            const SizedBox(height: 16), // Increased vertical space
             Text(
               text, // Text for the card
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
-              ),
+              ), // Increased font size
               textAlign: TextAlign.center,
               textDirection:
                   TextDirection.rtl, // Right-to-left text direction for Arabic
