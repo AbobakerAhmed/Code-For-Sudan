@@ -30,15 +30,6 @@ class Registrar extends HospitalEmployee {
     return list;
   }
 
-  // @override
-  // Map<String, dynamic> toJson() {
-  //   final baseJson = super.toJson();
-  //   return {
-  //     ...baseJson,
-  //     //'departments': _departments,
-  //   };
-  // }
-
   static Future<Registrar> fromJson(Map<String, dynamic> json) async {
     Registrar reg = Registrar(
       json['name'],
@@ -48,28 +39,6 @@ class Registrar extends HospitalEmployee {
       json['locality'],
       json['hospitalName'],
     );
-    //await reg.fetchDepartments();
     return reg;
   }
-
-//   static Future<Registrar> create(
-//     String name,
-//     String phoneNumber,
-//     String password,
-//     String state,
-//     String locality,
-//     String hospitalName,
-//   ) async {
-//     final reg = Registrar(
-//       name,
-//       phoneNumber,
-//       password,
-//       state,
-//       locality,
-//       hospitalName,
-//     );
-
-//     await reg.fetchDepartments();
-//     return reg;
-//   }
 }

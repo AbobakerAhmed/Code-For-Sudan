@@ -7,14 +7,10 @@ import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/citizen/notifications_page.dart';
 //import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/firebase_options.dart';
-//import login page
-//import 'package:mobile_app/login_page.dart';
-
-//import citizens page (can be deleted later)
-//import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
+import 'package:mobile_app/login_page.dart';
 
 // import provider to control all the app theme at once
 import 'package:provider/provider.dart';
@@ -43,11 +39,8 @@ class HealthCareSudan extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: MaterialApp(
-            home: HomePage(),
+            home: LoginPage(),
             routes: {
-              // 'home': (context) => HomePage(
-              //       citizen: CitizensData.data[0],
-              //     ),
               'booking_page': (context) => BookingPage(),
               'emergency_page': (context) => EmergencyPage(),
               'notifications_page': (context) => NotificationsPage(),

@@ -3,6 +3,7 @@ import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/doctor/doctor.dart';
 
 // Constants
 const String HOSPITALS = "hospitals";
@@ -21,6 +22,11 @@ const String STATE = "state";
 const String LOCALITY = "locality";
 const String PASSWORD = "password";
 const String BIRTHDATE = "birthDate";
+const String MEDICAL_HISTORY = "medicalHistory";
+
+const String APPOINTMENTS = "appointments";
+const String CHECKED_IN_APPOINTMENTS = "checkedInAppointments";
+const String CHECKED_OUT_APPOINTMENTS = "checkedOutAppointments";
 
 // Arabic field labels
 const String FIELD_NAME = "الإسم";
@@ -72,6 +78,7 @@ class FirestoreService {
     }
   }
 
+  /// Check if a registrar exists and if the password is correct
   Future<(bool, bool)> searchRegistrar(
       String phoneNumber, String password) async {
     try {
@@ -90,25 +97,71 @@ class FirestoreService {
     }
   }
 
-  /// Retrieve a Citizen object by phone and password
-  Future<Citizen> getCitizen(String phoneNumber, String password) async {
-    final snapshot = await _firestore
-        .collection(CITIZENS)
-        .where(PHONENUMBER, isEqualTo: phoneNumber)
-        .get();
+  /// Check if a doctor exists and if the password is correct
+  Future<(bool, bool)> searchDoctor(String phoneNumber, String password) async {
+    try {
+      final snapshot = await _firestore
+          .collection(DOCTORS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
 
-    return Citizen.fromJson(snapshot.docs.first.data());
+      if (snapshot.docs.isEmpty) return (false, false);
+
+      final data = snapshot.docs.first.data();
+      return (true, data[PASSWORD] == password);
+    } catch (e) {
+      _logError("searchDoctor", e);
+      return (false, false);
+    }
   }
 
+  /// Retrieve a Citizen object by phone and password
+  Future<Citizen> getCitizen(String phoneNumber, String password) async {
+    try {
+      final snapshot = await _firestore
+          .collection(CITIZENS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      return Citizen.fromJson(snapshot.docs.first.data());
+    } catch (e) {
+      _logError("getCitizen", e);
+      rethrow;
+    }
+  }
+
+  /// Retrieve a Registrar object by phone and password
   Future<Registrar> getRegistrar(String phoneNumber, String password) async {
-    final snapshot = await _firestore
-        .collection(REGISTRARS)
-        .where(PHONENUMBER, isEqualTo: phoneNumber)
-        .get();
+    try {
+      final snapshot = await _firestore
+          .collection(REGISTRARS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
 
-    final Registrar reg = await Registrar.fromJson(snapshot.docs.first.data());
+      final Registrar reg =
+          await Registrar.fromJson(snapshot.docs.first.data());
+      return reg;
+    } catch (e) {
+      _logError("getRegistrar", e);
+      rethrow;
+    }
+  }
 
-    return reg;
+  /// Retrieve a Doctor object by phone and password
+  Future<Doctor> getDoctor(String phoneNumber, String password) async {
+    try {
+      final snapshot = await _firestore
+          .collection(DOCTORS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      final Doctor doctor = await Doctor.fromJson(snapshot.docs.first.data());
+
+      return doctor;
+    } catch (e) {
+      _logError("getDoctor", e);
+      rethrow;
+    }
   }
 
   /// Create a new Citizen document
@@ -117,6 +170,28 @@ class FirestoreService {
       await _firestore.collection(CITIZENS).add(citizen.toJson());
     } catch (e) {
       _logError("createCitizen", e);
+    }
+  }
+
+  Future<void> updateCitizen(
+      String phoneNumber, Map<String, dynamic> updatedData) async {
+    try {
+      final snapshot = await _firestore
+          .collection(CITIZENS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        throw Exception("Citizen not found");
+      }
+
+      final doc = snapshot.docs.first;
+      final citizenData = doc.data();
+
+      await _firestore.collection(CITIZENS).doc(doc.id).update(updatedData);
+    } catch (e) {
+      _logError("updateCitizen", e);
+      rethrow;
     }
   }
 
@@ -136,7 +211,7 @@ class FirestoreService {
 
       if (!departmentDoc.exists) throw Exception("Department does not exist");
 
-      await departmentDoc.reference.collection("appointments").add({
+      await departmentDoc.reference.collection(APPOINTMENTS).add({
         FIELD_NAME: appointment.name,
         FIELD_AGE: appointment.age,
         FIELD_GENDER: appointment.gender,
@@ -157,9 +232,79 @@ class FirestoreService {
     }
   }
 
+  /// Retrieve appointments from a specific department
+  Future<List<Appointment>> getAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .collection(DATA)
+          .doc(hospitalName)
+          .collection(DEPARTMENTS)
+          .doc(departmentName)
+          .get();
+
+      if (!departmentDoc.exists) return [];
+
+      final appointmentsSnapshot =
+          await departmentDoc.reference.collection(APPOINTMENTS).get();
+      return appointmentsSnapshot.docs
+          .map((doc) => Appointment(
+                name: doc.get(FIELD_NAME),
+                age: doc.get(FIELD_AGE),
+                gender: doc.get(FIELD_GENDER),
+                phoneNumber: doc.get(FIELD_PHONE),
+                address: doc.get(FIELD_ADDRESS),
+                state: state,
+                locality: locality,
+                hospital: hospitalName,
+                department: departmentName,
+                medicalHistory: (() {
+                  try {
+                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
+                  } catch (_) {
+                    return ["None"];
+                  }
+                })(),
+                doctor: doc.get(FIELD_DOCTOR),
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
+                    const Duration(
+                        hours: 2)), //to convert time from UTC to UTC+2
+                isLocal: (() {
+                  try {
+                    return doc.get(FIELD_IS_LOCAL);
+                  } catch (_) {
+                    return false;
+                  }
+                })(),
+                forMe: (() {
+                  try {
+                    return doc.get(FIELD_FOR_ME);
+                  } catch (_) {
+                    return true;
+                  }
+                })(),
+              ))
+          .toList();
+    } catch (e) {
+      _logError("getAppointments", e);
+      return [];
+    }
+  }
+
   ///Search if an appointment does exist
-  ///1. if the appointment is for the user the method will check for the appointments with the same phone number and the appointment is for him
-  ///2. if the appointment is not for the user the method will check for the appointments with the same phone number and name **this prevent the user from creating a dublicate appointment with the same name and phone number**
+  ///1. if the appointment is for the user the method will check for the appointments with
+  ///  the same phone number and the appointment is for him
+  ///2. if the appointment is not for the user the method will check for the appointments
+  ///  with the same phone number and name **this prevent the user from creating a dublicate appointment with the same name and phone number**
+
   Future<bool> checkAppointmentExist(Appointment appointment) async {
     try {
       late final querySnapshot;
@@ -173,7 +318,7 @@ class FirestoreService {
             .doc(appointment.hospital)
             .collection(DEPARTMENTS)
             .doc(appointment.department)
-            .collection("appointments")
+            .collection(APPOINTMENTS)
             .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
             .where(FIELD_FOR_ME, isEqualTo: true)
             .limit(1)
@@ -188,7 +333,7 @@ class FirestoreService {
             .doc(appointment.hospital)
             .collection(DEPARTMENTS)
             .doc(appointment.department)
-            .collection("appointments")
+            .collection(APPOINTMENTS)
             .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
             .where(FIELD_NAME, isEqualTo: appointment.name)
             .limit(1)
@@ -218,7 +363,7 @@ class FirestoreService {
             .doc(appointment.hospital)
             .collection(DEPARTMENTS)
             .doc(appointment.department)
-            .collection("appointments")
+            .collection(APPOINTMENTS)
             .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
             .where(FIELD_FOR_ME, isEqualTo: true)
             .limit(1)
@@ -233,7 +378,7 @@ class FirestoreService {
             .doc(appointment.hospital)
             .collection(DEPARTMENTS)
             .doc(appointment.department)
-            .collection("appointments")
+            .collection(APPOINTMENTS)
             .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
             .where(FIELD_NAME, isEqualTo: appointment.name)
             .limit(1)
@@ -250,6 +395,216 @@ class FirestoreService {
       await doc.reference.delete();
     } catch (e) {
       _logError("deleteAppointment", e);
+    }
+  }
+
+  /// check In an appointment that is checked by the registrar
+  Future<void> checkInAppointment(Appointment appointment) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.state)
+          .collection(LOCALITIES)
+          .doc(appointment.locality)
+          .collection(DATA)
+          .doc(appointment.hospital)
+          .collection(DEPARTMENTS)
+          .doc(appointment.department)
+          .get();
+
+      if (!departmentDoc.exists) throw Exception("Department does not exist");
+
+      await departmentDoc.reference.collection(CHECKED_IN_APPOINTMENTS).add({
+        FIELD_NAME: appointment.name,
+        FIELD_AGE: appointment.age,
+        FIELD_GENDER: appointment.gender,
+        FIELD_PHONE: appointment.phoneNumber,
+        FIELD_ADDRESS: appointment.address,
+        FIELD_DOCTOR: appointment.doctor,
+        FIELD_STATE: appointment.state,
+        FIELD_LOCALITY: appointment.locality,
+        FIELD_HOSPITAL: appointment.hospital,
+        FIELD_DEPARTMENT: appointment.department,
+        FIELD_MEDICAL_HISTORY: appointment.medicalHistory ?? ["None"],
+        FIELD_TIME: appointment.time,
+        FIELD_IS_LOCAL: appointment.isLocal ?? false,
+        FIELD_FOR_ME: appointment.forMe ?? true,
+      });
+    } catch (e) {
+      _logError("checkInAppointment", e);
+    }
+  }
+
+  /// Retrieve checked in appointments from a specific department
+  Future<List<Appointment>> getCheckedInAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .collection(DATA)
+          .doc(hospitalName)
+          .collection(DEPARTMENTS)
+          .doc(departmentName)
+          .get();
+
+      if (!departmentDoc.exists) return [];
+
+      final appointmentsSnapshot = await departmentDoc.reference
+          .collection(CHECKED_IN_APPOINTMENTS)
+          .get();
+      return appointmentsSnapshot.docs
+          .map((doc) => Appointment(
+                name: doc.get(FIELD_NAME),
+                age: doc.get(FIELD_AGE),
+                gender: doc.get(FIELD_GENDER),
+                phoneNumber: doc.get(FIELD_PHONE),
+                address: doc.get(FIELD_ADDRESS),
+                state: state,
+                locality: locality,
+                hospital: hospitalName,
+                department: departmentName,
+                medicalHistory: (() {
+                  try {
+                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
+                  } catch (_) {
+                    return ["None"];
+                  }
+                })(),
+                doctor: doc.get(FIELD_DOCTOR),
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
+                    const Duration(
+                        hours: 2)), //to convert time from UTC to UTC+2
+                isLocal: (() {
+                  try {
+                    return doc.get(FIELD_IS_LOCAL);
+                  } catch (_) {
+                    return false;
+                  }
+                })(),
+                forMe: (() {
+                  try {
+                    return doc.get(FIELD_FOR_ME);
+                  } catch (_) {
+                    return true;
+                  }
+                })(),
+              ))
+          .toList();
+    } catch (e) {
+      _logError("getCheckedInAppointments", e);
+      return [];
+    }
+  }
+
+  /// check out an appointment that is checked by the doctor
+  Future<void> checkOutAppointment(Appointment appointment) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.state)
+          .collection(LOCALITIES)
+          .doc(appointment.locality)
+          .collection(DATA)
+          .doc(appointment.hospital)
+          .collection(DEPARTMENTS)
+          .doc(appointment.department)
+          .get();
+
+      if (!departmentDoc.exists) throw Exception("Department does not exist");
+
+      await departmentDoc.reference.collection(CHECKED_OUT_APPOINTMENTS).add({
+        FIELD_NAME: appointment.name,
+        FIELD_AGE: appointment.age,
+        FIELD_GENDER: appointment.gender,
+        FIELD_PHONE: appointment.phoneNumber,
+        FIELD_ADDRESS: appointment.address,
+        FIELD_DOCTOR: appointment.doctor,
+        FIELD_STATE: appointment.state,
+        FIELD_LOCALITY: appointment.locality,
+        FIELD_HOSPITAL: appointment.hospital,
+        FIELD_DEPARTMENT: appointment.department,
+        FIELD_MEDICAL_HISTORY: appointment.medicalHistory ?? ["None"],
+        FIELD_TIME: appointment.time,
+        FIELD_IS_LOCAL: appointment.isLocal ?? false,
+        FIELD_FOR_ME: appointment.forMe ?? true,
+      });
+    } catch (e) {
+      _logError("checkOutAppointment", e);
+    }
+  }
+
+  /// Retrieve checked out appointments from a specific department
+  Future<List<Appointment>> getCheckedOutAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .collection(DATA)
+          .doc(hospitalName)
+          .collection(DEPARTMENTS)
+          .doc(departmentName)
+          .get();
+
+      if (!departmentDoc.exists) return [];
+
+      final appointmentsSnapshot = await departmentDoc.reference
+          .collection(CHECKED_OUT_APPOINTMENTS)
+          .get();
+      return appointmentsSnapshot.docs
+          .map((doc) => Appointment(
+                name: doc.get(FIELD_NAME),
+                age: doc.get(FIELD_AGE),
+                gender: doc.get(FIELD_GENDER),
+                phoneNumber: doc.get(FIELD_PHONE),
+                address: doc.get(FIELD_ADDRESS),
+                state: state,
+                locality: locality,
+                hospital: hospitalName,
+                department: departmentName,
+                medicalHistory: (() {
+                  try {
+                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
+                  } catch (_) {
+                    return ["None"];
+                  }
+                })(),
+                doctor: doc.get(FIELD_DOCTOR),
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
+                    const Duration(
+                        hours: 2)), //to convert time from UTC to UTC+2
+                isLocal: (() {
+                  try {
+                    return doc.get(FIELD_IS_LOCAL);
+                  } catch (_) {
+                    return false;
+                  }
+                })(),
+                forMe: (() {
+                  try {
+                    return doc.get(FIELD_FOR_ME);
+                  } catch (_) {
+                    return true;
+                  }
+                })(),
+              ))
+          .toList();
+    } catch (e) {
+      _logError("getCheckOutAppointments", e);
+      return [];
     }
   }
 
@@ -324,73 +679,6 @@ class FirestoreService {
     }
   }
 
-  /// Retrieve appointments from a specific department
-  Future<List<Appointment>> getAppointments(
-    String state,
-    String locality,
-    String hospitalName,
-    String departmentName,
-  ) async {
-    try {
-      final departmentDoc = await _firestore
-          .collection(HOSPITALS)
-          .doc(state)
-          .collection(LOCALITIES)
-          .doc(locality)
-          .collection(DATA)
-          .doc(hospitalName)
-          .collection(DEPARTMENTS)
-          .doc(departmentName)
-          .get();
-
-      if (!departmentDoc.exists) return [];
-
-      final appointmentsSnapshot =
-          await departmentDoc.reference.collection("appointments").get();
-      return appointmentsSnapshot.docs
-          .map((doc) => Appointment(
-                name: doc.get(FIELD_NAME),
-                age: doc.get(FIELD_AGE),
-                gender: doc.get(FIELD_GENDER),
-                phoneNumber: doc.get(FIELD_PHONE),
-                address: doc.get(FIELD_ADDRESS),
-                state: state,
-                locality: locality,
-                hospital: hospitalName,
-                department: departmentName,
-                medicalHistory: (() {
-                  try {
-                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
-                  } catch (_) {
-                    return ["None"];
-                  }
-                })(),
-                doctor: doc.get(FIELD_DOCTOR),
-                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
-                    const Duration(
-                        hours: 2)), //to convert time from UTC to UTC+2
-                isLocal: (() {
-                  try {
-                    return doc.get(FIELD_IS_LOCAL);
-                  } catch (_) {
-                    return false;
-                  }
-                })(),
-                forMe: (() {
-                  try {
-                    return doc.get(FIELD_FOR_ME);
-                  } catch (_) {
-                    return true;
-                  }
-                })(),
-              ))
-          .toList();
-    } catch (e) {
-      _logError("getAppointments", e);
-      return [];
-    }
-  }
-
   /// Fetch list of medical advices
   Future<List<String>> getMedicalAdvices() async {
     try {
@@ -439,27 +727,3 @@ class FirestoreService {
     return data;
   }
 }
-
-/*
-  // UPDATE
-  Future<void> updateNotify(
-    String docID,
-    String type,
-    String title,
-    String mes,
-  ) {
-    return notifications.doc(docID).update({
-      "type": type,
-      "title": title,
-      "time": Timestamp.now(),
-      "mes": mes,
-    });
-  }
-*/
-
-/*
-  // DELETE
-  Future<void> deleteNotify(String docID) {
-    return notifications.doc(docID).delete();
-  }
-*/

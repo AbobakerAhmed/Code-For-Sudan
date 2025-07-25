@@ -32,6 +32,11 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
           widget.registrar.locality,
           widget.registrar.hospitalName,
           dep));
+      // _checkedInAppointments.addAll(await _firestore.getCheckedInAppointments(
+      //     widget.registrar.state,
+      //     widget.registrar.locality,
+      //     widget.registrar.hospitalName,
+      //     dep));
     }
   }
 
@@ -70,8 +75,9 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   } // _sortAppointmentsByTime
 
   // after an appointment go to the doctor
-  void _checkInAppointment(Appointment appointment) {
+  Future<void> _checkInAppointment(Appointment appointment) async {
     if (!_checkedInAppointments.contains(appointment)) {
+      _firestore.checkInAppointment(appointment);
       setState(() {
         _checkedInAppointments.add(appointment);
       });
@@ -104,10 +110,6 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     String age = existingAppointment?.age ?? '';
     String address = existingAppointment?.address ?? '';
     String phoneNumber = existingAppointment?.phoneNumber ?? '';
-    //DateTime? appointmentDate = existingAppointment?.time;
-    //TimeOfDay? appointmentTime = existingAppointment != null
-    // ? TimeOfDay.fromDateTime(existingAppointment.time)
-    // : null;
 
     final _formKey = GlobalKey<FormState>();
 
@@ -338,8 +340,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                       const SizedBox(
                           height: 10), // between department and doctor
 
-                      // chose the doctor depending on the department
-                      // make sure the doctor depending on the department
+                      // choose the doctor depending on the department
                       DropdownButtonFormField<String>(
                         iconEnabledColor:
                             Theme.of(context).secondaryHeaderColor,
@@ -625,8 +626,20 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                     side: WidgetStatePropertyAll(
                                         BorderSide(color: Colors.green)),
                                   ),
-                                  onPressed: () =>
-                                      _checkInAppointment(currentAppointment),
+                                  onPressed: () async {
+                                    await _checkInAppointment(
+                                        currentAppointment);
+                                    await _firestore
+                                        .deleteAppointment(currentAppointment);
+                                    setState(() {
+                                      _allAppointments
+                                          .remove(currentAppointment);
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                ' تم تسجيل الحضور بنجاح!')));
+                                  },
                                   child: const Icon(
                                       Icons.check), //const Text('دخول'),
 // here we should send the appointment data to the doctor
