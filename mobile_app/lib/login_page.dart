@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         // add Health Ministry Logo
                         Image.asset(
-                          'lib/assets/images/health_ministry_loge.jpg',
+                          'lib/assets/images/final_health_ministry_loge.jpg',
                           alignment: Alignment.center,
                           height: 200,
                           width: 200,
@@ -403,7 +403,8 @@ class _LoginPageState extends State<LoginPage> {
                                 // go forgot password page
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                      content: Text('نسيت كلمة المرور')),
+                                      content:
+                                          Text('هذه الميزة غير متاحة حالياً')),
                                 );
                               },
                             ),

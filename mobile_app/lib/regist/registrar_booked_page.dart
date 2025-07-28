@@ -622,18 +622,47 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                             ],
                           ),
                           Wrap(
-                              spacing: 8,
-                              direction: Axis.vertical,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  style: ButtonStyle(
-                                    iconColor:
-                                        WidgetStatePropertyAll(Colors.green),
-                                    side: WidgetStatePropertyAll(
-                                        BorderSide(color: Colors.green)),
-                                  ),
-                                  onPressed: () async {
+                            spacing: 8,
+                            direction: Axis.vertical,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              //Check-in Button
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                  iconColor:
+                                      WidgetStatePropertyAll(Colors.green),
+                                  side: WidgetStatePropertyAll(
+                                      BorderSide(color: Colors.green)),
+                                ),
+                                onPressed: () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      title: const Text("تأكيد الدخول"),
+                                      content: const Text(
+                                          "هل أنت متأكد أنك تريد قبول هذا الموعد؟"),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("لا",
+                                              style: TextStyle(
+                                                  color: Colors.grey)),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                        ),
+                                        TextButton(
+                                          child: const Text("تأكيد الموعد",
+                                              style: TextStyle(
+                                                  color: Colors.green)),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed == true) {
                                     await _checkInAppointment(
                                         currentAppointment);
                                     await _firestore
@@ -642,17 +671,47 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                       _allAppointments
                                           .remove(currentAppointment);
                                     });
-                                  },
-                                  child: const Icon(
-                                      Icons.check), //const Text('دخول'),
+                                  }
+                                },
+                                child: const Icon(Icons.check),
+                              ),
+
+                              //Cancel Button
+                              OutlinedButton(
+                                style: ButtonStyle(
+                                  iconColor: WidgetStatePropertyAll(Colors.red),
+                                  side: WidgetStatePropertyAll(
+                                      BorderSide(color: Colors.red)),
                                 ),
-                                OutlinedButton(
-                                  style: ButtonStyle(
-                                      iconColor:
-                                          WidgetStatePropertyAll(Colors.red),
-                                      side: WidgetStatePropertyAll(
-                                          BorderSide(color: Colors.red))),
-                                  onPressed: () async {
+                                onPressed: () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      title: const Text("تأكيد الإلغاء"),
+                                      content: const Text(
+                                          "هل أنت متأكد أنك تريد إلغاء هذا الموعد؟"),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("لا",
+                                              style: TextStyle(
+                                                  color: Colors.grey)),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                        ),
+                                        TextButton(
+                                          child: const Text("إلغاء الموعد",
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed == true) {
                                     await _firestore
                                         .deleteAppointment(currentAppointment);
                                     setState(() {
@@ -660,42 +719,42 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                           .remove(currentAppointment);
                                     });
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                '! تم إلغاء الموعد بنجاح')));
-                                  },
-                                  child: const Icon(Icons.close),
-// here we should send the appointment data to the doctor
-                                ),
+                                      const SnackBar(
+                                          content:
+                                              Text('! تم إلغاء الموعد بنجاح')),
+                                    );
+                                  }
+                                },
+                                child: const Icon(Icons.close),
+                              ),
 
-                                // appointments which created by the registrar itself only can be edited
-                                if (currentAppointment.isLocal != null &&
-                                    currentAppointment.isLocal == true)
-                                  OutlinedButton(
-                                    onPressed: () async {
-                                      await _showAddEditAppointmentDialog(
-                                          existingAppointment:
-                                              currentAppointment);
-                                      setState(() {});
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.edit,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Text('تعديل',
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            )),
-                                      ],
-                                    ),
+                              //Edit Button (Local Appointments Only)
+                              if (currentAppointment.isLocal != null &&
+                                  currentAppointment.isLocal == true)
+                                OutlinedButton(
+                                  onPressed: () async {
+                                    await _showAddEditAppointmentDialog(
+                                      existingAppointment: currentAppointment,
+                                    );
+                                    setState(() {});
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit,
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'تعديل',
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                      ),
+                                    ],
                                   ),
-                              ]),
+                                ),
+                            ],
+                          )
                         ],
                       ),
                     ),

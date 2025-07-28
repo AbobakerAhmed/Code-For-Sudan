@@ -181,13 +181,17 @@ class FirestoreService {
       final citizenDoc = citizenSnapshot.docs.first;
       final oldData = citizenDoc.data();
       final oldName = oldData[NAME];
+      final oldPhoneNumber = oldData[PHONENUMBER];
 
       // Step 2: Update citizen data
       await citizenDoc.reference.update(updatedData);
 
       // Step 3: If name changed, propagate across hospitals
-      if (updatedData.containsKey(NAME) && updatedData[NAME] != oldName) {
+      if ((updatedData.containsKey(NAME) && updatedData[NAME] != oldName) ||
+          (updatedData.containsKey(PHONENUMBER) &&
+              updatedData[PHONENUMBER] != oldPhoneNumber)) {
         final newName = updatedData[NAME];
+        final newPhoneNumber = updatedData[PHONENUMBER];
 
         final hospitalsSnapshot = await _firestore.collection(HOSPITALS).get();
 
@@ -214,14 +218,15 @@ class FirestoreService {
                 ]) {
                   final query = departmentDoc.reference
                       .collection(subcol)
-                      .where(FIELD_PHONE, isEqualTo: phoneNumber)
+                      .where(FIELD_PHONE, isEqualTo: oldPhoneNumber)
                       .where(FIELD_NAME, isEqualTo: oldName);
 
                   updateFutures.add(query.get().then((appointmentsSnapshot) {
                     final batch = _firestore.batch();
 
                     for (final doc in appointmentsSnapshot.docs) {
-                      batch.update(doc.reference, {FIELD_NAME: newName});
+                      batch.update(doc.reference,
+                          {FIELD_NAME: newName, FIELD_PHONE: newPhoneNumber});
                     }
 
                     return batch.commit(); // Executes batch

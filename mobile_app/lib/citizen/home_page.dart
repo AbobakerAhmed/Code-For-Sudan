@@ -104,7 +104,8 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MedicalHistoryPage(),
+                    builder: (context) =>
+                        MedicalHistoryPage(citizen: widget.citizen!),
                   ),
                 );
               } else {

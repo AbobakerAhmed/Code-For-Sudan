@@ -359,7 +359,7 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                             );
                           });
 
-                      await _firestoreService.updateCitizen(
+                      _firestoreService.updateCitizen(
                           widget.citizen.phoneNumber, updatedData);
 
                       setState(() {

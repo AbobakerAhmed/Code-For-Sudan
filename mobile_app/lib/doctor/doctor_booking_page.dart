@@ -522,41 +522,63 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             );
                           });
 
-                      //check if the diagnosed appointment has a previous appointment in DB
+                      // Local state to be updated
+                      bool didChange = false;
+                      Appointment? oldDiagnosedAppointment;
+
+                      // Step 1: Handle diagnosed appointment cleanup
                       final diagnosedAppointmentExistInDb = await _firestore
                           .checkDiagnosedAppointmentExist(appointment);
 
-                      //prepare the database to recieve the appointment by deleting old diagnosed appointments
                       if (diagnosedAppointmentExistInDb) {
                         await _firestore
                             .deleteDiagnosedAppointment(appointment);
 
-                        if (diagnosedAppointments.contains(appointment)) {
-                          setState(() {
-                            appointment.medicalHistory!.removeLast();
-                            diagnosedAppointments.remove(appointment);
-                          });
+                        oldDiagnosedAppointment = (diagnosedAppointments
+                                    .where((appo) =>
+                                        appo.phoneNumber ==
+                                            appointment.phoneNumber &&
+                                        appo.name == appointment.name)
+                                    .isNotEmpty ==
+                                true)
+                            ? diagnosedAppointments
+                                .where((appo) =>
+                                    appo.phoneNumber ==
+                                        appointment.phoneNumber &&
+                                    appo.name == appointment.name)
+                                .first
+                            : null;
+
+                        if (oldDiagnosedAppointment != null &&
+                            outAppointments.any((appo) =>
+                                    appo.phoneNumber ==
+                                        oldDiagnosedAppointment!.phoneNumber &&
+                                    appo.name ==
+                                        oldDiagnosedAppointment.name) ==
+                                false) {
+                          diagnosedAppointments.remove(oldDiagnosedAppointment);
+                          appointment.medicalHistory!.removeLast();
+                          didChange = true;
                         }
 
                         if (outAppointments.contains(appointment)) {
                           await _firestore
                               .deleteCheckedOutAppointment(appointment);
-                          setState(() {
-                            outAppointments.remove(appointment);
-                          });
+                          outAppointments.remove(appointment);
+                          didChange = true;
                         }
                       } else {
                         await _firestore
                             .deleteCheckedOutAppointment(appointment);
-                        setState(() {
-                          outAppointments.remove(appointment);
-                        });
+                        if (outAppointments.remove(appointment)) {
+                          didChange = true;
+                        }
                       }
 
-                      //prepare the medical history to be added to diagnosed appointment
+// Step 2: Update medical history
                       if (appointment.forMe == true) {
                         if (appointment.medicalHistory!.isNotEmpty &&
-                            appointment.medicalHistory![0] == "None") {
+                            appointment.medicalHistory!.first == "None") {
                           appointment.medicalHistory = [];
                         }
                         appointment.medicalHistory!.add(diagnosis!);
@@ -566,14 +588,21 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
 
                       if (_addToMedicalHistory == true &&
                           appointment.forMe == true) {
-                        _firestore.updateCitizen(appointment.phoneNumber,
-                            {"medicalHistory": appointment.medicalHistory!});
+                        await _firestore
+                            .updateCitizen(appointment.phoneNumber, {
+                          "medicalHistory": appointment.medicalHistory!,
+                        });
                       }
 
+// Step 3: Save to diagnosed appointments
                       await _firestore.diagnoseAppointment(appointment);
-                      setState(() {
-                        diagnosedAppointments.add(appointment);
-                      });
+                      diagnosedAppointments.add(appointment);
+                      didChange = true;
+
+// ✅ One setState at the end
+                      if (didChange) {
+                        setState(() {});
+                      }
 
                       Navigator.pop(context);
                       Navigator.pop(context);
