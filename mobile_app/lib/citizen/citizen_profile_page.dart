@@ -93,8 +93,8 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
 
                 //the method works but there is going to be problems in appointments if the citizen changed his name or phone number
                 onPressed: () async {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('هذه الميزة لا تعمل حاليا')));
+                  // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  //     content: Text('هذه الميزة لا تعمل حاليا')));
                   await _showEditDialog(context, widget.citizen);
                   setState(() {});
                 },

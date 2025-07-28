@@ -9,6 +9,7 @@ import 'package:mobile_app/firebase_options.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:mobile_app/login_page.dart';
 
 // import provider to control all the app theme at once

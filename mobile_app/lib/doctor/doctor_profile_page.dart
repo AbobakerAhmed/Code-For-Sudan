@@ -96,11 +96,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
 
                 //the method works but there is going to be problems in appointments if the doctor changed his name
                 onPressed: () async {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('هذه الميزة لا تعمل حاليا')));
-
-                  // await _showEditDialog(context, widget.doctor);
-                  // setState(() {});
+                  await _showEditDialog(context, widget.doctor);
+                  setState(() {});
                 },
               ),
             ],
@@ -268,6 +265,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         'name': currentDoctor.name,
                         'phoneNumber': currentDoctor.phoneNumber,
                         'password': currentDoctor.password,
+                        'hospitalName': widget.doctor.hospitalName,
+                        'state': widget.doctor.state,
+                        'locality': widget.doctor.locality,
                       };
 
                       showDialog(
@@ -292,7 +292,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           });
 
                       await _firestoreService.updateDoctor(
-                          widget.doctor.phoneNumber, updatedData);
+                          widget.doctor.phoneNumber,
+                          widget.doctor.department.name,
+                          updatedData);
 
                       setState(() {
                         widget.doctor.name = currentDoctor.name;

@@ -165,29 +165,76 @@ class FirestoreService {
     }
   }
 
-  ///update the contents of an existing citizen
-  ///here is the mechanizem for updating:
-  ///1. the method will see in the database if document exist in the citizens collection in database.
-  ///if it's found the method will update the document with the correspondent id.
-
-  ///2. the method will update the document by matching every key on the updatedDate's map
-  ///and assign the matched key on the database collection with it's correspondent updated
-  ///value so it's not neccessary to update every field in the collection
   Future<void> updateCitizen(
       String phoneNumber, Map<String, dynamic> updatedData) async {
     try {
-      final snapshot = await _firestore
+      // Step 1: Get the original citizen document
+      final citizenSnapshot = await _firestore
           .collection(CITIZENS)
           .where(PHONENUMBER, isEqualTo: phoneNumber)
           .get();
 
-      if (snapshot.docs.isEmpty) {
+      if (citizenSnapshot.docs.isEmpty) {
         throw Exception("Citizen not found");
       }
 
-      final doc = snapshot.docs.first;
+      final citizenDoc = citizenSnapshot.docs.first;
+      final oldData = citizenDoc.data();
+      final oldName = oldData[NAME];
 
-      await _firestore.collection(CITIZENS).doc(doc.id).update(updatedData);
+      // Step 2: Update citizen data
+      await citizenDoc.reference.update(updatedData);
+
+      // Step 3: If name changed, propagate across hospitals
+      if (updatedData.containsKey(NAME) && updatedData[NAME] != oldName) {
+        final newName = updatedData[NAME];
+
+        final hospitalsSnapshot = await _firestore.collection(HOSPITALS).get();
+
+        final updateFutures = <Future>[];
+
+        for (final stateDoc in hospitalsSnapshot.docs) {
+          final localitiesSnapshot =
+              await stateDoc.reference.collection(LOCALITIES).get();
+
+          for (final localityDoc in localitiesSnapshot.docs) {
+            final dataSnapshot =
+                await localityDoc.reference.collection(DATA).get();
+
+            for (final hospitalDoc in dataSnapshot.docs) {
+              final departmentsSnapshot =
+                  await hospitalDoc.reference.collection(DEPARTMENTS).get();
+
+              for (final departmentDoc in departmentsSnapshot.docs) {
+                for (final subcol in [
+                  APPOINTMENTS,
+                  DIAGNOSED_APPOINTMENTS,
+                  CHECKED_IN_APPOINTMENTS,
+                  CHECKED_OUT_APPOINTMENTS,
+                ]) {
+                  final query = departmentDoc.reference
+                      .collection(subcol)
+                      .where(FIELD_PHONE, isEqualTo: phoneNumber)
+                      .where(FIELD_NAME, isEqualTo: oldName);
+
+                  updateFutures.add(query.get().then((appointmentsSnapshot) {
+                    final batch = _firestore.batch();
+
+                    for (final doc in appointmentsSnapshot.docs) {
+                      batch.update(doc.reference, {FIELD_NAME: newName});
+                    }
+
+                    return batch.commit(); // Executes batch
+                  }));
+                }
+              }
+            }
+          }
+        }
+
+        // Run all updates in parallel
+        await Future.wait(updateFutures);
+      }
     } catch (e) {
       _logError("updateCitizen", e);
       rethrow;
@@ -231,8 +278,10 @@ class FirestoreService {
   ///2. the method will update the document by matching every key on the updatedDate's map
   ///and assign the matched key on the database collection with it's correspondent updated
   ///value so it's not neccessary to update every field in the collection
-  Future<void> updateDoctor(
-      String phoneNumber, Map<String, dynamic> updatedData) async {
+  ///
+  ///3. every appointment that has the name of the doctor should be updated and also the name of the doctor in his department
+  Future<void> updateDoctor(String phoneNumber, String department,
+      Map<String, dynamic> updatedData) async {
     try {
       final snapshot = await _firestore
           .collection(DOCTORS)
@@ -244,8 +293,67 @@ class FirestoreService {
       }
 
       final doc = snapshot.docs.first;
+      final oldData = doc.data();
+      final oldName = oldData[NAME];
 
       await _firestore.collection(DOCTORS).doc(doc.id).update(updatedData);
+
+      // Proceed only if the doctor name is changed
+      if (updatedData.containsKey(NAME) && updatedData[NAME] != oldName) {
+        final newName = updatedData[NAME];
+        print("Updating doctor name from $oldName to $newName");
+
+        final state = oldData[STATE];
+        final locality = oldData[LOCALITY];
+        final hospital = oldData['hospitalName'];
+
+        final baseDeptRef = _firestore
+            .collection(HOSPITALS)
+            .doc(state)
+            .collection(LOCALITIES)
+            .doc(locality)
+            .collection(DATA)
+            .doc(hospital)
+            .collection(DEPARTMENTS)
+            .doc(department);
+
+        final subcollections = [
+          APPOINTMENTS,
+          DIAGNOSED_APPOINTMENTS,
+          CHECKED_IN_APPOINTMENTS,
+          CHECKED_OUT_APPOINTMENTS,
+        ];
+
+        for (String subcol in subcollections) {
+          final querySnapshot = await baseDeptRef
+              .collection(subcol)
+              .where(FIELD_DOCTOR, isEqualTo: oldName)
+              .get();
+
+          for (final doc in querySnapshot.docs) {
+            await doc.reference.update({FIELD_DOCTOR: newName});
+          }
+        }
+
+        // Update department's doctor list
+        final deptSnapshot = await baseDeptRef.get();
+        if (deptSnapshot.exists) {
+          final deptData = deptSnapshot.data()!;
+          final doctorsList = deptData[DOCTORS];
+
+          if (doctorsList is List) {
+            final updatedDoctors = doctorsList.map((d) {
+              if (d == oldName) return newName;
+              if (d is Map && d['name'] == oldName) {
+                return {...d, 'name': newName};
+              }
+              return d;
+            }).toList();
+
+            await baseDeptRef.update({DOCTORS: updatedDoctors});
+          }
+        }
+      }
     } catch (e) {
       _logError("updateDoctor", e);
       rethrow;
