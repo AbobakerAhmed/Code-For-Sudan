@@ -2,11 +2,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'package:mobile_app/backend/validate_fields.dart';
 
-class RegistrarProfilePage extends StatelessWidget {
-  final Registrar registrar; // required (see registrar.dart)
-  const RegistrarProfilePage(
-      {super.key, required this.registrar}); // constructor
+import 'package:mobile_app/firestore_services/firestore.dart';
+
+class RegistrarProfilePage extends StatefulWidget {
+  final Registrar registrar;
+
+  RegistrarProfilePage({super.key, required this.registrar});
+
+  @override
+  State<RegistrarProfilePage> createState() => _RegistrarProfilePageState();
+} //RegistrarProfilePage
+
+class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   // build fun
   @override
@@ -27,7 +42,7 @@ class RegistrarProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  registrar.name.substring(0, 2).toUpperCase(),
+                  widget.registrar.name.substring(0, 2).toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
@@ -35,7 +50,7 @@ class RegistrarProfilePage extends StatelessWidget {
 
               // registrar name
               Text(
-                registrar.name,
+                widget.registrar.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -46,14 +61,14 @@ class RegistrarProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: const Text('رقم الهاتف'),
-                subtitle: Text(registrar.phoneNumber),
+                subtitle: Text(widget.registrar.phoneNumber),
               ),
 
               // hsopital
               ListTile(
                 leading: const Icon(Icons.local_hospital),
                 title: const Text('المستشفى'),
-                subtitle: Text(registrar.hospitalName),
+                subtitle: Text(widget.registrar.hospitalName),
               ),
 
               // departments
@@ -62,7 +77,7 @@ class RegistrarProfilePage extends StatelessWidget {
                 title: const Text('الأقسام المسؤولة عنها'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: registrar.departmentsNames
+                  children: widget.registrar.departmentsNames
                       .map((dep) => Text('• $dep'))
                       .toList(),
                 ),
@@ -79,8 +94,10 @@ class RegistrarProfilePage extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
-                  _showEditDialog(context);
+                onPressed: () async {
+                  await _showEditDialog(context, widget.registrar);
+                  setState(() {});
+
 // edit the registrar data (only name, phone number, password)
                 },
               ),
@@ -92,8 +109,8 @@ class RegistrarProfilePage extends StatelessWidget {
   } // build fun
 
 // this is the dialog for editing the registrar data
-  Future<void> _showEditDialog(BuildContext context,
-      {Registrar? currentRegistrar}) async {
+  Future<void> _showEditDialog(
+      BuildContext context, Registrar currentRegistrar) async {
     final _formKey = GlobalKey<FormState>(); // global key
 
     // that will be pobed up only when pressing the button
@@ -120,7 +137,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // edit the name
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.name,
+                        initialValue: currentRegistrar.name,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -141,7 +158,7 @@ class RegistrarProfilePage extends StatelessWidget {
                           }
                           return null;
                         },
-                        onChanged: (value) => currentRegistrar?.name = value,
+                        onChanged: (value) => currentRegistrar.name = value,
                       ),
 
                       const SizedBox(
@@ -150,7 +167,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // enter phone number
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.phoneNumber.toString(),
+                        initialValue: currentRegistrar.phoneNumber,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -165,11 +182,19 @@ class RegistrarProfilePage extends StatelessWidget {
                                 color: Theme.of(context).primaryColor,
                               ),
                             )),
-
                         keyboardType: TextInputType.phone,
-                        // validate the phone number here
+                        validator: (value) {
+                          if (value != null) {
+                            if (!Validate.phoneNumber(value)) {
+                              return 'رقم الهاتف غير صالح'; // Invalid phone number
+                            }
+                            return null;
+                          } else {
+                            return null;
+                          }
+                        },
                         onChanged: (value) =>
-                            currentRegistrar?.phoneNumber = value,
+                            currentRegistrar.phoneNumber = value,
                       ),
                       const SizedBox(
                           height: 10), // between age and neighborhood
@@ -177,7 +202,7 @@ class RegistrarProfilePage extends StatelessWidget {
                       // enter password
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar?.password,
+                        initialValue: currentRegistrar.password,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -192,15 +217,18 @@ class RegistrarProfilePage extends StatelessWidget {
                               color: Theme.of(context).primaryColor,
                             ))),
                         validator: (value) {
-                          // validate the password here
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء إدخال كلمة المرور';
-                          } // if
-                          return null;
+                          if (value != null) {
+                            if (!Validate.password(value)) {
+                              return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                            } else {
+                              return null;
+                            }
+                          } else {
+                            return null;
+                          }
                         }, // validator
                         // encode it
-                        onChanged: (value) =>
-                            currentRegistrar?.password = value,
+                        onChanged: (value) => currentRegistrar.password = value,
                       ),
 
                       const SizedBox(
@@ -231,9 +259,56 @@ class RegistrarProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // there is a problem here
-                  // when adding the new info to the same page it is not be shown directly
-                  onPressed: () {}, // onPress
+
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final updatedData = {
+                        'name': currentRegistrar.name,
+                        'phoneNumber': currentRegistrar.phoneNumber,
+                        'password': currentRegistrar.password,
+                      };
+
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
+                      await _firestoreService.updateRegistrar(
+                          widget.registrar.phoneNumber, updatedData);
+
+                      setState(() {
+                        widget.registrar.name = currentRegistrar.name;
+                        widget.registrar.phoneNumber =
+                            currentRegistrar.phoneNumber;
+                        widget.registrar.password = currentRegistrar.password;
+                      });
+
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(' تم تحديث بياناتك بنجاح!')));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
+                    }
+                  }, // onPress
                 ),
               ],
             ),
@@ -242,4 +317,4 @@ class RegistrarProfilePage extends StatelessWidget {
       },
     );
   } // _showEditDialog
-} // RegistrarProfilePage
+} // _RegistrarProfilePageState

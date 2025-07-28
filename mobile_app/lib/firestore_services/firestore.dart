@@ -27,6 +27,7 @@ const String MEDICAL_HISTORY = "medicalHistory";
 const String APPOINTMENTS = "appointments";
 const String CHECKED_IN_APPOINTMENTS = "checkedInAppointments";
 const String CHECKED_OUT_APPOINTMENTS = "checkedOutAppointments";
+const String DIAGNOSED_APPOINTMENTS = "diagnosedAppointments";
 
 // Arabic field labels
 const String FIELD_NAME = "الإسم";
@@ -164,15 +165,14 @@ class FirestoreService {
     }
   }
 
-  /// Create a new Citizen document
-  Future<void> createCitizen(Citizen citizen) async {
-    try {
-      await _firestore.collection(CITIZENS).add(citizen.toJson());
-    } catch (e) {
-      _logError("createCitizen", e);
-    }
-  }
+  ///update the contents of an existing citizen
+  ///here is the mechanizem for updating:
+  ///1. the method will see in the database if document exist in the citizens collection in database.
+  ///if it's found the method will update the document with the correspondent id.
 
+  ///2. the method will update the document by matching every key on the updatedDate's map
+  ///and assign the matched key on the database collection with it's correspondent updated
+  ///value so it's not neccessary to update every field in the collection
   Future<void> updateCitizen(
       String phoneNumber, Map<String, dynamic> updatedData) async {
     try {
@@ -186,12 +186,78 @@ class FirestoreService {
       }
 
       final doc = snapshot.docs.first;
-      final citizenData = doc.data();
 
       await _firestore.collection(CITIZENS).doc(doc.id).update(updatedData);
     } catch (e) {
       _logError("updateCitizen", e);
       rethrow;
+    }
+  }
+
+  ///update the contents of an existing registrar
+  ///here is the mechanizem for updating:
+  ///1. the method will see in the database if document exist in the registrars collection in database.
+  ///if it's found the method will update the document with the correspondent id.
+
+  ///2. the method will update the document by matching every key on the updatedDate's map
+  ///and assign the matched key on the database collection with it's correspondent updated
+  ///value so it's not neccessary to update every field in the collection
+  Future<void> updateRegistrar(
+      String phoneNumber, Map<String, dynamic> updatedData) async {
+    try {
+      final snapshot = await _firestore
+          .collection(REGISTRARS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        throw Exception("Registrar not found");
+      }
+
+      final doc = snapshot.docs.first;
+
+      await _firestore.collection(REGISTRARS).doc(doc.id).update(updatedData);
+    } catch (e) {
+      _logError("updateRegistrar", e);
+      rethrow;
+    }
+  }
+
+  ///update the contents of an existing doctor
+  ///here is the mechanizem for updating:
+  ///1. the method will see in the database if document exist in the doctors collection in database.
+  ///if it's found the method will update the document with the correspondent id.
+
+  ///2. the method will update the document by matching every key on the updatedDate's map
+  ///and assign the matched key on the database collection with it's correspondent updated
+  ///value so it's not neccessary to update every field in the collection
+  Future<void> updateDoctor(
+      String phoneNumber, Map<String, dynamic> updatedData) async {
+    try {
+      final snapshot = await _firestore
+          .collection(DOCTORS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        throw Exception("Doctor not found");
+      }
+
+      final doc = snapshot.docs.first;
+
+      await _firestore.collection(DOCTORS).doc(doc.id).update(updatedData);
+    } catch (e) {
+      _logError("updateDoctor", e);
+      rethrow;
+    }
+  }
+
+  /// Create a new Citizen document
+  Future<void> createCitizen(Citizen citizen) async {
+    try {
+      await _firestore.collection(CITIZENS).add(citizen.toJson());
+    } catch (e) {
+      _logError("createCitizen", e);
     }
   }
 
@@ -274,9 +340,7 @@ class FirestoreService {
                   }
                 })(),
                 doctor: doc.get(FIELD_DOCTOR),
-                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
-                    const Duration(
-                        hours: 2)), //to convert time from UTC to UTC+2
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate(),
                 isLocal: (() {
                   try {
                     return doc.get(FIELD_IS_LOCAL);
@@ -301,7 +365,7 @@ class FirestoreService {
 
   ///Search if an appointment does exist
   ///1. if the appointment is for the user the method will check for the appointments with
-  ///  the same phone number and the appointment is for him
+  ///  the same phone number and if the appointment is for him
   ///2. if the appointment is not for the user the method will check for the appointments
   ///  with the same phone number and name **this prevent the user from creating a dublicate appointment with the same name and phone number**
 
@@ -348,7 +412,7 @@ class FirestoreService {
   }
 
   /// delete an existing appointment
-  ///1. if the appointment is for the user the method will check for the appointments with the same phone number and the appointment is for him
+  ///1. if the appointment is for the user the method will check for the appointments with the same phone number and if the appointment is for him
   ///2. if the appointment is not for the user the method will check for the appointments with the same phone number and name
   Future<void> deleteAppointment(Appointment appointment) async {
     try {
@@ -478,9 +542,7 @@ class FirestoreService {
                   }
                 })(),
                 doctor: doc.get(FIELD_DOCTOR),
-                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
-                    const Duration(
-                        hours: 2)), //to convert time from UTC to UTC+2
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate(),
                 isLocal: (() {
                   try {
                     return doc.get(FIELD_IS_LOCAL);
@@ -500,6 +562,57 @@ class FirestoreService {
     } catch (e) {
       _logError("getCheckedInAppointments", e);
       return [];
+    }
+  }
+
+  /// delete an existing appointment in checkedInAppointments
+  /// it works the same way deleteAppointment works, check the documentation for
+  /// deleteAppointment
+  Future<void> deleteCheckedInAppointment(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(CHECKED_IN_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(CHECKED_IN_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "Appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+
+      await doc.reference.delete();
+    } catch (e) {
+      _logError("deleteCheckedInAppointment", e);
     }
   }
 
@@ -583,9 +696,7 @@ class FirestoreService {
                   }
                 })(),
                 doctor: doc.get(FIELD_DOCTOR),
-                time: (doc.get(FIELD_TIME) as Timestamp).toDate().add(
-                    const Duration(
-                        hours: 2)), //to convert time from UTC to UTC+2
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate(),
                 isLocal: (() {
                   try {
                     return doc.get(FIELD_IS_LOCAL);
@@ -604,6 +715,282 @@ class FirestoreService {
           .toList();
     } catch (e) {
       _logError("getCheckOutAppointments", e);
+      return [];
+    }
+  }
+
+  /// delete an existing appointment in checkedOutAppointments
+  /// it works the same way deleteAppointment works, check the documentation for
+  /// deleteAppointment
+  Future<void> deleteCheckedOutAppointment(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(CHECKED_OUT_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(CHECKED_OUT_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "Appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+
+      await doc.reference.delete();
+    } catch (e) {
+      _logError("deleteCheckedOutAppointment", e);
+    }
+  }
+
+  /// save an appointment in diagnosedAppointments after is checked by the doctor
+  Future<void> diagnoseAppointment(Appointment appointment) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(appointment.state)
+          .collection(LOCALITIES)
+          .doc(appointment.locality)
+          .collection(DATA)
+          .doc(appointment.hospital)
+          .collection(DEPARTMENTS)
+          .doc(appointment.department)
+          .get();
+
+      if (!departmentDoc.exists) throw Exception("Department does not exist");
+
+      await departmentDoc.reference.collection(DIAGNOSED_APPOINTMENTS).add({
+        FIELD_NAME: appointment.name,
+        FIELD_AGE: appointment.age,
+        FIELD_GENDER: appointment.gender,
+        FIELD_PHONE: appointment.phoneNumber,
+        FIELD_ADDRESS: appointment.address,
+        FIELD_DOCTOR: appointment.doctor,
+        FIELD_STATE: appointment.state,
+        FIELD_LOCALITY: appointment.locality,
+        FIELD_HOSPITAL: appointment.hospital,
+        FIELD_DEPARTMENT: appointment.department,
+        FIELD_MEDICAL_HISTORY: appointment.medicalHistory ?? ["None"],
+        FIELD_TIME: appointment.time,
+        FIELD_IS_LOCAL: appointment.isLocal ?? false,
+        FIELD_FOR_ME: appointment.forMe ?? true,
+      });
+    } catch (e) {
+      _logError("diagnoseAppointment", e);
+    }
+  }
+
+  /// Retrieve diagnosed appointments from a specific department
+  Future<List<Appointment>> getDiagnosedAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
+    try {
+      final departmentDoc = await _firestore
+          .collection(HOSPITALS)
+          .doc(state)
+          .collection(LOCALITIES)
+          .doc(locality)
+          .collection(DATA)
+          .doc(hospitalName)
+          .collection(DEPARTMENTS)
+          .doc(departmentName)
+          .get();
+
+      if (!departmentDoc.exists) return [];
+
+      final appointmentsSnapshot = await departmentDoc.reference
+          .collection(DIAGNOSED_APPOINTMENTS)
+          .get();
+      return appointmentsSnapshot.docs
+          .map((doc) => Appointment(
+                name: doc.get(FIELD_NAME),
+                age: doc.get(FIELD_AGE),
+                gender: doc.get(FIELD_GENDER),
+                phoneNumber: doc.get(FIELD_PHONE),
+                address: doc.get(FIELD_ADDRESS),
+                state: state,
+                locality: locality,
+                hospital: hospitalName,
+                department: departmentName,
+                medicalHistory: (() {
+                  try {
+                    return List<String>.from(doc.get(FIELD_MEDICAL_HISTORY));
+                  } catch (_) {
+                    return ["None"];
+                  }
+                })(),
+                doctor: doc.get(FIELD_DOCTOR),
+                time: (doc.get(FIELD_TIME) as Timestamp).toDate(),
+                isLocal: (() {
+                  try {
+                    return doc.get(FIELD_IS_LOCAL);
+                  } catch (_) {
+                    return false;
+                  }
+                })(),
+                forMe: (() {
+                  try {
+                    return doc.get(FIELD_FOR_ME);
+                  } catch (_) {
+                    return true;
+                  }
+                })(),
+              ))
+          .toList();
+    } catch (e) {
+      _logError("getDiagnosedAppointments", e);
+      return [];
+    }
+  }
+
+  ///Search if a diagnoised appointment does exist
+  ///1. if the appointment is for the user the method will check for the appointments with
+  ///  the same phone number and if the appointment is for him
+  ///2. if the appointment is not for the user the method will check for the appointments
+  ///  with the same phone number and name **this prevent the user from creating a dublicate appointment with the same name and phone number**
+
+  Future<bool> checkDiagnosedAppointmentExist(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(DIAGNOSED_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(DIAGNOSED_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      _logError("searchDiagnosedAppointment", e);
+      return false;
+    }
+  }
+
+  Future<void> deleteDiagnosedAppointment(Appointment appointment) async {
+    try {
+      late final querySnapshot;
+      if (appointment.forMe == true) {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(DIAGNOSED_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_FOR_ME, isEqualTo: true)
+            .limit(1)
+            .get();
+      } else {
+        querySnapshot = await _firestore
+            .collection(HOSPITALS)
+            .doc(appointment.state)
+            .collection(LOCALITIES)
+            .doc(appointment.locality)
+            .collection(DATA)
+            .doc(appointment.hospital)
+            .collection(DEPARTMENTS)
+            .doc(appointment.department)
+            .collection(DIAGNOSED_APPOINTMENTS)
+            .where(FIELD_PHONE, isEqualTo: appointment.phoneNumber)
+            .where(FIELD_NAME, isEqualTo: appointment.name)
+            .limit(1)
+            .get();
+      }
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception(
+            "diagnosed appointment not found for phone: ${appointment.phoneNumber}");
+      }
+
+      final doc = querySnapshot.docs.first;
+
+      await doc.reference.delete();
+    } catch (e) {
+      _logError("deleteDiagnosedAppointment", e);
+    }
+  }
+
+  Future<List<Appointment>> getTodayDiagnosedAppointments(
+    String state,
+    String locality,
+    String hospitalName,
+    String departmentName,
+  ) async {
+    try {
+      // today time in sudan
+      final today = DateTime.now().toUtc().add(const Duration(hours: 2));
+      List<Appointment> allDiagnosedAppointments =
+          await getDiagnosedAppointments(
+              state, locality, hospitalName, departmentName);
+
+      return allDiagnosedAppointments
+          .where((appointment) =>
+              appointment.time.add(const Duration(hours: 2)).day == today.day &&
+              appointment.time.add(const Duration(hours: 2)).month ==
+                  today.month &&
+              appointment.time.add(const Duration(hours: 2)).year == today.year)
+          .toList();
+    } catch (e) {
+      _logError("getTodayDiagnosedAppointments", e);
       return [];
     }
   }

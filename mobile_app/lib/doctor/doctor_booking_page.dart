@@ -14,6 +14,7 @@ class BookedAppointmentsPage extends StatefulWidget {
 
 class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     with SingleTickerProviderStateMixin {
+  bool _isLoading = true;
   final FirestoreService _firestore = FirestoreService();
 
   /// this method load the checked in appointments from the database
@@ -29,12 +30,20 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
         widget.doctor.locality,
         widget.doctor.hospitalName,
         widget.doctor.department.name));
+
+    diagnosedAppointments.addAll(await _firestore.getTodayDiagnosedAppointments(
+        widget.doctor.state,
+        widget.doctor.locality,
+        widget.doctor.hospitalName,
+        widget.doctor.department.name));
   }
 
   ///this method load the checked in appointments for the doctor
   Future<void> _loadInitialAppointments() async {
     await _fetchAppointments(); // this sets inAppointments internally
-    setState(() {}); // make sure UI updates after loading
+    setState(() {
+      _isLoading = false;
+    }); // make sure UI updates after loading
   }
 
   List<Appointment> _sortAppointmentsByTime(List<Appointment> appointments) {
@@ -47,154 +56,8 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
   List<Appointment> inAppointments = [];
   List<Appointment> outAppointments = [];
 
-  // List<Appointment> inAppointments = [
-  //   Appointment(
-  //     name: 'علي أحمد',
-  //     gender: 'ذكر',
-  //     age: '30',
-  //     address: '123 شارع الرئيسي، مركز المدينة',
-  //     phoneNumber: '555-1234',
-  //     state: 'ولاية أ',
-  //     locality: 'محلية أ',
-  //     hospital: 'مستشفى المدينة',
-  //     department: 'أمراض القلب',
-  //     doctor: 'الدكتور سارة خان',
-  //     time: DateTime(2023, 10, 15, 10, 30),
-  //     isLocal: true,
-  //   ),
-  //   Appointment(
-  //     name: 'فاطمة السيد',
-  //     gender: 'أنثى',
-  //     age: '28',
-  //     address: '456 شارع البلوط، وسط المدينة',
-  //     phoneNumber: '555-5678',
-  //     state: 'ولاية ب',
-  //     locality: 'محلية ب',
-  //     hospital: 'عيادة وسط المدينة',
-  //     department: 'طب الأطفال',
-  //     doctor: 'الدكتور أحمد زكي',
-  //     time: DateTime(2023, 10, 16, 14, 00),
-  //     isLocal: false,
-  //   ),
-  //   Appointment(
-  //     name: 'محمد صالح',
-  //     gender: 'ذكر',
-  //     age: '45',
-  //     address: '789 شارع البلوط، منطقة العليا',
-  //     phoneNumber: '555-8765',
-  //     state: 'ولاية ج',
-  //     locality: 'محلية ج',
-  //     hospital: 'مركز الطب العليا',
-  //     department: 'طب العظام',
-  //     doctor: 'الدكتورة ليلى نور',
-  //     time: DateTime(2023, 10, 17, 09, 15),
-  //     isLocal: true,
-  //   ),
-  //   Appointment(
-  //     name: 'عائشة حسن',
-  //     gender: 'أنثى',
-  //     age: '35',
-  //     address: '321 شارع الصنوبر، الطرف الغربي',
-  //     phoneNumber: '555-4321',
-  //     state: 'ولاية د',
-  //     locality: 'محلية د',
-  //     hospital: 'مستشفى الطرف الغربي',
-  //     department: 'أمراض النساء',
-  //     doctor: 'الدكتور عمر فاروق',
-  //     time: DateTime(2023, 10, 18, 11, 45),
-  //     isLocal: false,
-  //   ),
-  //   Appointment(
-  //     name: 'خالد إبراهيم',
-  //     gender: 'ذكر',
-  //     age: '50',
-  //     address: '654 شارع القيقب، الجانب الشرقي',
-  //     phoneNumber: '555-6789',
-  //     state: 'ولاية هـ',
-  //     locality: 'محلية هـ',
-  //     hospital: 'مركز الصحة الجانب الشرقي',
-  //     department: 'الأعصاب',
-  //     doctor: 'الدكتورة نورة علي',
-  //     time: DateTime(2023, 10, 19, 13, 00),
-  //     isLocal: true,
-  //   ),
-  // ];
-
-  // List<Appointment> outAppointments = [
-  //   Appointment(
-  //     name: 'سلمان العتيبي',
-  //     gender: 'ذكر',
-  //     age: '40',
-  //     address: '987 شارع الورد، حي النخيل',
-  //     phoneNumber: '555-1111',
-  //     state: 'ولاية أ',
-  //     locality: 'محلية أ',
-  //     hospital: 'مستشفى النخيل',
-  //     department: 'الطب الباطني',
-  //     doctor: 'الدكتور فهد السعيد',
-  //     time: DateTime(2023, 10, 20, 08, 30),
-  //     isLocal: true,
-  //   ),
-  //   Appointment(
-  //     name: 'نور الهدى',
-  //     gender: 'أنثى',
-  //     age: '26',
-  //     address: '654 شارع الزهور، حي السلام',
-  //     phoneNumber: '555-2222',
-  //     state: 'ولاية ب',
-  //     locality: 'محلية ب',
-  //     hospital: 'مستشفى السلام',
-  //     department: 'طب العيون',
-  //     doctor: 'الدكتور عادل جابر',
-  //     time: DateTime(2023, 10, 21, 15, 00),
-  //     isLocal: false,
-  //   ),
-  //   Appointment(
-  //     name: 'يوسف القحطاني',
-  //     gender: 'ذكر',
-  //     age: '32',
-  //     address: '321 شارع النخيل، حي الهدى',
-  //     phoneNumber: '555-3333',
-  //     state: 'ولاية ج',
-  //     locality: 'محلية ج',
-  //     hospital: 'مستشفى الهدى',
-  //     department: 'أمراض الجهاز التنفسي',
-  //     doctor: 'الدكتورة مريم علي',
-  //     time: DateTime(2023, 10, 22, 11, 15),
-  //     isLocal: true,
-  //   ),
-  //   Appointment(
-  //     name: 'ليلى الشمري',
-  //     gender: 'أنثى',
-  //     age: '29',
-  //     address: '456 شارع السعادة، حي الأمل',
-  //     phoneNumber: '555-4444',
-  //     state: 'ولاية د',
-  //     locality: 'محلية د',
-  //     hospital: 'مستشفى الأمل',
-  //     department: 'طب النساء والتوليد',
-  //     doctor: 'الدكتور سامي العلي',
-  //     time: DateTime(2023, 10, 23, 09, 45),
-  //     isLocal: false,
-  //   ),
-  //   Appointment(
-  //     name: 'عبدالله الزهراني',
-  //     gender: 'ذكر',
-  //     age: '38',
-  //     address: '789 شارع الفرح، حي الزهور',
-  //     phoneNumber: '555-5555',
-  //     state: 'ولاية هـ',
-  //     locality: 'محلية هـ',
-  //     hospital: 'مستشفى الزهور',
-  //     department: 'طب القلب',
-  //     doctor: 'الدكتور سعيد القحطاني',
-  //     time: DateTime(2023, 10, 24, 14, 30),
-  //     isLocal: true,
-  //   ),
-  // ];
-
-  List<Appointment> deletedAppointments =
-      []; // New list for deleted appointments
+  List<Appointment> diagnosedAppointments =
+      []; // New list for diagnosed appointments
 
   List<String> epidemics = [
     "الطاعون",
@@ -230,6 +93,38 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
   Widget build(BuildContext context) {
     _sortAppointmentsByTime(inAppointments);
     _sortAppointmentsByTime(outAppointments);
+
+    //display a loading screen until inAppointments or outAppointments get thier appointments
+    if (_isLoading) {
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: DefaultTabController(
+            length: appoi.length,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text("المواعيد"),
+                bottom: TabBar(
+                  controller: _tabController,
+                  onTap: _onTabTapped, // Handle tab taps directly
+                  tabs: appoi.map((d) => Tab(text: d)).toList(),
+                ),
+              ),
+              body: Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                    CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Text("كيف حالك"),
+                  ])),
+            )),
+      );
+    }
+
+    //if there is at least one appointment
     return Directionality(
       textDirection: TextDirection.rtl,
       child: DefaultTabController(
@@ -271,13 +166,37 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.lightBlue),
                     onPressed: () async {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
                       await _firestore
                           .checkOutAppointment(inAppointments[currentIndex]);
+                      await _firestore.deleteCheckedInAppointment(
+                          inAppointments[currentIndex]);
                       setState(() {
                         // Remove the current appointment from the screen and show the next one
                         outAppointments.add(inAppointments[currentIndex]);
                         currentIndex++;
                       });
+                      Navigator.pop(context);
                     },
                     child: Text(
                       "التالي",
@@ -294,6 +213,18 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
   }
 
   Widget _buildAppointmentDetails(Appointment appointment) {
+    final timeInSudan = appointment.time.add(const Duration(hours: 2));
+
+    final hourIn12HourFormat =
+        (timeInSudan.hour % 12 != 0) ? timeInSudan.hour % 12 : 12;
+
+    //we added 2 hours to convert time from utc into utc+2
+    final String timeString =
+        '${hourIn12HourFormat.toString().padLeft(2, '0')}:${timeInSudan.minute.toString().padLeft(2, '0')}:${timeInSudan.second.toString().padLeft(2, '0')} ${timeInSudan.hour >= 12 ? 'PM' : 'AM'}';
+
+    final String dateString =
+        '${timeInSudan.year.toString()}/${timeInSudan.month.toString().padLeft(2, '0')}/${timeInSudan.day.toString().padLeft(2, '0')}';
+
     return ExpansionTile(
       collapsedBackgroundColor: Theme.of(context).cardColor,
       title: Text(
@@ -315,11 +246,9 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
             "• العمر: ${appointment.age}\n\n"
             "• العنوان: ${appointment.address}\n\n"
             "• رقم الهاتف: ${appointment.phoneNumber}\n\n"
-            //"• المستشفى: ${appointment.hospital}\n\n"
-            //"• القسم: ${appointment.department}\n\n"
-            //"• الطبيب: ${appointment.doctor}\n\n"
-            "• السجل الطبي: ${appointment.medicalHistory != null && appointment.medicalHistory!.isNotEmpty && appointment.medicalHistory![0] != 'None' ? appointment.medicalHistory!.map((e) => "- $e").join("\n") : "لا يوجد سجل"}\n\n"
-            "• الوقت: ${appointment.time}\n",
+            "• السجل الطبي: \n${appointment.medicalHistory != null && appointment.medicalHistory!.isNotEmpty && appointment.medicalHistory![0] != 'None' ? appointment.medicalHistory!.map((e) => "- $e").join("\n") : "لا يوجد سجل"}\n\n"
+            "• اليوم: $dateString\n\n"
+            "• الوقت: $timeString\n\n",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -337,11 +266,26 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                   itemCount: outAppointments.length,
                   itemBuilder: (context, index) {
                     final appointment = outAppointments[index];
+
+                    final timeInSudan =
+                        appointment.time.add(const Duration(hours: 2));
+
+                    final hourIn12HourFormat = (timeInSudan.hour % 12 != 0)
+                        ? timeInSudan.hour % 12
+                        : 12;
+
+                    final String timeString =
+                        '${hourIn12HourFormat.toString().padLeft(2, '0')}:${timeInSudan.minute.toString().padLeft(2, '0')}:${timeInSudan.second.toString().padLeft(2, '0')} ${timeInSudan.hour >= 12 ? 'PM' : 'AM'}';
+
+                    final String dateString =
+                        '${timeInSudan.year.toString()}/${timeInSudan.month.toString().padLeft(2, '0')}/${timeInSudan.day.toString().padLeft(2, '0')}';
+
                     return Card(
                       margin: EdgeInsets.all(8.0),
                       child: ListTile(
                         title: Text(appointment.name),
-                        subtitle: Text("الوقت: ${appointment.time}"),
+                        subtitle:
+                            Text("اليوم: $dateString\nالوقت: $timeString"),
                         trailing: OutlinedButton(
                           child: Text(
                             "تشخيص",
@@ -349,8 +293,9 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                                 color: Colors.lightBlue,
                                 fontWeight: FontWeight.bold),
                           ),
-                          onPressed: () {
-                            _showEditDialog(context, appointment);
+                          onPressed: () async {
+                            await _showEditDialog(context, appointment);
+                            setState(() {});
                           },
                         ),
                       ),
@@ -361,23 +306,24 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
         Divider(
             color: Colors
                 .lightBlue), // Divider to separate ongoing and deleted appointments
-        Text("المواعيد التي تم تشخيصها:",
+        Text("المواعيد التي تم تشخيصها اليوم:",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Divider(color: Colors.lightBlue),
         Expanded(
-          child: deletedAppointments.isEmpty
+          child: diagnosedAppointments.isEmpty
               ? Center(child: Text("لم يتم تشخيص مريض بعد"))
               : ListView.builder(
-                  itemCount: deletedAppointments.length,
+                  itemCount: diagnosedAppointments.length,
                   itemBuilder: (context, index) {
-                    final appointment = deletedAppointments[index];
+                    final appointment = diagnosedAppointments[index];
                     return Card(
                       color: Colors.green[700],
                       margin: EdgeInsets.all(8.0),
                       child: ListTile(
                         textColor: Colors.white,
                         title: Text(appointment.name),
-                        subtitle: Text("التشخيص: ${appointment.isLocal}"),
+                        subtitle: Text(
+                            "التشخيص: ${appointment.medicalHistory!.last}"),
                         trailing: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -387,9 +333,9 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             'تعديل',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          onPressed: () {
-                            _showEditDialog(context, appointment);
-                            // edit the doctor data (only name, phone number, password)
+                          onPressed: () async {
+                            await _showEditDialog(context, appointment);
+                            setState(() {});
                           },
                         ),
                       ),
@@ -402,12 +348,13 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
   }
 
   // this is the dialog for editing the doctor data
-  void _showEditDialog(BuildContext context, Appointment appointment) {
+  Future<void> _showEditDialog(
+      BuildContext context, Appointment appointment) async {
     final _formKey = GlobalKey<FormState>(); // global key
     String? epidemic;
     String? diagnosis;
 
-    // that will be pobed up only when pressing the button
+    // that will be pop ed up only when pressing the button
     showDialog(
       context: context,
       builder: (context) {
@@ -520,15 +467,6 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             onChanged: (value) {
                               setState(() {
                                 _addToMedicalHistory = value!;
-                                if (_addToMedicalHistory == true) {
-                                  print(appointment.medicalHistory);
-                                  if (appointment.medicalHistory![0] ==
-                                      "None") {
-                                    print('it works');
-                                    appointment.medicalHistory = [];
-                                  }
-                                  appointment.medicalHistory!.add(diagnosis!);
-                                }
                               });
                             }),
 
@@ -560,20 +498,84 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // there is a problem here
-                  // when adding the new info to the same page it is not be shown directly
-                  onPressed: () async {
-                    // check the info
-                    // also here you can add the functionality on the databse, DONT FORGET TO USE (await) KEYWORD TOO!
 
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
+                      //check if the diagnosed appointment has a previous appointment in DB
+                      final diagnosedAppointmentExistInDb = await _firestore
+                          .checkDiagnosedAppointmentExist(appointment);
+
+                      //prepare the database to recieve the appointment by deleting old diagnosed appointments
+                      if (diagnosedAppointmentExistInDb) {
+                        await _firestore
+                            .deleteDiagnosedAppointment(appointment);
+
+                        if (diagnosedAppointments.contains(appointment)) {
+                          setState(() {
+                            appointment.medicalHistory!.removeLast();
+                            diagnosedAppointments.remove(appointment);
+                          });
+                        }
+
+                        if (outAppointments.contains(appointment)) {
+                          await _firestore
+                              .deleteCheckedOutAppointment(appointment);
+                          setState(() {
+                            outAppointments.remove(appointment);
+                          });
+                        }
+                      } else {
+                        await _firestore
+                            .deleteCheckedOutAppointment(appointment);
+                        setState(() {
+                          outAppointments.remove(appointment);
+                        });
+                      }
+
+                      //prepare the medical history to be added to diagnosed appointment
+                      if (appointment.forMe == true) {
+                        if (appointment.medicalHistory!.isNotEmpty &&
+                            appointment.medicalHistory![0] == "None") {
+                          appointment.medicalHistory = [];
+                        }
+                        appointment.medicalHistory!.add(diagnosis!);
+                      } else {
+                        appointment.medicalHistory = [diagnosis!];
+                      }
+
                       if (_addToMedicalHistory == true &&
                           appointment.forMe == true) {
-                        await _firestore.updateCitizen(appointment.phoneNumber,
+                        _firestore.updateCitizen(appointment.phoneNumber,
                             {"medicalHistory": appointment.medicalHistory!});
                       }
-                      deletedAppointments.add(appointment);
-                      outAppointments.remove(appointment);
+
+                      await _firestore.diagnoseAppointment(appointment);
+                      setState(() {
+                        diagnosedAppointments.add(appointment);
+                      });
+
+                      Navigator.pop(context);
                       Navigator.pop(context);
                       _onTabTapped(1);
                     }

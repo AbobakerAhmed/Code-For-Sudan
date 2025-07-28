@@ -22,6 +22,7 @@ class BookedAppointmentsPage extends StatefulWidget {
 // booked appointments content
 class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   final FirestoreService _firestore = FirestoreService();
+  bool _isLoading = true;
 
   /// this method load the appointments from the database
   /// and put all appointments in the empty _allApointments variable
@@ -32,18 +33,16 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
           widget.registrar.locality,
           widget.registrar.hospitalName,
           dep));
-      // _checkedInAppointments.addAll(await _firestore.getCheckedInAppointments(
-      //     widget.registrar.state,
-      //     widget.registrar.locality,
-      //     widget.registrar.hospitalName,
-      //     dep));
     }
   }
 
   ///this method load the appointments for the registrar
   Future<void> _loadInitialAppointments() async {
     await _fetchAppointments(); // this sets _allAppointments internally
-    setState(() {}); // make sure UI updates after loading
+
+    setState(() {
+      _isLoading = false;
+    }); // make sure UI updates after loading
   }
 
   int _selectedDepartmentIndex =
@@ -55,18 +54,21 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   @override
   void initState() {
     super.initState();
-    _loadInitialAppointments();
+
+    // Post-frame callback ensures we wait until after the first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialAppointments();
+    });
   } // initState
 
   ///this fun bring doctros of each department
   List<String> _getDoctorsInSelectedDepartment() {
     final selectedDept =
         widget.registrar.departmentsNames[_selectedDepartmentIndex];
-    return _allAppointments
-        .where((a) => a.department == selectedDept)
-        .map((a) => a.doctor)
-        .toSet()
-        .toList();
+    return widget.registrar.departments
+        .where((a) => a.name == selectedDept)
+        .first
+        .doctors;
   } // _getDoctorsInSelectedDepartment
 
   List<Appointment> _sortAppointmentsByTime(List<Appointment> appointments) {
@@ -406,14 +408,14 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                       if (_formKey.currentState!.validate()) {
                         // if (appointmentDate != null && appointmentTime != null) {
                         final fullDateTime = DateTime.utc(
-                          DateTime.now().year,
-                          DateTime.now().month,
-                          DateTime.now().day,
-                          DateTime.now().hour,
-                          DateTime.now().minute,
-                        );
-                        DateTime inSudanTime =
-                            fullDateTime.add(const Duration(hours: 2));
+                            DateTime.now().year,
+                            DateTime.now().month,
+                            DateTime.now().day,
+                            DateTime.now().hour,
+                            DateTime.now().minute,
+                            DateTime.now().second);
+                        // DateTime inSudanTime =
+                        //     fullDateTime.add(const Duration(hours: 2));
 
                         if (existingAppointment == null) {
                           final newAppointment = Appointment(
@@ -436,7 +438,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
 
                           if (!appointmentExist) {
                             await _firestore.createAppointment(newAppointment);
-                            newAppointment.time = inSudanTime;
+                            //newAppointment.time = inSudanTime;
                             _allAppointments.add(newAppointment);
                             setState(() {});
                           } else {
@@ -460,7 +462,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                           await _firestore
                               .createAppointment(existingAppointment);
                           setState(() {
-                            existingAppointment.time = inSudanTime;
+                            //existingAppointment.time = inSudanTime;
                             _allAppointments[_allAppointments.indexOf(
                                 existingAppointment)] = existingAppointment;
                           });
@@ -503,11 +505,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   // build fun
   @override
   Widget build(BuildContext context) {
-    final selectedDept = widget.registrar
-        .departmentsNames[_selectedDepartmentIndex]; // for the button bar
-    final doctors = _getDoctorsInSelectedDepartment(); // for the top taps
-    // checking if the department has no doctors
-    if (doctors.isEmpty) {
+    if (_isLoading) {
       return Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
@@ -527,9 +525,12 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
           ),
         ),
       );
-    } // if
+    }
 
-    // if there is atleast one doctor in the department
+    final selectedDept = widget.registrar
+        .departmentsNames[_selectedDepartmentIndex]; // for the button bar
+    final doctors = _getDoctorsInSelectedDepartment(); // for the top taps
+
     return Directionality(
       textDirection: TextDirection.rtl, // arabic lang
       child: DefaultTabController(
@@ -565,11 +566,17 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                 itemBuilder: (context, appointmentsCounter) {
                   final currentAppointment = appts[appointmentsCounter];
 
+                  final timeInSudan =
+                      currentAppointment.time.add(const Duration(hours: 2));
+
+                  final hourIn12HourFormat =
+                      (timeInSudan.hour % 12 != 0) ? timeInSudan.hour % 12 : 12;
+                  //we have added to hours to display the time in utc+2
                   final String timeString =
-                      '${currentAppointment.time.hour.toString().padLeft(2, '0')}:${currentAppointment.time.minute.toString().padLeft(2, '0')}:${currentAppointment.time.second.toString().padLeft(2, '0')}';
+                      '${hourIn12HourFormat.toString().padLeft(2, '0')}:${timeInSudan.minute.toString().padLeft(2, '0')}:${timeInSudan.second.toString().padLeft(2, '0')} ${timeInSudan.hour >= 12 ? 'PM' : 'AM'}';
 
                   final String dateString =
-                      '${currentAppointment.time.year.toString()}/${currentAppointment.time.month.toString().padLeft(2, '0')}/${currentAppointment.time.day.toString().padLeft(2, '0')}';
+                      '${timeInSudan.year.toString()}/${timeInSudan.month.toString().padLeft(2, '0')}/${timeInSudan.day.toString().padLeft(2, '0')}';
 
                   // how appointments are displayed
                   return Card(
@@ -635,21 +642,10 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                       _allAppointments
                                           .remove(currentAppointment);
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                ' تم تسجيل الحضور بنجاح!')));
                                   },
                                   child: const Icon(
                                       Icons.check), //const Text('دخول'),
-// here we should send the appointment data to the doctor
-// think if the doctor send the persont to the lap or x-ray, how he will be back to the queue
-// sure he will not go to the end but where exactly to add him?
-// and when exctly the appointment will be removed from this list
                                 ),
-
-//someone booked an appointment and doesn't come in his order did came,
-// is hemust be removed dirctly from here?
                                 OutlinedButton(
                                   style: ButtonStyle(
                                       iconColor:

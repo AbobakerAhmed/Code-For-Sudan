@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
-import 'package:mobile_app/backend/hospital.dart';
 
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/doctor/doctor_home_page.dart';
@@ -104,24 +103,52 @@ class _LoginPageState extends State<LoginPage> {
           body:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             // Guest Mode Button - top right under AppBar
+            // Guest Mode Button - top right under AppBar
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, right: 12.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  },
-                  child: const Text(
-                    'وضع الضيف',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0),
+                      textStyle: const TextStyle(fontSize: 12),
+                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(height: 30),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomePage()),
+                      );
+                    },
+                    child: const Text('وضع الضيف'),
                   ),
-                ),
+                ],
               ),
             ),
+
             // The rest of your original content
             Expanded(
               child: Center(
@@ -140,10 +167,6 @@ class _LoginPageState extends State<LoginPage> {
                           height: 200,
                           width: 200,
                         ),
-                        // Icon(
-                        //   Icons.now_wallpaper,
-                        //   size: 200,
-                        // ),
                         const SizedBox(height: 8),
                         Text(
                           "وزارة الصحة الاتحادية",
@@ -270,6 +293,7 @@ class _LoginPageState extends State<LoginPage> {
                                           CircularProgressIndicator(
                                               color: Theme.of(context)
                                                   .primaryColor),
+                                          Text("كيف حالك"),
                                           SizedBox(
                                             height: 30,
                                           ),

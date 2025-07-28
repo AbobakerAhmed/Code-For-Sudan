@@ -123,6 +123,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
                 _buildDatePickerField(),
+
                 _buildTextField(
                   'رقم الهاتف (مثال: 0123456789)',
                   _phoneController,

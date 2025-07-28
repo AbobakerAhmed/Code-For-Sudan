@@ -2,10 +2,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/doctor/doctor.dart';
+import 'package:mobile_app/backend/validate_fields.dart';
 
-class DoctorProfilePage extends StatelessWidget {
+import 'package:mobile_app/firestore_services/firestore.dart';
+
+class DoctorProfilePage extends StatefulWidget {
   final Doctor doctor; // required (see doctor.dart)
-  const DoctorProfilePage({super.key, required this.doctor}); // constructor
+
+  DoctorProfilePage({super.key, required this.doctor}); // constructor
+
+  @override
+  State<StatefulWidget> createState() => _DoctorProfilePageState();
+}
+
+class _DoctorProfilePageState extends State<DoctorProfilePage> {
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   // build fun
   @override
@@ -26,7 +42,7 @@ class DoctorProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  doctor.name.substring(0, 2).toUpperCase(),
+                  widget.doctor.name.substring(0, 2).toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
@@ -34,7 +50,7 @@ class DoctorProfilePage extends StatelessWidget {
 
               // doctor name
               Text(
-                doctor.name,
+                widget.doctor.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -45,14 +61,14 @@ class DoctorProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: const Text('رقم الهاتف'),
-                subtitle: Text(doctor.phoneNumber),
+                subtitle: Text(widget.doctor.phoneNumber),
               ),
 
               // hsopital
               ListTile(
                 leading: const Icon(Icons.local_hospital),
                 title: const Text('المستشفى'),
-                subtitle: Text(doctor.hospitalName),
+                subtitle: Text(widget.doctor.hospitalName),
               ),
 
               // departments
@@ -62,7 +78,7 @@ class DoctorProfilePage extends StatelessWidget {
                 subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(doctor.department.name),
+                      Text(widget.doctor.department.name),
                     ]),
               ),
 
@@ -77,9 +93,14 @@ class DoctorProfilePage extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
-                  _showEditDialog(context);
-// edit the doctor data (only name, phone number, password)
+
+                //the method works but there is going to be problems in appointments if the doctor changed his name
+                onPressed: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('هذه الميزة لا تعمل حاليا')));
+
+                  // await _showEditDialog(context, widget.doctor);
+                  // setState(() {});
                 },
               ),
             ],
@@ -90,8 +111,8 @@ class DoctorProfilePage extends StatelessWidget {
   } // build fun
 
 // this is the dialog for editing the doctor data
-  Future<void> _showEditDialog(BuildContext context,
-      {Doctor? currentDoctor}) async {
+  Future<void> _showEditDialog(
+      BuildContext context, Doctor currentDoctor) async {
     final _formKey = GlobalKey<FormState>(); // global key
 
     // that will be pobed up only when pressing the button
@@ -118,7 +139,7 @@ class DoctorProfilePage extends StatelessWidget {
                       // edit the name
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentDoctor?.name,
+                        initialValue: currentDoctor.name,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -139,7 +160,7 @@ class DoctorProfilePage extends StatelessWidget {
                           }
                           return null;
                         },
-                        onChanged: (value) => currentDoctor?.name = value,
+                        onChanged: (value) => currentDoctor.name = value,
                       ),
 
                       const SizedBox(
@@ -148,7 +169,7 @@ class DoctorProfilePage extends StatelessWidget {
                       // enter phone number
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentDoctor?.phoneNumber.toString(),
+                        initialValue: currentDoctor.phoneNumber.toString(),
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -163,11 +184,18 @@ class DoctorProfilePage extends StatelessWidget {
                                 color: Theme.of(context).primaryColor,
                               ),
                             )),
-
                         keyboardType: TextInputType.phone,
-                        // validate the phone number here
-                        onChanged: (value) =>
-                            currentDoctor?.phoneNumber = value,
+                        validator: (value) {
+                          if (value != null) {
+                            if (!Validate.phoneNumber(value)) {
+                              return 'رقم الهاتف غير صالح'; // Invalid phone number
+                            }
+                            return null;
+                          } else {
+                            return null;
+                          }
+                        },
+                        onChanged: (value) => currentDoctor.phoneNumber = value,
                       ),
                       const SizedBox(
                           height: 10), // between age and neighborhood
@@ -175,7 +203,7 @@ class DoctorProfilePage extends StatelessWidget {
                       // enter password
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentDoctor?.password,
+                        initialValue: currentDoctor.password,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -190,14 +218,18 @@ class DoctorProfilePage extends StatelessWidget {
                               color: Theme.of(context).primaryColor,
                             ))),
                         validator: (value) {
-                          // validate the password here
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء إدخال كلمة المرور';
-                          } // if
-                          return null;
+                          if (value != null) {
+                            if (!Validate.password(value)) {
+                              return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                            } else {
+                              return null;
+                            }
+                          } else {
+                            return null;
+                          }
                         }, // validator
                         // encode it
-                        onChanged: (value) => currentDoctor?.password = value,
+                        onChanged: (value) => currentDoctor.password = value,
                       ),
 
                       const SizedBox(
@@ -230,7 +262,54 @@ class DoctorProfilePage extends StatelessWidget {
                   ),
                   // there is a problem here
                   // when adding the new info to the same page it is not be shown directly
-                  onPressed: () {}, // onPress
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final updatedData = {
+                        'name': currentDoctor.name,
+                        'phoneNumber': currentDoctor.phoneNumber,
+                        'password': currentDoctor.password,
+                      };
+
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
+                      await _firestoreService.updateDoctor(
+                          widget.doctor.phoneNumber, updatedData);
+
+                      setState(() {
+                        widget.doctor.name = currentDoctor.name;
+                        widget.doctor.phoneNumber = currentDoctor.phoneNumber;
+                        widget.doctor.password = currentDoctor.password;
+                      });
+
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(' تم تحديث بياناتك بنجاح!')));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
+                    }
+                  }, // onPress // onPress
                 ),
               ],
             ),

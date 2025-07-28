@@ -2,10 +2,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
+import 'package:mobile_app/backend/validate_fields.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 
-class CitizenProfilePage extends StatelessWidget {
+class CitizenProfilePage extends StatefulWidget {
   final Citizen citizen; // required (see registrar.dart)
-  const CitizenProfilePage({super.key, required this.citizen}); // constructor
+
+  CitizenProfilePage({super.key, required this.citizen}); // constructor
+  @override
+  State<CitizenProfilePage> createState() => _CitizenProfilePageState();
+}
+
+class _CitizenProfilePageState extends State<CitizenProfilePage> {
+  FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   // build fun
   @override
@@ -24,7 +38,7 @@ class CitizenProfilePage extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColorLight,
                 radius: 50,
                 child: Text(
-                  citizen.name.substring(0, 2).toUpperCase(),
+                  widget.citizen.name.substring(0, 2).toUpperCase(),
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
@@ -32,7 +46,7 @@ class CitizenProfilePage extends StatelessWidget {
 
               // registrar name
               Text(
-                citizen.name,
+                widget.citizen.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -43,14 +57,14 @@ class CitizenProfilePage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.phone),
                 title: const Text('رقم الهاتف'),
-                subtitle: Text(citizen.phoneNumber),
+                subtitle: Text(widget.citizen.phoneNumber),
               ),
 
               // address
               ListTile(
                 leading: const Icon(Icons.place),
                 title: const Text('العنوان'),
-                subtitle: Text(citizen.address),
+                subtitle: Text(widget.citizen.address),
               ),
 
               // birth date
@@ -60,7 +74,7 @@ class CitizenProfilePage extends StatelessWidget {
                   ),
                   title: const Text('الميلاد'),
                   subtitle: Text(
-                      '${citizen.birthDate.year.toString()}/${citizen.birthDate.month.toString().padLeft(2, '0')}/${citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
+                      '${widget.citizen.birthDate.year.toString()}/${widget.citizen.birthDate.month.toString().padLeft(2, '0')}/${widget.citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
 
               const SizedBox(height: 24), // between departments and the button
 
@@ -76,9 +90,13 @@ class CitizenProfilePage extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
-                  _showEditDialog(context);
-// edit the citizen data (only name, phone number, password, address)
+
+                //the method works but there is going to be problems in appointments if the citizen changed his name or phone number
+                onPressed: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('هذه الميزة لا تعمل حاليا')));
+                  await _showEditDialog(context, widget.citizen);
+                  setState(() {});
                 },
               ),
             ],
@@ -89,8 +107,8 @@ class CitizenProfilePage extends StatelessWidget {
   } // build fun
 
 // this is the dialog for editing the registrar data
-  Future<void> _showEditDialog(BuildContext context,
-      {Citizen? currentCitizen}) async {
+  Future<void> _showEditDialog(
+      BuildContext context, Citizen currentCitizen) async {
     final _formKey = GlobalKey<FormState>(); // global key
 
     // that will be pobed up only when pressing the button
@@ -117,7 +135,7 @@ class CitizenProfilePage extends StatelessWidget {
                       // edit the name
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentCitizen?.name,
+                        initialValue: currentCitizen.name,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -138,7 +156,7 @@ class CitizenProfilePage extends StatelessWidget {
                           }
                           return null;
                         },
-                        onChanged: (value) => currentCitizen?.name = value,
+                        onChanged: (value) => currentCitizen.name = value,
                       ),
 
                       const SizedBox(
@@ -147,7 +165,7 @@ class CitizenProfilePage extends StatelessWidget {
                       // enter phone number
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentCitizen?.phoneNumber.toString(),
+                        initialValue: currentCitizen.phoneNumber.toString(),
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -162,11 +180,19 @@ class CitizenProfilePage extends StatelessWidget {
                                 color: Theme.of(context).primaryColor,
                               ),
                             )),
-
                         keyboardType: TextInputType.phone,
-                        // validate the phone number here
+                        validator: (value) {
+                          if (value != null) {
+                            if (!Validate.phoneNumber(value)) {
+                              return 'رقم الهاتف غير صالح'; // Invalid phone number
+                            }
+                            return null;
+                          } else {
+                            return null;
+                          }
+                        },
                         onChanged: (value) =>
-                            currentCitizen?.phoneNumber = value,
+                            currentCitizen.phoneNumber = value,
                       ),
 
                       const SizedBox(height: 10), // between age and password
@@ -174,7 +200,7 @@ class CitizenProfilePage extends StatelessWidget {
                       // enter password
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentCitizen?.password,
+                        initialValue: currentCitizen.password,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -189,14 +215,58 @@ class CitizenProfilePage extends StatelessWidget {
                               color: Theme.of(context).primaryColor,
                             ))),
                         validator: (value) {
-                          // validate the password here
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء إدخال كلمة المرور';
-                          } // if
-                          return null;
+                          if (value != null) {
+                            if (!Validate.password(value)) {
+                              return 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، رقم ورمز';
+                            } else {
+                              return null;
+                            }
+                          } else {
+                            return null;
+                          }
                         }, // validator
                         // encode it
-                        onChanged: (value) => currentCitizen?.password = value,
+                        onChanged: (value) => currentCitizen.password = value,
+                      ),
+
+                      const SizedBox(
+                          height: 10), // between phone number and gender
+
+                      TextFormField(
+                        readOnly: true,
+                        controller: TextEditingController(
+                          text:
+                              '${currentCitizen.birthDate.year}/${currentCitizen.birthDate.month.toString().padLeft(2, '0')}/${currentCitizen.birthDate.day.toString().padLeft(2, '0')}',
+                        ),
+                        style: TextStyle(
+                            color: Theme.of(context).secondaryHeaderColor),
+                        decoration: InputDecoration(
+                          labelText: 'تاريخ الميلاد',
+                          labelStyle: TextStyle(
+                              color: Theme.of(context).secondaryHeaderColor),
+                          floatingLabelStyle:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          suffixIcon: Icon(Icons.calendar_today,
+                              color: Theme.of(context).primaryColor),
+                        ),
+                        cursorColor: Theme.of(context).primaryColor,
+                        onTap: () async {
+                          final selected = await showDatePicker(
+                            context: context,
+                            initialDate: currentCitizen.birthDate,
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+                          if (selected != null) {
+                            setState(() {
+                              currentCitizen.birthDate = selected;
+                            });
+                          }
+                        },
                       ),
 
                       const SizedBox(
@@ -205,7 +275,7 @@ class CitizenProfilePage extends StatelessWidget {
                       // enter password
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentCitizen?.password,
+                        initialValue: currentCitizen.address,
                         style: TextStyle(
                             color: Theme.of(context).secondaryHeaderColor),
                         decoration: InputDecoration(
@@ -227,7 +297,7 @@ class CitizenProfilePage extends StatelessWidget {
                           return null;
                         }, // validator
                         // encode it
-                        onChanged: (value) => currentCitizen?.password = value,
+                        onChanged: (value) => currentCitizen.address = value,
                       ),
 
                       const SizedBox(
@@ -258,9 +328,58 @@ class CitizenProfilePage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  // there is a problem here
-                  // when adding the new info to the same page it is not be shown directly
-                  onPressed: () {}, // onPress
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final updatedData = {
+                        'name': currentCitizen.name,
+                        'phoneNumber': currentCitizen.phoneNumber,
+                        'password': currentCitizen.password,
+                        'address': currentCitizen.address,
+                        'birthDate': currentCitizen.birthDate
+                      };
+
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor),
+                                    SizedBox(
+                                      height: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          });
+
+                      await _firestoreService.updateCitizen(
+                          widget.citizen.phoneNumber, updatedData);
+
+                      setState(() {
+                        widget.citizen.name = currentCitizen.name;
+                        widget.citizen.phoneNumber = currentCitizen.phoneNumber;
+                        widget.citizen.address = currentCitizen.address;
+                        widget.citizen.birthDate = currentCitizen.birthDate;
+                        widget.citizen.password = currentCitizen.password;
+                      });
+
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(' تم تحديث بياناتك بنجاح!')));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
+                    }
+                  },
                 ),
               ],
             ),
@@ -269,4 +388,4 @@ class CitizenProfilePage extends StatelessWidget {
       },
     );
   } // _showEditDialog
-} // RegistrarProfilePage
+} // _CitizenProfilePageState

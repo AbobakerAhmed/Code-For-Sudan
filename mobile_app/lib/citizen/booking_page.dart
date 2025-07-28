@@ -13,20 +13,6 @@ import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// testing this page alone
-// void main(List<String> args) {
-//   runApp(const _BookingPageTest());
-// } // main
-
-// class _BookingPageTest extends StatelessWidget {
-//   const _BookingPageTest();
-
-//   @override
-//   Widget build(BuildContext) {
-//     return const MaterialApp(home: BookingPage());
-//   }
-// } // BookingPageTest
-
 /// booking page builder
 class BookingPage extends StatefulWidget {
   final Citizen? citizen;
@@ -510,8 +496,8 @@ class _BookingPageState extends State<BookingPage> {
                               department: selectedDepartment!,
                               doctor: selectedDoctor!,
                               medicalHistory: mediacalHistory,
-                              time: DateTime.now().subtract(const Duration(
-                                  hours: 2)), // to convert from UTC+2 to UTC
+                              time: DateTime.now()
+                                  .toUtc(), // to convert from UTC+2 to UTC
                               forMe: _forMe == 1 ? true : false,
                             );
 

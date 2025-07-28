@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/person.dart';
 
 class Citizen extends Person {
-  final String _gender;
-  final DateTime _birthDate;
+  String _gender;
+  DateTime _birthDate;
   List<String> _medicalHistory;
   String _state;
   String _locality;
@@ -43,6 +43,7 @@ class Citizen extends Person {
   set state(String state) => _state = state;
   set locality(String locality) => _locality = locality;
   set address(String address) => _address = address;
+  set birthDate(DateTime birthDate) => _birthDate=birthDate;
 
   void addMedicalRecord(String record) {
     _medicalHistory.add(record);
