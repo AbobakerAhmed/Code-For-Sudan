@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart'; // similate appointment class
 import 'package:mobile_app/backend/global_var.dart';
+import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 
 import 'package:mobile_app/firestore_services/firestore.dart';
@@ -663,6 +664,47 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                   );
 
                                   if (confirmed == true) {
+                                    // Send a notification to the citizen about the acceptance
+                                    final citizenNotification = Notify(
+                                      id: '', // Firestore will auto-generate this
+                                      title: 'تم تأكيد حجزك',
+                                      body:
+                                          'تم تأكيد حجز المريض ${currentAppointment.name} في ${currentAppointment.hospital} مع ${currentAppointment.doctor}. يرجى التوجه إلى قسم ${currentAppointment.department} وانتظار دورك.',
+                                      type: NotificationType.booking,
+                                      timestamp: DateTime.now()
+                                          .toUtc()
+                                          .add(Duration(hours: 2)),
+                                      recipientId:
+                                          currentAppointment.phoneNumber,
+                                      isRead: false,
+                                    );
+                                    await _firestore.createNotification(
+                                        citizenNotification);
+
+                                    // Send notification to the doctor
+                                    final doctorPhoneNumber =
+                                        await _firestore.getDoctorPhoneNumber(
+                                      currentAppointment.doctor,
+                                      currentAppointment.state,
+                                      currentAppointment.locality,
+                                      currentAppointment.hospital,
+                                    );
+
+                                    if (doctorPhoneNumber != null) {
+                                      final doctorNotification = Notify(
+                                          id: '',
+                                          title: 'مريض جديد في الانتظار',
+                                          body:
+                                              'تم تسجيل دخول المريض ${currentAppointment.name}. يرجى الاستعداد.',
+                                          type: NotificationType.alert,
+                                          timestamp: DateTime.now()
+                                              .toUtc()
+                                              .add(Duration(hours: 2)),
+                                          recipientId: doctorPhoneNumber,
+                                          isRead: false);
+                                      await _firestore.createNotification(
+                                          doctorNotification);
+                                    }
                                     await _checkInAppointment(
                                         currentAppointment);
                                     await _firestore
@@ -712,6 +754,22 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                   );
 
                                   if (confirmed == true) {
+                                    // Send a notification to the citizen about the cancellation
+                                    final notification = Notify(
+                                      id: '', // Firestore will auto-generate this
+                                      title: 'إلغاء الحجز',
+                                      body:
+                                          'تم إلغاء حجزك في ${currentAppointment.hospital}  نعتذر عن أي إزعاج.',
+                                      type: NotificationType.booking,
+                                      timestamp: DateTime.now()
+                                          .toUtc()
+                                          .add(Duration(hours: 2)),
+                                      recipientId:
+                                          currentAppointment.phoneNumber,
+                                      isRead: false,
+                                    );
+                                    await _firestore
+                                        .createNotification(notification);
                                     await _firestore
                                         .deleteAppointment(currentAppointment);
                                     setState(() {

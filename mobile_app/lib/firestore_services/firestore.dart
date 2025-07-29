@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
+import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
@@ -28,6 +29,8 @@ const String APPOINTMENTS = "appointments";
 const String CHECKED_IN_APPOINTMENTS = "checkedInAppointments";
 const String CHECKED_OUT_APPOINTMENTS = "checkedOutAppointments";
 const String DIAGNOSED_APPOINTMENTS = "diagnosedAppointments";
+const String NOTIFICATIONS = "notifications";
+const String RECIPIENT_ID = "recipientId";
 
 // Arabic field labels
 const String FIELD_NAME = "الإسم";
@@ -165,6 +168,58 @@ class FirestoreService {
     }
   }
 
+  /// Retrieve a Doctor's phone number by their details.
+  Future<String?> getDoctorPhoneNumber(
+    String doctorName,
+    String state,
+    String locality,
+    String hospitalName,
+  ) async {
+    try {
+      final snapshot = await _firestore
+          .collection(DOCTORS)
+          .where(NAME, isEqualTo: doctorName)
+          .where(STATE, isEqualTo: state)
+          .where(LOCALITY, isEqualTo: locality)
+          .where('hospitalName', isEqualTo: hospitalName)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data()[PHONENUMBER] as String?;
+      }
+      return null;
+    } catch (e) {
+      _logError("getDoctorPhoneNumber", e);
+      return null;
+    }
+  }
+
+  /// Retrieve a Doctor's phone number by their details.
+  Future<String?> getRegistrarPhoneNumber(
+    String state,
+    String locality,
+    String hospitalName,
+  ) async {
+    try {
+      final snapshot = await _firestore
+          .collection(REGISTRARS)
+          .where(STATE, isEqualTo: state)
+          .where(LOCALITY, isEqualTo: locality)
+          .where('hospitalName', isEqualTo: hospitalName)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data()[PHONENUMBER] as String?;
+      }
+      return null;
+    } catch (e) {
+      _logError("getRegistrarPhoneNumber", e);
+      return null;
+    }
+  }
+
   /// Updates the citizen's medical history in Firestore by merging with the old history and deleted values.
   /// 1. In both old and new	Include
   /// 2. In both old and deleted	Skip
@@ -206,13 +261,42 @@ class FirestoreService {
       ];
 
       await doc.reference.update({MEDICAL_HISTORY: combined});
-      print("Citizen medical history updated for $phoneNumber");
     } catch (e) {
       _logError("updateCitizenMedicalHistory", e);
       rethrow;
     }
   }
 
+  /// updateCitizen
+  ///
+  /// Updates the contents of an existing citizen document in Firestore.
+  ///
+  /// This method first retrieves the citizen document based on the provided phone number.
+  /// Then, it applies the updates specified in the `updatedData` map to the document.
+  /// If the citizen's `name` or `phoneNumber` is changed, it propagates these changes to all
+  /// associated appointments across all hospitals in the Firestore database.
+  /// It also updates notification recipient IDs if the phone number is changed.
+  ///
+  /// Parameters:
+  ///   - `phoneNumber`: The phone number of the citizen to update. This is used to locate the correct document.
+  ///   - `updatedData`: A map containing the fields to update and their new values.
+  ///
+  /// Functionality:
+  ///   1. Retrieves the citizen document using the provided `phoneNumber`.
+  ///   2. Updates the specified fields in the citizen document with the new values from `updatedData`.
+  ///   3. If the `name` or `phoneNumber` has changed:
+  ///     - It iterates through all hospitals, localities, and departments in the database.
+  ///     - It queries the appointments, diagnosed appointments, checked-in appointments, and checked-out appointments
+  ///       collections for entries matching the old `name` and `phoneNumber`.
+  ///     - It updates the `name` and `phoneNumber` for all matching appointments.
+  ///   4. If the `phoneNumber` has changed:
+  ///     -It updates all notifications whose `recipientId` matches the old phone number,
+  ///      setting it to the new phone number.
+  ///
+  /// Throws:
+  ///   - `Exception` if a citizen with the given `phoneNumber` is not found.
+  ///
+  /// Errors are logged via [_logError] and rethrown.
   Future<void> updateCitizen(
       String phoneNumber, Map<String, dynamic> updatedData) async {
     try {
@@ -228,6 +312,7 @@ class FirestoreService {
 
       final citizenDoc = citizenSnapshot.docs.first;
       final oldData = citizenDoc.data();
+
       final oldName = oldData[NAME];
       final oldPhoneNumber = oldData[PHONENUMBER];
 
@@ -288,51 +373,59 @@ class FirestoreService {
         // Run all updates in parallel
         await Future.wait(updateFutures);
       }
+      if (updatedData.containsKey(PHONENUMBER) &&
+          updatedData[PHONENUMBER] != oldPhoneNumber) {
+        final newPhoneNumber = updatedData[PHONENUMBER] as String;
+        print(
+            "Updating doctor's notifications from $oldPhoneNumber to $newPhoneNumber");
+
+        final notificationsSnapshot = await _firestore
+            .collection(NOTIFICATIONS)
+            .where(RECIPIENT_ID, isEqualTo: oldPhoneNumber)
+            .get();
+        final batch = _firestore.batch();
+        for (final notificationDoc in notificationsSnapshot.docs) {
+          batch.update(
+              notificationDoc.reference, {RECIPIENT_ID: newPhoneNumber});
+        }
+        await batch.commit();
+      }
     } catch (e) {
       _logError("updateCitizen", e);
       rethrow;
     }
   }
 
-  ///update the contents of an existing registrar
-  ///here is the mechanizem for updating:
-  ///1. the method will see in the database if document exist in the registrars collection in database.
-  ///if it's found the method will update the document with the correspondent id.
-
-  ///2. the method will update the document by matching every key on the updatedDate's map
-  ///and assign the matched key on the database collection with it's correspondent updated
-  ///value so it's not neccessary to update every field in the collection
-  Future<void> updateRegistrar(
-      String phoneNumber, Map<String, dynamic> updatedData) async {
-    try {
-      final snapshot = await _firestore
-          .collection(REGISTRARS)
-          .where(PHONENUMBER, isEqualTo: phoneNumber)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        throw Exception("Registrar not found");
-      }
-
-      final doc = snapshot.docs.first;
-
-      await _firestore.collection(REGISTRARS).doc(doc.id).update(updatedData);
-    } catch (e) {
-      _logError("updateRegistrar", e);
-      rethrow;
-    }
-  }
-
-  ///update the contents of an existing doctor
-  ///here is the mechanizem for updating:
-  ///1. the method will see in the database if document exist in the doctors collection in database.
-  ///if it's found the method will update the document with the correspondent id.
-
-  ///2. the method will update the document by matching every key on the updatedDate's map
-  ///and assign the matched key on the database collection with it's correspondent updated
-  ///value so it's not neccessary to update every field in the collection
+  /// updateDoctor
   ///
-  ///3. every appointment that has the name of the doctor should be updated and also the name of the doctor in his department
+  /// Updates the contents of an existing doctor document in Firestore.
+  ///
+  /// This method first retrieves the doctor document based on the provided phone number.
+  /// Then, it applies the updates specified in the `updatedData` map to the document.
+  /// If the doctor's `name` is changed, it propagates these changes to all associated appointments
+  /// and the doctor's entry in the department's doctor list.
+  /// It also updates notification recipient IDs if the phone number is changed.
+  ///
+  /// Parameters:
+  ///   - `phoneNumber`: The phone number of the doctor to update. This is used to locate the correct document.
+  ///   - `department`: The department the doctor belongs to. This is used for propagating name changes.
+  ///   - `updatedData`: A map containing the fields to update and their new values.
+  ///
+  /// Functionality:
+  ///   1. Retrieves the doctor document using the provided `phoneNumber`.
+  ///   2. Updates the specified fields in the doctor document with the new values from `updatedData`.
+  ///   3. If the `name` has changed:
+  ///     - It updates the doctor's name in all appointments, diagnosed appointments, checked-in appointments, and
+  ///       checked-out appointments collections within the specified department.
+  ///     - It updates the doctor's name in the department's doctor list.
+  /// 4. If the `phoneNumber` has changed:
+  ///    - It updates all notifications whose `recipientId` matches the old phone number,
+  ///      setting it to the new phone number.
+  ///
+  /// Throws:
+  ///   - `Exception` if a doctor with the given `phoneNumber` is not found.
+  ///
+  /// Errors are logged via [_logError] and rethrown.
   Future<void> updateDoctor(String phoneNumber, String department,
       Map<String, dynamic> updatedData) async {
     try {
@@ -348,13 +441,15 @@ class FirestoreService {
       final doc = snapshot.docs.first;
       final oldData = doc.data();
       final oldName = oldData[NAME];
+      final oldPhoneNumber = oldData[PHONENUMBER];
 
       await _firestore.collection(DOCTORS).doc(doc.id).update(updatedData);
 
+      // --- Propagate changes to other collections ---
+
       // Proceed only if the doctor name is changed
       if (updatedData.containsKey(NAME) && updatedData[NAME] != oldName) {
-        final newName = updatedData[NAME];
-        print("Updating doctor name from $oldName to $newName");
+        final newName = updatedData[NAME] as String;
 
         final state = oldData[STATE];
         final locality = oldData[LOCALITY];
@@ -407,8 +502,78 @@ class FirestoreService {
           }
         }
       }
+
+      // Proceed only if the phone number is changed
+      if (updatedData.containsKey(PHONENUMBER) &&
+          updatedData[PHONENUMBER] != oldPhoneNumber) {
+        final newPhoneNumber = updatedData[PHONENUMBER] as String;
+
+        final notificationsSnapshot = await _firestore
+            .collection(NOTIFICATIONS)
+            .where(RECIPIENT_ID, isEqualTo: oldPhoneNumber)
+            .get();
+
+        final batch = _firestore.batch();
+        for (final notificationDoc in notificationsSnapshot.docs) {
+          batch.update(
+              notificationDoc.reference, {RECIPIENT_ID: newPhoneNumber});
+        }
+        await batch.commit();
+      }
     } catch (e) {
       _logError("updateDoctor", e);
+      rethrow;
+    }
+  }
+
+  /// Updates the contents of an existing registrar document in Firestore.
+  ///
+  /// This method first retrieves the registrar document based on the provided phone number.
+  /// Then, it applies the updates specified in the `updatedData` map to the document.
+  ///
+  /// Parameters:
+  ///   - `phoneNumber`: The phone number of the registrar to update. This is used to locate the correct document.
+  ///   - `updatedData`: A map containing the fields to update and their new values.
+  ///
+  /// Throws:
+  /// Errors are logged via [_logError] and rethrown.
+  Future<void> updateRegistrar(
+      String phoneNumber, Map<String, dynamic> updatedData) async {
+    try {
+      final snapshot = await _firestore
+          .collection(REGISTRARS)
+          .where(PHONENUMBER, isEqualTo: phoneNumber)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        throw Exception("Registrar not found");
+      }
+
+      final doc = snapshot.docs.first;
+      final oldData = doc.data();
+      final oldPhoneNumber = oldData[PHONENUMBER];
+
+      await _firestore.collection(REGISTRARS).doc(doc.id).update(updatedData);
+
+      // Proceed only if the phone number is changed
+      if (updatedData.containsKey(PHONENUMBER) &&
+          updatedData[PHONENUMBER] != oldPhoneNumber) {
+        final newPhoneNumber = updatedData[PHONENUMBER] as String;
+
+        final notificationsSnapshot = await _firestore
+            .collection(NOTIFICATIONS)
+            .where(RECIPIENT_ID, isEqualTo: oldPhoneNumber)
+            .get();
+
+        final batch = _firestore.batch();
+        for (final notificationDoc in notificationsSnapshot.docs) {
+          batch.update(
+              notificationDoc.reference, {RECIPIENT_ID: newPhoneNumber});
+        }
+        await batch.commit();
+      }
+    } catch (e) {
+      _logError("updateRegistrar", e);
       rethrow;
     }
   }
@@ -1153,6 +1318,41 @@ class FirestoreService {
     } catch (e) {
       _logError("getTodayDiagnosedAppointments", e);
       return [];
+    }
+  }
+
+  /// Fetch notifications for a specific recipient, ordered by most recent.
+  Future<List<Notify>> getNotifications(String recipientId) async {
+    try {
+      final snapshot = await _firestore
+          .collection(NOTIFICATIONS)
+          .where(RECIPIENT_ID, isEqualTo: recipientId)
+          //.orderBy('timestamp', descending: true)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        return [];
+      }
+
+      return snapshot.docs.map((doc) => Notify.fromFirestore(doc)).toList();
+    } catch (e) {
+      _logError("getNotifications", e);
+      return [];
+    }
+  }
+
+  /// Create a new notification document.
+  Future<void> createNotification(Notify notification) async {
+    try {
+      // The toFirestore method correctly omits the ID, which is what we want
+      // as Firestore will auto-generate it.
+      await _firestore
+          .collection(NOTIFICATIONS)
+          .add(notification.toFirestore());
+    } catch (e) {
+      _logError("createNotification", e);
+      // We might not want to rethrow here, as failing to send a notification
+      // shouldn't necessarily block the user flow. Just logging is fine.
     }
   }
 

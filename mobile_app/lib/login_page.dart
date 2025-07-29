@@ -1,5 +1,7 @@
 // Date: 26th of Jun 2025
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
@@ -56,6 +58,35 @@ class _LoginPageState extends State<LoginPage> {
   bool _correctRegistrarPassword = false;
   bool _correctDoctorPassword = false;
 
+  bool _isConnected = true;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    setState(() {
+      _isConnected = (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi));
+    });
+  }
+
   /// this method will validate the username and password and check if it's in citizens_data.dart
   Future<void> _checkCitizenLogin() async {
     if (_formKey.currentState!.validate()) {
@@ -102,6 +133,16 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(title: Text('تسجيل الدخول')),
           body:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (!_isConnected)
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: const Text(
+                  'لا يوجد اتصال بالإنترنت. لا يمكنك تسجيل الدخول أو إنشاء حساب جديد.',
+                  style: TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             // Guest Mode Button - top right under AppBar
             // Guest Mode Button - top right under AppBar
             Padding(
@@ -278,108 +319,111 @@ class _LoginPageState extends State<LoginPage> {
                               backgroundColor:
                                   Theme.of(context).primaryColor // button color
                               ),
-                          onPressed: () async {
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (context) {
-                                  return Material(
-                                    type: MaterialType.transparency,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          CircularProgressIndicator(
-                                              color: Theme.of(context)
-                                                  .primaryColor),
-                                          Text("كيف حالك"),
-                                          SizedBox(
-                                            height: 30,
+                          onPressed: _isConnected
+                              ? () async {
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return Material(
+                                          type: MaterialType.transparency,
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                CircularProgressIndicator(
+                                                    color: Theme.of(context)
+                                                        .primaryColor),
+                                                Text("كيف حالك"),
+                                                SizedBox(
+                                                  height: 30,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
+                                        );
+                                      });
+                                  // checking login data
+                                  //                 _login();
+                                  // if you find him a registrar, then create a registrar object and assign its data
+                                  // read it from the database
+                                  // example
+                                  await _checkCitizenLogin();
+                                  await _checkRegistrarLogin();
+                                  await _checkDoctorLogin();
+
+                                  if (_citizenFoundInDb &&
+                                      _correctCitizenPassword) {
+                                    _registrarFoundInDb = false;
+                                    _citizenFoundInDb = false;
+                                    _doctorFoundInDb = false;
+                                    _correctCitizenPassword = false;
+                                    _correctRegistrarPassword = false;
+                                    _correctDoctorPassword = false;
+                                    Citizen currentCitizen =
+                                        await _firestoreService.getCitizen(
+                                            _phoneNumberController.text,
+                                            _passwordController.text);
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomePage(
+                                            citizen:
+                                                currentCitizen), // send the citizen object to the citizen home page
                                       ),
-                                    ),
-                                  );
-                                });
-// checking login data
-//                 _login();
-// if you find him a registrar, then create a registrar object and assign its data
-// read it from the database
-                            // example
-                            await _checkCitizenLogin();
-                            await _checkRegistrarLogin();
-                            await _checkDoctorLogin();
+                                    );
+                                  } else if (_registrarFoundInDb &&
+                                      _correctRegistrarPassword) {
+                                    _registrarFoundInDb = false;
+                                    _citizenFoundInDb = false;
+                                    _doctorFoundInDb = false;
+                                    _correctCitizenPassword = false;
+                                    _correctRegistrarPassword = false;
+                                    _correctDoctorPassword = false;
+                                    Registrar currentRegistrar =
+                                        await _firestoreService.getRegistrar(
+                                            _phoneNumberController.text,
+                                            _passwordController.text);
+                                    await currentRegistrar.fetchDepartments();
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RegistrarHomePage(
+                                            registrar:
+                                                currentRegistrar), // send the registrar object to the registrar home page
+                                      ),
+                                    );
+                                  } else if (_doctorFoundInDb &&
+                                      _correctDoctorPassword) {
+                                    _registrarFoundInDb = false;
+                                    _citizenFoundInDb = false;
+                                    _doctorFoundInDb = false;
+                                    _correctCitizenPassword = false;
+                                    _correctRegistrarPassword = false;
+                                    _correctDoctorPassword = false;
 
-                            if (_citizenFoundInDb && _correctCitizenPassword) {
-                              _registrarFoundInDb = false;
-                              _citizenFoundInDb = false;
-                              _doctorFoundInDb = false;
-                              _correctCitizenPassword = false;
-                              _correctRegistrarPassword = false;
-                              _correctDoctorPassword = false;
-                              Citizen currentCitizen =
-                                  await _firestoreService.getCitizen(
-                                      _phoneNumberController.text,
-                                      _passwordController.text);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomePage(
-                                      citizen:
-                                          currentCitizen), // send the citizen object to the citizen home page
-                                ),
-                              );
-                            } else if (_registrarFoundInDb &&
-                                _correctRegistrarPassword) {
-                              _registrarFoundInDb = false;
-                              _citizenFoundInDb = false;
-                              _doctorFoundInDb = false;
-                              _correctCitizenPassword = false;
-                              _correctRegistrarPassword = false;
-                              _correctDoctorPassword = false;
-                              Registrar currentRegistrar =
-                                  await _firestoreService.getRegistrar(
-                                      _phoneNumberController.text,
-                                      _passwordController.text);
-                              await currentRegistrar.fetchDepartments();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RegistrarHomePage(
-                                      registrar:
-                                          currentRegistrar), // send the registrar object to the registrar home page
-                                ),
-                              );
-                            } else if (_doctorFoundInDb &&
-                                _correctDoctorPassword) {
-                              _registrarFoundInDb = false;
-                              _citizenFoundInDb = false;
-                              _doctorFoundInDb = false;
-                              _correctCitizenPassword = false;
-                              _correctRegistrarPassword = false;
-                              _correctDoctorPassword = false;
-
-                              Doctor currentDoctor =
-                                  await _firestoreService.getDoctor(
-                                      _phoneNumberController.text,
-                                      _passwordController.text);
-                              await currentDoctor.fetchDepartment();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        DoctorHomePage(doctor: currentDoctor)),
-                              );
-                            } else {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(
-                                    'حدث خطأ. لم يتم تسجيل الدخول\n الرجاء التأكد من اسم المستخدم و كلمة المرور'),
-                              ));
-                            }
-                          },
+                                    Doctor currentDoctor =
+                                        await _firestoreService.getDoctor(
+                                            _phoneNumberController.text,
+                                            _passwordController.text);
+                                    await currentDoctor.fetchDepartment();
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => DoctorHomePage(
+                                              doctor: currentDoctor)),
+                                    );
+                                  } else {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          'حدث خطأ. لم يتم تسجيل الدخول\n الرجاء التأكد من اسم المستخدم و كلمة المرور'),
+                                    ));
+                                  }
+                                }
+                              : null,
                         ),
 
                         const SizedBox(
@@ -413,13 +457,16 @@ class _LoginPageState extends State<LoginPage> {
                                 'ليس لديك حساب؟ أنشئ واحداً',
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
-                              onPressed: () {
-                                // (it will take him to create new citizen account)
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => SignupPage()));
-                              },
+                              onPressed: _isConnected
+                                  ? () {
+                                      // (it will take him to create new citizen account)
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SignupPage()));
+                                    }
+                                  : null,
                             ),
                           ],
                         ),

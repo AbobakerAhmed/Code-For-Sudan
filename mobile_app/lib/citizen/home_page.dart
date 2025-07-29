@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:mobile_app/login_page.dart';
-import 'package:provider/provider.dart';
+import 'package:mobile_app/citizen/notifications_page.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
 
+import 'package:provider/provider.dart';
 //import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage> {
               } else {
                 Navigator.pop(context); // Close the drawer
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولا')),
+                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولاً')),
                 );
               }
 
@@ -111,7 +112,7 @@ class _HomePageState extends State<HomePage> {
               } else {
                 Navigator.pop(context); // Close the drawer
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولا')),
+                  const SnackBar(content: Text('الرجاء تسجيل الدخول أولاً')),
                 );
               }
 
@@ -178,10 +179,8 @@ class _HomeGrid extends StatelessWidget {
       {
         'icon': Icons.domain_add,
         'title': 'أحجز لي',
-        if (citizen != null) 'route': 'booking_page', // Dynamic routing
-        'path': MaterialPageRoute(
-          builder: (context) => BookingPage(citizen: citizen),
-        ),
+        if (citizen != null) 'route': 'booking_page',
+        'page': BookingPage(citizen: citizen),
       },
       {
         'icon': Icons.phone_in_talk,
@@ -196,7 +195,8 @@ class _HomeGrid extends StatelessWidget {
       {
         'icon': Icons.notifications_active,
         'title': 'التنبيهات',
-        'route': 'notifications_page',
+        if (citizen != null) 'route': 'notifications_page',
+        'page': NotificationsPage(citizen: citizen),
       },
     ];
   }
@@ -330,14 +330,18 @@ class _FeatureCardWrapper extends StatelessWidget {
       title: data['title'],
       onTap: () {
         if (data.containsKey('route')) {
-          if (data['route'] == 'booking_page') {
-            Navigator.push(context, data['path']);
+          if (data['route'] == 'booking_page' ||
+              data['route'] == 'notifications_page') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => data['page']),
+            );
           } else {
             Navigator.pushNamed(context, data['route']);
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('لا يمكنك الحجز دون تسجيل الدخول')),
+            const SnackBar(content: Text('الرجاء تسجيل الدخول اولاً')),
           );
         }
       },

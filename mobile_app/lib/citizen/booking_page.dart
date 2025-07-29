@@ -6,6 +6,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
 //import 'package:mobile_app/styles.dart'; // appBar style
+import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
@@ -49,7 +50,7 @@ class _BookingPageState extends State<BookingPage> {
   String? age;
   String? gender;
   String? phoneNumber;
-  List<String> mediacalHistory = ["None"];
+  List<String> medicalHistory = ["None"];
   String? selectedState;
   String? selectedLocality;
   String? address;
@@ -78,7 +79,7 @@ class _BookingPageState extends State<BookingPage> {
     address = _addressController.text;
     selectedState = citizen.state;
     selectedLocality = citizen.locality;
-    mediacalHistory = citizen.medicalHistory;
+    medicalHistory = citizen.medicalHistory;
 
     // Trigger population of localities when state is set
     _getLocalities(citizen.state).then((_) {
@@ -244,7 +245,7 @@ class _BookingPageState extends State<BookingPage> {
                                     gender = null;
                                     _phoneController.clear();
                                     _addressController.clear();
-                                    mediacalHistory = ["None"];
+                                    medicalHistory = ["None"];
                                     _showMedicalHistory = false;
                                     selectedState = null;
                                     selectedLocality = null;
@@ -462,7 +463,7 @@ class _BookingPageState extends State<BookingPage> {
                           onChanged: (value) {
                             setState(() {
                               _showMedicalHistory = value!;
-                              mediacalHistory = (_showMedicalHistory)
+                              medicalHistory = (_showMedicalHistory)
                                   ? widget.citizen!.medicalHistory
                                   : ["None"];
                             });
@@ -495,7 +496,8 @@ class _BookingPageState extends State<BookingPage> {
                               hospital: selectedHospital!,
                               department: selectedDepartment!,
                               doctor: selectedDoctor!,
-                              medicalHistory: mediacalHistory,
+                              medicalHistory:
+                                  (_forMe == 1) ? medicalHistory : ["None"],
                               time: DateTime.now()
                                   .toUtc(), // to convert from UTC+2 to UTC
                               forMe: _forMe == 1 ? true : false,
@@ -507,6 +509,52 @@ class _BookingPageState extends State<BookingPage> {
 
                             if (!appointmentExist) {
                               _firestoreService.createAppointment(appointment);
+
+                              // Create and send a notification for the booking confirmation
+                              final notification = Notify(
+                                id: '', // Firestore will auto-generate the ID.
+                                title: 'تسجيل الحجز',
+                                body:
+                                    'تم تسجيل حجز المريض ${appointment.name} مع  ${appointment.doctor} في ${appointment.hospital}.',
+                                type: NotificationType.booking,
+                                timestamp: DateTime.now().toUtc(),
+                                recipientId: appointment.phoneNumber,
+                                isRead: false,
+                                relatedData: {
+                                  'state': appointment.state,
+                                  'locality': appointment.locality,
+                                  'hospital': appointment.hospital,
+                                  'department': appointment.department,
+                                  'doctor': appointment.doctor,
+                                },
+                              );
+                              _firestoreService
+                                  .createNotification(notification);
+
+                              // Send notification to the doctor
+                              final registrarPhoneNumber =
+                                  await _firestoreService
+                                      .getRegistrarPhoneNumber(
+                                appointment.state,
+                                appointment.locality,
+                                appointment.hospital,
+                              );
+
+                              if (registrarPhoneNumber != null) {
+                                final registrarNotification = Notify(
+                                    id: '',
+                                    title: 'حجز جديد في الانتظار',
+                                    body:
+                                        'قام المريض ${appointment.name}بحجز موعد لدى الدكتور ${appointment.doctor} في المستشفى ${appointment.hospital}. يرجى تأكيد حالة الحجز.',
+                                    type: NotificationType.alert,
+                                    timestamp: DateTime.now()
+                                        .toUtc()
+                                        .add(Duration(hours: 2)),
+                                    recipientId: registrarPhoneNumber,
+                                    isRead: false);
+                                await _firestoreService
+                                    .createNotification(registrarNotification);
+                              }
                               // clear fields
                               setState(() {
                                 _nameController.clear();
@@ -514,7 +562,7 @@ class _BookingPageState extends State<BookingPage> {
                                 gender = null;
                                 _phoneController.clear();
                                 _addressController.clear();
-                                mediacalHistory = ["None"];
+                                medicalHistory = ["None"];
                                 _showMedicalHistory = false;
                                 selectedState = null;
                                 selectedLocality = null;

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 // importing for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:mobile_app/citizen/notifications_page.dart';
-//import 'package:mobile_app/backend/citizen/citizens_data.dart';
 import 'package:mobile_app/firebase_options.dart';
 import 'package:mobile_app/citizen/booking_page.dart';
+import 'package:mobile_app/citizen/notifications_page.dart';
 import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
 import 'package:mobile_app/login_page.dart';
@@ -21,7 +20,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: false);
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
   runApp(ChangeNotifierProvider(
       create: (context) => ThemeProvider(), child: HealthCareSudan()));
