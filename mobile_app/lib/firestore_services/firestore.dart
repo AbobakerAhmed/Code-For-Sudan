@@ -165,6 +165,54 @@ class FirestoreService {
     }
   }
 
+  /// Updates the citizen's medical history in Firestore by merging with the old history and deleted values.
+  /// 1. In both old and new	Include
+  /// 2. In both old and deleted	Skip
+  /// 3. In old only (not new or deleted)	Include
+  /// 4. In new only (not in old)	 Include
+  Future<void> updateCitizenMedicalHistory(
+    String phoneNumber,
+    List<String> newHistory,
+    List<String> deletedHistory,
+  ) async {
+    final citizenSnapshot = await _firestore
+        .collection(CITIZENS)
+        .where(PHONENUMBER, isEqualTo: phoneNumber)
+        .get();
+
+    if (citizenSnapshot.docs.isEmpty) {
+      throw Exception("Citizen not found");
+    }
+
+    try {
+      final doc = citizenSnapshot.docs.first;
+
+      List<String> oldHistory =
+          List<String>.from(doc.data()['medicalHistory'] ?? []);
+      oldHistory.removeWhere((item) => item == "None");
+
+      // Convert to sets for efficient lookup
+      final Set<String> oldSet = oldHistory.toSet();
+      final Set<String> newSet = newHistory.toSet();
+      final Set<String> deletedSet = deletedHistory.toSet();
+
+      // Apply your 4 rules
+      final List<String> combined = [
+        // Rule 1 and 3: From old but not in deleted (rule 2 already excluded)
+        ...oldSet.where((item) => !deletedSet.contains(item)),
+
+        // Rule 4: From new but not already included
+        ...newSet.where((item) => !oldSet.contains(item)),
+      ];
+
+      await doc.reference.update({MEDICAL_HISTORY: combined});
+      print("Citizen medical history updated for $phoneNumber");
+    } catch (e) {
+      _logError("updateCitizenMedicalHistory", e);
+      rethrow;
+    }
+  }
+
   Future<void> updateCitizen(
       String phoneNumber, Map<String, dynamic> updatedData) async {
     try {

@@ -347,14 +347,83 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     );
   }
 
-  // this is the dialog for editing the doctor data
+  // this is the dialog for editing the appointment medical history
   Future<void> _showEditDialog(
       BuildContext context, Appointment appointment) async {
-    final _formKey = GlobalKey<FormState>(); // global key
+    final _formKey = GlobalKey<FormState>();
+    bool _addToMedicalHistory = false;
+    String? newDiagnosis;
+    List<String> deletedDiagnosis = [];
     String? epidemic;
-    String? diagnosis;
 
-    // that will be pop ed up only when pressing the button
+    // Copy existing diagnoses for safe editing
+    List<String> diagnoses = (appointment.medicalHistory != null &&
+            !(appointment.medicalHistory!.length == 1 &&
+                appointment.medicalHistory!.first == "None"))
+        ? List.from(appointment.medicalHistory!)
+        : [];
+
+    void _editDiagnosis(BuildContext context, int index,
+        void Function(void Function()) setParent) {
+      String edited = diagnoses[index];
+      TextEditingController controller = TextEditingController(text: edited);
+
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text("تعديل التشخيص"),
+            content: TextField(
+              controller: controller,
+              decoration: InputDecoration(labelText: "التشخيص الجديد"),
+            ),
+            actions: [
+              TextButton(
+                child: Text("إلغاء", style: TextStyle(color: Colors.grey)),
+                onPressed: () => Navigator.pop(ctx),
+              ),
+              ElevatedButton(
+                child: Text("حفظ"),
+                onPressed: () {
+                  if (controller.text.trim().isNotEmpty) {
+                    setParent(() {
+                      diagnoses[index] = controller.text.trim();
+                    });
+                    Navigator.pop(ctx);
+                  }
+                },
+              )
+            ],
+          );
+        },
+      );
+    }
+
+    void _removeDiagnosis(BuildContext context, int index,
+        void Function(void Function()) setParent) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("تأكيد الحذف"),
+          content: Text("هل أنت متأكد أنك تريد حذف هذا التشخيص؟"),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("إلغاء", style: TextStyle(color: Colors.grey))),
+            TextButton(
+                onPressed: () {
+                  setParent(() {
+                    deletedDiagnosis.add(diagnoses[index]);
+                    diagnoses.removeAt(index);
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text("حذف", style: TextStyle(color: Colors.red)))
+          ],
+        ),
+      );
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -373,134 +442,95 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // edit the name
+                      if (diagnoses.isNotEmpty) ...[
+                        Text("السجل الطبي",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 10),
+                        ...diagnoses.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          String diagnosis = entry.value;
+                          return ListTile(
+                            title: Text(diagnosis),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () {
+                                    _editDiagnosis(context, index, setState);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _removeDiagnosis(context, index, setState);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
+                      const SizedBox(height: 10),
                       TextFormField(
-                        cursorColor: Theme.of(context).primaryColor,
-                        style: TextStyle(
-                            color: Theme.of(context).secondaryHeaderColor),
-                        decoration: InputDecoration(
-                          labelText: 'التشخيص',
-                          labelStyle: TextStyle(
-                              color: Theme.of(context).secondaryHeaderColor),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                          )),
-                          floatingLabelStyle:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                        onChanged: (value) => diagnosis = value,
-                        validator: (value) {
-                          // validate the name here
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء إدخال التشخيص';
+                        decoration: InputDecoration(labelText: "تشخيص جديد"),
+                        onChanged: (val) => newDiagnosis = val,
+                        validator: (val) {
+                          if ((val == null || val.trim().isEmpty) &&
+                              diagnoses.isEmpty) {
+                            return "الرجاء إدخال تشخيص واحد على الأقل";
                           }
                           return null;
                         },
                       ),
-
-                      const SizedBox(height: 10), // between name and epidemic
-
-                      // chose epidemics
+                      const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
-                        iconEnabledColor:
-                            Theme.of(context).secondaryHeaderColor,
-                        iconDisabledColor:
-                            Theme.of(context).secondaryHeaderColor,
                         value: epidemic,
-                        validator: (value) {
-                          // validate the epidemic here
-                          if (value == null || value.isEmpty) {
-                            return 'الرجاء إدخال الوباء';
-                          } // if
-                          return null;
-                        },
-                        dropdownColor: Theme.of(context).cardColor,
-                        style: TextStyle(
-                            color: Theme.of(context).secondaryHeaderColor),
-                        decoration: InputDecoration(
-                          labelText: 'الوباء',
-                          labelStyle: TextStyle(
-                              color: Theme.of(context).secondaryHeaderColor),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                          )),
-                          floatingLabelStyle:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                        items: epidemics.map((g) {
-                          return DropdownMenuItem(
-                            value: g,
-                            child: Text(g,
-                                style:
-                                    Theme.of(context).textTheme.displaySmall),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() => epidemic = value);
-                        },
+                        items: epidemics
+                            .map((e) =>
+                                DropdownMenuItem(value: e, child: Text(e)))
+                            .toList(),
+                        onChanged: (val) => setState(() => epidemic = val),
+                        decoration: InputDecoration(labelText: "الوباء"),
+                        validator: (val) => val == null || val.isEmpty
+                            ? "الرجاء اختيار الوباء"
+                            : null,
                       ),
-
-                      const SizedBox(
-                          height:
-                              10), // between epidemics and check box for adding to midical history or not
-
-                      // show my medical history if the appointment is forMe appointment
+                      const SizedBox(height: 10),
                       if (appointment.forMe == true)
                         CheckboxListTile(
-                            value: _addToMedicalHistory,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            contentPadding:
-                                EdgeInsetsGeometry.directional(end: 50),
-                            title: Text(
-                              "إضافة إلى سجل المريض",
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).secondaryHeaderColor),
-                            ),
-                            checkColor: Colors.white,
-                            side: BorderSide(color: Colors.black),
-                            activeColor: Theme.of(context).primaryColorDark,
-                            onChanged: (value) {
-                              setState(() {
-                                _addToMedicalHistory = value!;
-                              });
-                            }),
-
-                      // free space
-                      const SizedBox(height: 10),
+                          value: _addToMedicalHistory,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text("إضافة إلى سجل المريض"),
+                          activeColor: Theme.of(context).primaryColorDark,
+                          checkColor: Colors.white,
+                          onChanged: (val) =>
+                              setState(() => _addToMedicalHistory = val!),
+                        ),
                     ],
                   ),
                 ),
               ),
               actions: [
-                // chencle
                 TextButton(
-                  child: Text(
-                    'إلغاء',
-                    style: TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
                   onPressed: () => Navigator.of(context).pop(),
+                  child: Text("إلغاء", style: TextStyle(color: Colors.red)),
                 ),
-                // connect to the database here to update the doctor info
                 ElevatedButton(
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                  child: Text(
-                    'تأكيد التشخيص',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
+                  child: Text("تأكيد التشخيص",
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      if (newDiagnosis != null &&
+                          newDiagnosis!.trim().isNotEmpty) {
+                        diagnoses.add(newDiagnosis!.trim());
+                      }
+
                       showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -522,15 +552,13 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             );
                           });
 
-                      // Local state to be updated
                       bool didChange = false;
                       Appointment? oldDiagnosedAppointment;
 
-                      // Step 1: Handle diagnosed appointment cleanup
-                      final diagnosedAppointmentExistInDb = await _firestore
+                      final diagnosedExists = await _firestore
                           .checkDiagnosedAppointmentExist(appointment);
 
-                      if (diagnosedAppointmentExistInDb) {
+                      if (diagnosedExists) {
                         await _firestore
                             .deleteDiagnosedAppointment(appointment);
 
@@ -550,14 +578,9 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             : null;
 
                         if (oldDiagnosedAppointment != null &&
-                            outAppointments.any((appo) =>
-                                    appo.phoneNumber ==
-                                        oldDiagnosedAppointment!.phoneNumber &&
-                                    appo.name ==
-                                        oldDiagnosedAppointment.name) ==
-                                false) {
+                            !outAppointments
+                                .contains(oldDiagnosedAppointment)) {
                           diagnosedAppointments.remove(oldDiagnosedAppointment);
-                          appointment.medicalHistory!.removeLast();
                           didChange = true;
                         }
 
@@ -570,45 +593,31 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                       } else {
                         await _firestore
                             .deleteCheckedOutAppointment(appointment);
-                        if (outAppointments.remove(appointment)) {
-                          didChange = true;
-                        }
+                        outAppointments.remove(appointment);
+                        didChange = true;
                       }
 
-// Step 2: Update medical history
-                      if (appointment.forMe == true) {
-                        if (appointment.medicalHistory!.isNotEmpty &&
-                            appointment.medicalHistory!.first == "None") {
-                          appointment.medicalHistory = [];
-                        }
-                        appointment.medicalHistory!.add(diagnosis!);
-                      } else {
-                        appointment.medicalHistory = [diagnosis!];
+                      appointment.medicalHistory = diagnoses;
+
+                      if (_addToMedicalHistory && appointment.forMe == true) {
+                        await _firestore.updateCitizenMedicalHistory(
+                            appointment.phoneNumber,
+                            appointment.medicalHistory!,
+                            deletedDiagnosis);
                       }
 
-                      if (_addToMedicalHistory == true &&
-                          appointment.forMe == true) {
-                        await _firestore
-                            .updateCitizen(appointment.phoneNumber, {
-                          "medicalHistory": appointment.medicalHistory!,
-                        });
-                      }
-
-// Step 3: Save to diagnosed appointments
                       await _firestore.diagnoseAppointment(appointment);
                       diagnosedAppointments.add(appointment);
-                      didChange = true;
 
-// ✅ One setState at the end
                       if (didChange) {
                         setState(() {});
                       }
 
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                      Navigator.pop(context); // close loading
+                      Navigator.pop(context); // close dialog
                       _onTabTapped(1);
                     }
-                  }, // onPress
+                  },
                 ),
               ],
             ),
@@ -616,5 +625,274 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
         });
       },
     );
-  } // _showEditDialog
+  }
+
+//   Future<void> _showEditDialog(
+//       BuildContext context, Appointment appointment) async {
+//     final _formKey = GlobalKey<FormState>(); // global key
+//     String? epidemic;
+//     String? diagnosis;
+
+//     // that will be pop ed up only when pressing the button
+//     showDialog(
+//       context: context,
+//       builder: (context) {
+//         return StatefulBuilder(builder: (context, setState) {
+//           return Directionality(
+//             textDirection: TextDirection.rtl,
+//             child: AlertDialog(
+//               backgroundColor: Theme.of(context).primaryColorLight,
+//               title: Text(
+//                 "المريض: ${appointment.name}",
+//                 style: TextStyle(
+//                     fontWeight: FontWeight.bold,
+//                     color: Theme.of(context).secondaryHeaderColor),
+//               ),
+//               content: SingleChildScrollView(
+//                 child: Form(
+//                   key: _formKey,
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                       // edit the name
+//                       TextFormField(
+//                         cursorColor: Theme.of(context).primaryColor,
+//                         style: TextStyle(
+//                             color: Theme.of(context).secondaryHeaderColor),
+//                         decoration: InputDecoration(
+//                           labelText: 'التشخيص',
+//                           labelStyle: TextStyle(
+//                               color: Theme.of(context).secondaryHeaderColor),
+//                           focusedBorder: UnderlineInputBorder(
+//                               borderSide: BorderSide(
+//                             color: Theme.of(context).primaryColor,
+//                           )),
+//                           floatingLabelStyle:
+//                               TextStyle(color: Theme.of(context).primaryColor),
+//                         ),
+//                         onChanged: (value) => diagnosis = value,
+//                         validator: (value) {
+//                           // validate the name here
+//                           if (value == null || value.isEmpty) {
+//                             return 'الرجاء إدخال التشخيص';
+//                           }
+//                           return null;
+//                         },
+//                       ),
+
+//                       const SizedBox(height: 10), // between name and epidemic
+
+//                       // chose epidemics
+//                       DropdownButtonFormField<String>(
+//                         iconEnabledColor:
+//                             Theme.of(context).secondaryHeaderColor,
+//                         iconDisabledColor:
+//                             Theme.of(context).secondaryHeaderColor,
+//                         value: epidemic,
+//                         validator: (value) {
+//                           // validate the epidemic here
+//                           if (value == null || value.isEmpty) {
+//                             return 'الرجاء إدخال الوباء';
+//                           } // if
+//                           return null;
+//                         },
+//                         dropdownColor: Theme.of(context).cardColor,
+//                         style: TextStyle(
+//                             color: Theme.of(context).secondaryHeaderColor),
+//                         decoration: InputDecoration(
+//                           labelText: 'الوباء',
+//                           labelStyle: TextStyle(
+//                               color: Theme.of(context).secondaryHeaderColor),
+//                           focusedBorder: UnderlineInputBorder(
+//                               borderSide: BorderSide(
+//                             color: Theme.of(context).primaryColor,
+//                           )),
+//                           floatingLabelStyle:
+//                               TextStyle(color: Theme.of(context).primaryColor),
+//                         ),
+//                         items: epidemics.map((g) {
+//                           return DropdownMenuItem(
+//                             value: g,
+//                             child: Text(g,
+//                                 style:
+//                                     Theme.of(context).textTheme.displaySmall),
+//                           );
+//                         }).toList(),
+//                         onChanged: (value) {
+//                           setState(() => epidemic = value);
+//                         },
+//                       ),
+
+//                       const SizedBox(
+//                           height:
+//                               10), // between epidemics and check box for adding to midical history or not
+
+//                       // show my medical history if the appointment is forMe appointment
+//                       if (appointment.forMe == true)
+//                         CheckboxListTile(
+//                             value: _addToMedicalHistory,
+//                             controlAffinity: ListTileControlAffinity.leading,
+//                             contentPadding:
+//                                 EdgeInsetsGeometry.directional(end: 50),
+//                             title: Text(
+//                               "إضافة إلى سجل المريض",
+//                               style: TextStyle(
+//                                   color:
+//                                       Theme.of(context).secondaryHeaderColor),
+//                             ),
+//                             checkColor: Colors.white,
+//                             side: BorderSide(color: Colors.black),
+//                             activeColor: Theme.of(context).primaryColorDark,
+//                             onChanged: (value) {
+//                               setState(() {
+//                                 _addToMedicalHistory = value!;
+//                               });
+//                             }),
+
+//                       // free space
+//                       const SizedBox(height: 10),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               actions: [
+//                 // chencle
+//                 TextButton(
+//                   child: Text(
+//                     'إلغاء',
+//                     style: TextStyle(
+//                       color: Colors.red,
+//                     ),
+//                   ),
+//                   onPressed: () => Navigator.of(context).pop(),
+//                 ),
+//                 // connect to the database here to update the doctor info
+//                 ElevatedButton(
+//                   style:
+//                       ElevatedButton.styleFrom(backgroundColor: Colors.white),
+//                   child: Text(
+//                     'تأكيد التشخيص',
+//                     style: TextStyle(
+//                       color: Theme.of(context).primaryColor,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+
+//                   onPressed: () async {
+//                     if (_formKey.currentState!.validate()) {
+//                       showDialog(
+//                           context: context,
+//                           barrierDismissible: false,
+//                           builder: (context) {
+//                             return Material(
+//                               type: MaterialType.transparency,
+//                               child: Center(
+//                                 child: Column(
+//                                   mainAxisAlignment: MainAxisAlignment.center,
+//                                   children: [
+//                                     CircularProgressIndicator(
+//                                         color: Theme.of(context).primaryColor),
+//                                     SizedBox(
+//                                       height: 30,
+//                                     ),
+//                                   ],
+//                                 ),
+//                               ),
+//                             );
+//                           });
+
+//                       // Local state to be updated
+//                       bool didChange = false;
+//                       Appointment? oldDiagnosedAppointment;
+
+//                       //Handle diagnosed appointment cleanup
+//                       final diagnosedAppointmentExistInDb = await _firestore
+//                           .checkDiagnosedAppointmentExist(appointment);
+
+//                       if (diagnosedAppointmentExistInDb) {
+//                         await _firestore
+//                             .deleteDiagnosedAppointment(appointment);
+
+//                         oldDiagnosedAppointment = (diagnosedAppointments
+//                                     .where((appo) =>
+//                                         appo.phoneNumber ==
+//                                             appointment.phoneNumber &&
+//                                         appo.name == appointment.name)
+//                                     .isNotEmpty ==
+//                                 true)
+//                             ? diagnosedAppointments
+//                                 .where((appo) =>
+//                                     appo.phoneNumber ==
+//                                         appointment.phoneNumber &&
+//                                     appo.name == appointment.name)
+//                                 .first
+//                             : null;
+
+//                         if (oldDiagnosedAppointment != null &&
+//                             outAppointments.any((appo) =>
+//                                     appo.phoneNumber ==
+//                                         oldDiagnosedAppointment!.phoneNumber &&
+//                                     appo.name ==
+//                                         oldDiagnosedAppointment.name) ==
+//                                 false) {
+//                           diagnosedAppointments.remove(oldDiagnosedAppointment);
+//                           appointment.medicalHistory!.removeLast();
+//                           didChange = true;
+//                         }
+
+//                         if (outAppointments.contains(appointment)) {
+//                           await _firestore
+//                               .deleteCheckedOutAppointment(appointment);
+//                           outAppointments.remove(appointment);
+//                           didChange = true;
+//                         }
+//                       } else {
+//                         await _firestore
+//                             .deleteCheckedOutAppointment(appointment);
+//                         if (outAppointments.remove(appointment)) {
+//                           didChange = true;
+//                         }
+//                       }
+
+// //Update medical history
+//                       if (appointment.forMe == true) {
+//                         if (appointment.medicalHistory!.isNotEmpty &&
+//                             appointment.medicalHistory!.first == "None") {
+//                           appointment.medicalHistory = [];
+//                         }
+//                         appointment.medicalHistory!.add(diagnosis!);
+//                       } else {
+//                         appointment.medicalHistory = [diagnosis!];
+//                       }
+
+//                       if (_addToMedicalHistory == true &&
+//                           appointment.forMe == true) {
+//                         await _firestore
+//                             .updateCitizen(appointment.phoneNumber, {
+//                           "medicalHistory": appointment.medicalHistory!,
+//                         });
+//                       }
+
+// // Step 3: Save to diagnosed appointments
+//                       await _firestore.diagnoseAppointment(appointment);
+//                       diagnosedAppointments.add(appointment);
+//                       didChange = true;
+
+//                       if (didChange) {
+//                         setState(() {});
+//                       }
+
+//                       Navigator.pop(context);
+//                       Navigator.pop(context);
+//                       _onTabTapped(1);
+//                     }
+//                   }, // onPress
+//                 ),
+//               ],
+//             ),
+//           );
+//         });
+//       },
+//     );
+//   } // _showEditDialog
 }
