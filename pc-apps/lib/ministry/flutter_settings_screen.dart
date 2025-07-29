@@ -42,34 +42,19 @@ class SettingsScreen extends StatelessWidget {
         ),
         titleSpacing: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.end, // Align items to the right
-          children: [
-            const Divider(thickness: 1),
-            const SizedBox(height: 24),
-            _buildSettingsItem(context, 'اللغة', () {
-              print('Language settings tapped');
-            }),
-            const SizedBox(height: 16),
-            _buildSettingsItem(context, 'المظهر', () {
-              print('Appearance settings tapped');
-            }),
-            const SizedBox(height: 16),
-            _buildSettingsItem(context, 'عن التطبيق', () {
-              print('About App tapped');
-            }),
-            const SizedBox(height: 16),
-            _buildSettingsItem(context, 'تسجيل الخروج', () {
-              print('Logout tapped');
-              // In a real app, you would handle logout logic here,
-              // e.g., clear user session and navigate to login screen.
-            }),
-          ],
-        ),
-      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(Icons.settings, color: Colors.blue, size: 40),
+          SizedBox(height: 16,),
+          Text("هذه الميزة لا تعمل حاليا", style: TextStyle(
+            color: Colors.blueGrey,
+            fontSize: 28,
+            fontWeight: FontWeight.bold
+          ),)
+
+        ])
     );
   }
 

@@ -1,102 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
+
+/*
+Issues:
+  1- Edit password dialog
+  
+*/
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final MinistryEmployee employee;
+  const ProfileScreen({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(
-              context,
-            ); // Go back to the previous screen (Dashboard)
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.lightBlue,
+          foregroundColor: Colors.white,
+          title: Text('الملف الشخصي'),
+          centerTitle: true,
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(Icons.arrow_back)),
         ),
-        title: const Directionality(
-          textDirection: TextDirection.rtl, // Right-to-left for Arabic title
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'الملف الشخصي', // Personal Profile (Arabic)
+              // Personal Information Section
+              const Divider(thickness: 1),
+              const SizedBox(height: 16),
+              _buildInfoField(
+                context,
+                label: 'الاسم:',
+                value: this.employee.getName(),
+              ),
+              const SizedBox(height: 16),
+              _buildInfoField(
+                context,
+                label: 'رقم الهاتف:', // Mobile Number:
+                value: this.employee.getPhoneNumber(),
+              ),
+              const SizedBox(height: 16),
+
+// Is that ture to show password here??
+              _buildPasswordField(
+                context,
+                label: 'كلمة المرور:', // Password:
+                value: '************', // Placeholder for password
+              ),
+
+              const SizedBox(height: 32),
+
+              // Office Information Section
+              const Text(
+                'المكتب',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
                   fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-              SizedBox(width: 8),
-              Icon(Icons.person, color: Colors.blue, size: 28), // Profile icon
-            ],
+              const Divider(thickness: 2),
+
+              const SizedBox(height: 16),
+
+
+              _buildInfoField(
+                    context,
+                    label: 'الولاية:',
+                    value: this.employee.getState(),
+              ),
+
+              const SizedBox(height: 10),
+
+              _buildInfoField(
+                    context,
+                    label: 'المحلية:',
+                    value: this.employee.getLocality(),
+                  ),
+              const SizedBox(height: 16),
+                ],
+              ),
+
+
           ),
         ),
-        titleSpacing: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Personal Information Section
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
-            _buildInfoField(
-              context,
-              label: 'الاسم:', // Name:
-              value: 'wael mahadi monis',
-            ),
-            const SizedBox(height: 16),
-            _buildInfoField(
-              context,
-              label: 'رقم الجوال:', // Mobile Number:
-              value: '+249 123456789',
-            ),
-            const SizedBox(height: 16),
-            _buildPasswordField(
-              context,
-              label: 'كلمة المرور:', // Password:
-              value: '************', // Placeholder for password
-            ),
-            const SizedBox(height: 32),
 
-            // Office Information Section
-            const Text(
-              'المكتب', // Office (Arabic)
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-              textDirection: TextDirection.rtl,
-            ),
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end, // Align to the right
-              children: [
-                _buildOfficeField(
-                  context,
-                  label: 'الولاية:',
-                  value: 'الجزيرة',
-                ), // State: Al Jazirah
-                const SizedBox(width: 16),
-                _buildOfficeField(
-                  context,
-                  label: 'المحلية:',
-                  value: 'الكاملين',
-                ), // Locality: Al Kamilin
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 
@@ -108,8 +103,18 @@ class ProfileScreen extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end, // Align fields to the right
+        mainAxisAlignment: MainAxisAlignment.start, // Align fields to the right
         children: [
+              Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          const SizedBox(width: 16),
+
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -120,11 +125,25 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 value,
                 style: const TextStyle(fontSize: 16, color: Colors.black87),
-                textAlign: TextAlign.right, // Align text inside field to right
               ),
             ),
           ),
-          const SizedBox(width: 12),
+
+        ],
+      ),
+    );
+  }
+
+// No needed here
+  Widget _buildPasswordField(
+      BuildContext context, {
+    required String label,
+    required String value,
+  }) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Text(
             label,
             style: const TextStyle(
@@ -133,22 +152,8 @@ class ProfileScreen extends StatelessWidget {
               color: Colors.black87,
             ),
           ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(width: 12),
 
-  Widget _buildPasswordField(
-    BuildContext context, {
-    required String label,
-    required String value,
-  }) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -163,16 +168,9 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+
           const SizedBox(width: 16), // Space for the "Edit" button
+
           TextButton(
             onPressed: () {
               print('Edit password tapped');
@@ -183,15 +181,17 @@ class ProfileScreen extends StatelessWidget {
               tapTargetSize:
                   MaterialTapTargetSize.shrinkWrap, // Shrink tap target
             ),
-            child: const Text(
-              'تعديل', // Edit (Arabic)
-              style: TextStyle(fontSize: 14, color: Colors.blue),
+            child: TextButton(
+              child: Text('تعديل', style: TextStyle(fontSize: 14, color: Colors.blue)),
+              onPressed: (){
+// show edit password dialog here
+              }
             ),
           ),
         ],
-      ),
     );
   }
+
 
   Widget _buildOfficeField(
     BuildContext context, {
@@ -199,10 +199,8 @@ class ProfileScreen extends StatelessWidget {
     required String value,
   }) {
     return Expanded(
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
               child: Container(
@@ -232,7 +230,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

@@ -1,8 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
+import 'package:pc_apps/ministry/Backend/global_var.dart';
+import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
+import 'package:pc_apps/ministry/Backend/notification.dart';
+import 'global_ui.dart';
+import 'Backend/testing_data.dart';
+
+
+class NotificationsScreen extends StatefulWidget {
+  NotificationsScreen({super.key, required this.employee});
+  late final MinistryEmployee employee;
+
+  @override
+  State<StatefulWidget> createState() => _NotificationsScreenState(employee: employee);
+}
 
 // NotificationsScreen is a StatelessWidget that displays a list of notifications.
-class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
+class _NotificationsScreenState extends State<NotificationsScreen> {
+
+  _NotificationsScreenState({required this.employee});
+
+  late final MinistryEmployee employee;
+  String? _sorting;
+  late String _selectedState = this.employee.getState();
+  late String _selectedLocality= this.employee.getLocality();
+  String _selectedHospital = 'الكل';
+
+  DateTimeRange? _selectedDate;
 
   @override
   Widget build(BuildContext context) {
@@ -19,99 +42,104 @@ class NotificationsScreen extends StatelessWidget {
             ); // Go back to the previous screen (Dashboard)
           },
         ),
-        title: const Directionality(
-          textDirection:
-              TextDirection.rtl, // Right-to-left direction for Arabic title
-          child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.end, // Align content to the end (right)
-            children: [
-              Text(
-                'الاشعارات', // Notifications (Arabic)
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+        title: Row(
+          mainAxisAlignment:
+          MainAxisAlignment.end, // Align content to the end (right)
+          children: [
+
+            Text(
+              'الاشعارات', // Notifications (Arabic)
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
               ),
-              SizedBox(width: 8), // Space between text and icon
-              Icon(
-                Icons.notifications_active,
-                color: Colors.blue,
-                size: 28,
-              ), // Notification icon
-            ],
-          ),
+            ),
+            SizedBox(width: 8), // Space between text and icon
+            Icon(
+              Icons.notifications_active,
+              color: Colors.blue,
+              size: 28,
+            ), // Notification icon
+            SizedBox(width: 8), // Space between text and icon
+
+          ],
         ),
         titleSpacing: 0, // Remove default title spacing for custom title layout
       ),
       body: Column(
+
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceAround, // Distribute filter buttons evenly
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              // Distribute filter buttons evenly
               children: [
-                _buildFilterButton(
-                  context,
-                  'ترتيب',
-                  Icons.arrow_drop_down,
+                buildFilterDropdown( // in global_ui.dart
+                  hint: 'ترتيب',
+                  value: _sorting,
+                  items: ['الغير مقروءة', 'الأحدث', 'الأهم', ],
+                  onChanged: (selectedValue){
+                    _sorting = selectedValue;
+                  }
                 ), // Sort
-                _buildFilterButton(context, 'التاريخ', null), // Date
-                _buildFilterButton(
-                  context,
-                  'عرض اشعارات الاوبئة فقط',
-                  null,
-                ), // Show epidemic notifications only
-                _buildFilterButton(
-                  context,
-                  'مستشفى',
-                  Icons.arrow_drop_down,
-                ), // Hospital
+
+        buildDateRangeSelector( // in global_ui.dart
+          context: context,
+          selectedRange: _selectedDate,
+          onRangeSelected: (_selectedDate) {
+            print("");
+          },),
+
+
+                // Hospital
+                buildFilterDropdown(
+                  hint: 'المستشفى...', // Hospital...
+                  value: _selectedHospital,
+                  items: ["الكل", "مستشفى 1", "مستشفى 2", "وما تنسو تجيبو باقي المستشفيات من الDatabase :)"],
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedHospital = newValue!;
+                    });
+                  },
+                ),
+                // Locality
+                buildFilterDropdown(
+                  hint: 'المحلية...', // Locality...
+                  value: _selectedLocality,
+                  items: this.employee.getLocality() == "الكل"
+                      ? (g_localities[_selectedState] ?? [])
+                      : [this.employee.getLocality()],
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedLocality = newValue!;
+                    });
+                  },
+                ),
+
+                // State
+                buildFilterDropdown(
+                  hint: 'الولاية...', // State...
+                  value: _selectedState,
+                  items: this.employee.getState() == "الكل" ? g_states : [this.employee.getState()],
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedState = newValue!;
+                    });
+                  },
+                ),
               ],
             ),
           ),
           Expanded(
             // Allows the ListView to take up the remaining vertical space
-            child: ListView(
-              children: const [
-                // Example Notification Items
-                NotificationItem(
-                  date: '2025-6-10',
-                  time: '2:45 am',
-                  title: 'تم ارسال التقرير اليومي', // Daily report sent
-                  source:
-                      'اشعار من مستشفى الاطباء', // Notification from Doctors Hospital
-                  isRead: false, // Unread notification
-                ),
-                NotificationItem(
-                  date: '2025-6-10',
-                  time: '2:45 am',
-                  title: 'تم ارسال التقرير الاسبوعي', // Weekly report sent
-                  source:
-                      'اشعار من مستشفى الاطباء', // Notification from Doctors Hospital
-                  isRead: true, // Read notification
-                ),
-                NotificationItem(
-                  date: '2025-6-3',
-                  time: '2:45 am',
-                  title: 'تم ارسال التقرير الاسبوعي', // Weekly report sent
-                  source:
-                      'اشعار من مستشفى الاطباء', // Notification from Doctors Hospital
-                  isRead: true, // Read notification
-                ),
-                NotificationItem(
-                  date: '2025-6-01',
-                  time: '2:45 am',
-                  title:
-                      'رصد وباء في الخرطوم بحري', // Epidemic detected in Khartoum Bahri
-                  source:
-                      'تنبيه من مستشفى الاطباء!!!', // Alert from Doctors Hospital!!!
-                  isRead: false, // Unread notification
-                  isUrgent: true, // Urgent notification (red background)
-                ),
-              ],
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListView(
+                children: _testingNotifications() // should be removed after link with database
+// obtain notifications from database here
+              ),
             ),
           ),
         ],
@@ -119,141 +147,114 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  // Helper method to build a filter button.
-  Widget _buildFilterButton(
-    BuildContext context,
-    String text,
-    IconData? suffixIcon,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300), // Light grey border
-        borderRadius: BorderRadius.circular(8), // Rounded corners
-      ),
-      child: Directionality(
-        textDirection:
-            TextDirection.rtl, // Right-to-left direction for button content
-        child: Row(
+  Widget _buildNotificationContainer(Notification notification) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          notification.isRed = true;
+        });
+        // should take the user to the reporting page with the specific state, locality, and hospital
+      },
+      child: Container(
+        color: notification.isImportant ? Colors.red : Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        margin: const EdgeInsets.only(bottom: 1.0),
+        child: Column(
           children: [
-            Text(
-              text,
-              style: const TextStyle(fontSize: 12, color: Colors.black87),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if(!notification.isRed)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Icon(Icons.circle, size: 8, color: Colors.blue),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      notification.getSender(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ],
+                ),
+                Text(
+                  "${notification
+                      .getCreationTime()
+                      .year} / ${notification
+                      .getCreationTime()
+                      .month} / ${notification
+                      .getCreationTime()
+                      .day}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: notification.isImportant ? Colors.white : Colors
+                        .grey[600],
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              ],
             ),
-            if (suffixIcon != null) ...[
-              // Add suffix icon if provided
-              const SizedBox(width: 4), // Space between text and icon
-              Icon(suffixIcon, size: 16, color: Colors.black54),
-            ],
+
+
+            const SizedBox(height: 4),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(""),
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      notification.getTitle(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: notification.isImportant ? Colors.white : Colors
+                            .black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                ),
+
+                Text(
+                  notification.timeFormatAMPM(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: notification.isImportant ? Colors.white : Colors
+                        .grey[600],
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+
+              ],
+            ),
           ],
         ),
       ),
     );
   }
-}
 
-// NotificationItem widget to display individual notification details.
-class NotificationItem extends StatelessWidget {
-  final String date;
-  final String time;
-  final String title;
-  final String source;
-  final bool isRead;
-  final bool isUrgent;
-
-  const NotificationItem({
-    super.key,
-    required this.date,
-    required this.time,
-    required this.title,
-    required this.source,
-    this.isRead = false,
-    this.isUrgent = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: isUrgent
-          ? Colors.red
-          : Colors.white, // Background color based on urgency
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      margin: const EdgeInsets.only(
-        bottom: 1.0,
-      ), // Small margin for visual separation between items
-      child: Directionality(
-        textDirection: TextDirection
-            .rtl, // Right-to-left direction for notification content
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // Align content to the start (right)
-          children: [
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Distribute date and source
-              children: [
-                Text(
-                  date,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isUrgent
-                        ? Colors.white
-                        : Colors.grey[600], // Text color based on urgency
-                  ),
-                ),
-                Text(
-                  source,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isUrgent
-                        ? Colors.white
-                        : Colors.black87, // Text color based on urgency
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4), // Vertical space
-            Row(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceBetween, // Distribute time and title/unread dot
-              children: [
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isUrgent
-                        ? Colors.white
-                        : Colors.grey[600], // Text color based on urgency
-                  ),
-                ),
-                Expanded(
-                  // Allows title to take available space and push dot to the left
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isUrgent
-                          ? Colors.white
-                          : Colors.black, // Text color based on urgency
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign:
-                        TextAlign.end, // Align title to the end (right for RTL)
-                  ),
-                ),
-                if (!isRead) // Show blue dot if notification is unread
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 8.0,
-                    ), // Padding for the dot
-                    child: Icon(Icons.circle, size: 8, color: Colors.blue),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  List<Widget> _testingNotifications(){
+    List<Widget> result = [];
+    for(int i =0; i<testingNotifications.length ; i++)
+       result.add(_buildNotificationContainer(testingNotifications[i]));
+    return result;
   }
 }

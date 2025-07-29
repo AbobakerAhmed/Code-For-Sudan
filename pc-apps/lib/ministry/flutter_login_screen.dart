@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pc_apps/ministry/flutter_main_screen.dart'; // Assuming your project name is my_health_app
+import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
+
 // Make sure DashboardScreen is defined in flutter_main_screen.dart or import the correct file where DashboardScreen is defined.
 
 // LoginScreen is a StatefulWidget to manage its internal state (text controllers).
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+
+  const LoginScreen({super.key}); //Constructor
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -26,12 +29,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Function to handle the login logic.
-  void _performLogin() {
+  void _performLogin(MinistryEmployee employee) {
     // In a real application, you would perform authentication here (e.g., API call).
     // For this example, we simply navigate to the DashboardScreen.
+
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => DashboardScreen()),
+      MaterialPageRoute(builder: (context) => HomePage(employee: employee)),
     );
     // Print the entered credentials to the console for demonstration purposes.
     print(
@@ -41,48 +46,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor:
-          Colors.white, // Sets the background color of the screen to white
-      body: Center(
-        // Centers the content on the screen.
-        child: SingleChildScrollView(
-          // Allows the content to be scrollable if it overflows the screen.
-          padding: const EdgeInsets.all(
-            24.0,
-          ), // Adds padding around the content.
+    return Directionality(
+      textDirection: TextDirection.rtl, // Arabic lang
+      child: Scaffold(
+        appBar: AppBar(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.lightBlue,
+        ),
+
+        backgroundColor:
+            Colors.white, // Sets the background color of the screen to white
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment:
-                MainAxisAlignment.center, // Centers children vertically.
+            MainAxisAlignment.center, // Centers children vertically.
             children: <Widget>[
-              // Logo and Ministry Text Section.
-              Container(
+              Padding(
+
                 padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color:
-                      Colors.white, // Background color for the logo container
-                  borderRadius: BorderRadius.circular(
-                    20.0,
-                  ), // Rounded corners for the container
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(
-                        0.2,
-                      ), // Shadow color with opacity
-                      spreadRadius: 2, // Extends the shadow
-                      blurRadius: 5, // Blurs the shadow
-                      offset: const Offset(0, 3), // Offset of the shadow
-                    ),
-                  ],
-                ),
+
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Placeholder for the logo. Replace with Image.asset('assets/logo.png') in a real app.
-                    const Icon(
-                      Icons
-                          .medical_services, // Using a generic medical icon as a placeholder
-                      size: 80, // Size of the icon
-                      color: Colors.green, // Color of the icon
+                    // Ministry Logo
+                    Image.asset(
+                      'assets/health_ministry_loge.jpg',
+                      alignment: Alignment.center,
+                      height: 200,
+                      width: 200,
                     ),
                     const SizedBox(height: 16), // Vertical space
                     const Text(
@@ -93,8 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,
-                      textDirection: TextDirection
-                          .rtl, // Right-to-left text direction for Arabic
                     ),
                     const SizedBox(height: 8), // Vertical space
                     const Text(
@@ -105,128 +96,144 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.black,
                       ),
                       textAlign: TextAlign.center,
-                      textDirection: TextDirection
-                          .rtl, // Right-to-left text direction for Arabic
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40), // Vertical space
-              // Phone Number Input Field.
-              Directionality(
-                textDirection: TextDirection
-                    .rtl, // Sets text direction for the input field
-                child: TextFormField(
-                  controller: _phoneController, // Assigns the controller
-                  decoration: InputDecoration(
-                    hintText:
-                        'رقم الهاتف...', // Hint text (Arabic: Phone number...)
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey[200], // Light grey background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        12.0,
-                      ), // Rounded corners
-                      borderSide: BorderSide.none, // No border line
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 20.0,
-                    ),
-                  ),
-                  keyboardType:
-                      TextInputType.phone, // Sets keyboard type to phone
-                ),
-              ),
-              const SizedBox(height: 20), // Vertical space
-              // Password Input Field.
-              Directionality(
-                textDirection: TextDirection
-                    .rtl, // Sets text direction for the input field
-                child: TextFormField(
-                  controller: _passwordController, // Assigns the controller
-                  obscureText: true, // Hides the entered text (for passwords)
-                  decoration: InputDecoration(
-                    hintText:
-                        'كلمة المرور...', // Hint text (Arabic: Password...)
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey[200], // Light grey background
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        12.0,
-                      ), // Rounded corners
-                      borderSide: BorderSide.none, // No border line
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 20.0,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20), // Vertical space
-              // Login Button - This button connects the two pages.
-              ElevatedButton(
-                onPressed: _performLogin, // Calls _performLogin when pressed
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Button background color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      12.0,
-                    ), // Rounded corners
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16.0,
-                    horizontal: 40.0,
-                  ),
-                ),
-                child: const Text(
-                  'تسجيل الدخول', // Login (Arabic)
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ), // Text style
-                ),
-              ),
-              const SizedBox(height: 20), // Vertical space
-              // Forgot Password and Create New Account links.
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .spaceBetween, // Distributes children evenly
-                  children: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        // Handle 'Create new account' tap
-                        print('Create new account tapped');
-                      },
-                      child: const Text(
-                        'انشاء حساب جديد', // Create new account (Arabic)
-                        style: TextStyle(color: Colors.black54, fontSize: 16),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Handle 'Forgot password' tap
-                        print('Forgot password tapped');
-                      },
-                      child: const Text(
-                        'نسيت كلمة المرور؟', // Forgot password? (Arabic)
-                        style: TextStyle(color: Colors.black54, fontSize: 16),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+Row(
+  children: [
+    Expanded(child: SizedBox.shrink()),
+    Expanded(child: Column( children: [const SizedBox(height: 40), // Vertical space
+      // Phone Input Field
+      TextFormField(
+        controller: _phoneController, // Assigns the controller
+        decoration: InputDecoration(
+          hintText: 'أدخل رقم الهاتف', // Hint text
+          hintStyle: const TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: Colors.grey[200], // Light grey background
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              12.0,
+            ), // Rounded corners
+            borderSide: BorderSide.none, // No border line
+          ),
+        ),
+        validator: (val) {
+          if(val == "") return "الرجاء إدخال رقم الهاتف"; // empty phone field
+          if (   // start with a wrong prefix
+          !(
+              val!.startsWith('01') ||
+                  val.startsWith('090') ||
+                  val.startsWith('091') ||
+                  val.startsWith('092') ||
+                  val.startsWith('096') ||
+                  val.startsWith('099')
+          )
+          ) return "الرجاء إدخال رقم الهاتف الصحيح";
+        },
+        keyboardType: TextInputType.phone, // Sets keyboard type to phone
+      ),
+      const SizedBox(height: 20), // Vertical space
+      // Password Input Field.
+      TextFormField(
+        controller: _passwordController, // Assigns the controller
+        obscureText: true, // Hides the entered text (for passwords)
+        decoration: InputDecoration(
+          hintText: 'أدخل كلمة المرور',
+          hintStyle: const TextStyle(color: Colors.grey),
+          filled: true,
+          fillColor: Colors.grey[200], // Light grey background
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              12.0,
+            ), // Rounded corners
+            borderSide: BorderSide.none, // No border line
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 20.0,
           ),
         ),
       ),
+      const SizedBox(height: 20),
+      // Login Button - This button connects the two pages.
+      ElevatedButton(
+
+        onPressed: () {
+          // Load Ministry Employee object here
+          MinistryEmployee employee = MinistryEmployee(
+              "محمد أحمد خالد",
+              "0123456789",
+              "123123",
+              'الكل',
+              "أمدرمان"
+
+          );
+          _performLogin(employee);
+        }, // Calls _performLogin when pressed
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue, // Button background color
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              12.0,
+            ), // Rounded corners
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 40.0,
+          ),
+        ),
+        child: const Text(
+          'تسجيل الدخول', // Login (Arabic)
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ), // Text style
+        ),
+      ),
+      const SizedBox(height: 20), // Vertical spac
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Forgot Password and Create New Account links.
+          TextButton(
+            onPressed: () {
+              // Handle 'Create new account' tap
+              print('Create new account tapped');
+            },
+            child: const Text(
+              'انشاء حساب جديد', // Create new account (Arabic)
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+              textDirection: TextDirection.rtl,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              // Handle 'Forgot password' tap
+              print('Forgot password tapped');
+            },
+            child: const Text(
+              'نسيت كلمة المرور؟', // Forgot password? (Arabic)
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+              textDirection: TextDirection.rtl,
+            ),
+          ),
+
+        ],
+      ),
+
+    ])),
+    Expanded(child: SizedBox.shrink())
+  ],
+),
+            ],
+          ),
+        )
+          ),
     );
+
   }
+
+
 }

@@ -1,37 +1,34 @@
-import 'package:flutter/material.dart';
+/*
+
+*/
+
+import 'package:flutter/material.dart' hide Notification;
+import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
+import 'package:pc_apps/ministry/Backend/notification.dart' as backend;
+import 'package:pc_apps/ministry/Backend/global_var.dart';
+import 'global_ui.dart';
 
 class NotificationSendingScreen extends StatefulWidget {
-  const NotificationSendingScreen({super.key});
-
+  late final MinistryEmployee employee;
+  NotificationSendingScreen({super.key, required this.employee});
   @override
   State<NotificationSendingScreen> createState() =>
-      _NotificationSendingScreenState();
+      _NotificationSendingScreenState(employee: employee);
 }
 
 class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
+
+  late final MinistryEmployee employee;
   String? _selectedRecipient;
-  String? _selectedState;
-  String? _selectedLocality;
+  late String _selectedState = this.employee.getState();
+  late String _selectedLocality = this.employee.getLocality();
   final TextEditingController _hospitalNameController = TextEditingController();
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   bool _isUrgent = false;
   bool _isPeriodic = false;
 
-  final List<String> _recipients = [
-    'المستشفيات',
-    'المواطنين',
-  ]; // Hospitals, Citizens
-  final List<String> _states = [
-    'الجزيرة',
-    'الخرطوم',
-    'البحر الأحمر',
-  ]; // Example states
-  final List<String> _localities = [
-    'الكاملين',
-    'ود مدني',
-    'ام درمان',
-  ]; // Example localities
+  _NotificationSendingScreenState({required this.employee});
 
   @override
   void dispose() {
@@ -59,8 +56,15 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
         title: const Directionality(
           textDirection: TextDirection.rtl, // Right-to-left for Arabic title
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(width: 16),
+              Icon(
+                Icons.send,
+                color: Colors.blue,
+                size: 28,
+              ), // Send icon (or similar)
+              SizedBox(width: 12),
               Text(
                 'ارسال الاشعارات', // Send Notifications (Arabic)
                 style: TextStyle(
@@ -69,105 +73,111 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   fontSize: 20,
                 ),
               ),
-              SizedBox(width: 8),
-              Icon(
-                Icons.send,
-                color: Colors.blue,
-                size: 28,
-              ), // Send icon (or similar)
             ],
           ),
         ),
         titleSpacing: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.end, // Align labels to the right
-          children: [
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Divider(thickness: 1),
+              const SizedBox(height: 16),
 
-            // To (Recipient) dropdown
-            _buildLabel('الى'), // To (Arabic)
-            _buildDropdownField(
-              hint: 'المستشفيات', // Hospitals (default hint)
-              value: _selectedRecipient,
-              items: _recipients,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedRecipient = newValue;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Conditional fields based on recipient type
-            if (_selectedRecipient == 'المواطنين') ...[
-              // State dropdown for Citizens
-              _buildLabel('الولاية...'), // State... (Arabic)
+              // Send this notification to who?
+              buildLabel('الى'),
               _buildDropdownField(
-                hint: 'الولاية...', // State...
-                value: _selectedState,
-                items: _states,
+                hint: 'إرسال إشعار إلى ..',
+                value: _selectedRecipient,
+                items: ['المواطنين', 'المستشفيات', 'مدير مستشفى'],
                 onChanged: (String? newValue) {
                   setState(() {
-                    _selectedState = newValue;
+                    _selectedRecipient = newValue;
                   });
                 },
               ),
               const SizedBox(height: 16),
-              // Locality dropdown for Citizens
-              _buildLabel('المحلية...'), // Locality... (Arabic)
-              _buildDropdownField(
-                hint: 'المحلية...', // Locality...
-                value: _selectedLocality,
-                items: _localities,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedLocality = newValue;
-                  });
-                },
-              ),
+
+              Row(
+                children: [
+                  Expanded(child: Column(
+                    children: [
+                      // State dropdown for Citizens
+                      buildLabel('الولاية'), // State... (Arabic)
+                      _buildDropdownField(
+                        hint: 'اختر الولاية', // State...
+                        value: _selectedState,
+                        items: this.employee.getState() == "الكل" ? g_states : [this.employee.getState()],
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedState = newValue!;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 16),
+
+                      buildLabel('المحلية'), // Locality... (Arabic)
+                      _buildDropdownField(
+                        hint: 'اختار المحلية', // Locality...
+                        value: _selectedLocality,
+                        items: this.employee.getLocality() == "الكل" ?
+                                  g_localities[_selectedState]! :
+                                              [this.employee.getLocality()],
+
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedLocality = newValue!;
+                          });
+                        },
+                      ),
+                    ],
+                  )),
+
+                ]),
+
               const SizedBox(height: 16),
-            ] else if (_selectedRecipient == 'المستشفيات' ||
-                _selectedRecipient == null) ...[
-              // Hospital Name input for Hospitals (or initially when no recipient selected)
-              _buildLabel('المستشفى'), // Hospital (Arabic)
+
+
+              // Conditional fields based on recipient type
+              if (_selectedRecipient == 'مدير مستشفى') ...[
+                // Hospital Name input for Hospitals (or initially when no recipient selected)
+                buildLabel('المستشفى'), // Hospital (Arabic)
+                _buildTextField(
+                  controller: _hospitalNameController,
+                  hintText: 'اكتب اسم المستشفى...', // Type hospital name...
+                ),
+
+                const SizedBox(height: 16),
+
+              ],
+
+              // Subject
+              buildLabel('موضوع الرسالة'), // Subject (Arabic)
               _buildTextField(
-                controller: _hospitalNameController,
-                hintText: 'اكتب اسم المستشفى...', // Type hospital name...
+                controller: _subjectController,
+                hintText: 'موضوع الرسالة...', // Message subject...
               ),
               const SizedBox(height: 16),
-            ],
 
-            // Subject
-            _buildLabel('الموضوع'), // Subject (Arabic)
-            _buildTextField(
-              controller: _subjectController,
-              hintText: 'موضوع الرسالة...', // Message subject...
-            ),
-            const SizedBox(height: 16),
+              // Message Body
+              buildLabel('نص الرسالة'), // Text (Arabic)
+              _buildTextField(
+                controller: _messageController,
+                hintText: 'نص الرسالة...', // Message text...
+                maxLines: 5,
+              ),
+              const SizedBox(height: 16),
 
-            // Message Body
-            _buildLabel('النص'), // Text (Arabic)
-            _buildTextField(
-              controller: _messageController,
-              hintText: 'نص الرسالة...', // Message text...
-              maxLines: 5,
-            ),
-            const SizedBox(height: 16),
-
-            // Message Type (Urgent/Periodic)
-            _buildLabel('نوع الرسالة'), // Message Type (Arabic)
-            Directionality(
-              textDirection: TextDirection.rtl,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              // Message Type (Urgent/Periodic)
+              buildLabel('نوع الرسالة'), // Message Type (Arabic)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    'اشعار دوري',
+                    'اشعار',
                     style: TextStyle(color: Colors.black87),
                   ), // Periodic Notification
                   Checkbox(
@@ -197,72 +207,74 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 32),
+              const SizedBox(height: 32),
 
-            // Send Message Button
-            SizedBox(
-              width: double.infinity, // Full width button
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle sending message
-                  print('Send Message Tapped!');
-                  print('Recipient: $_selectedRecipient');
-                  print('State: $_selectedState');
-                  print('Locality: $_selectedLocality');
-                  print('Hospital Name: ${_hospitalNameController.text}');
-                  print('Subject: ${_subjectController.text}');
-                  print('Message: ${_messageController.text}');
-                  print('Is Urgent: $_isUrgent');
-                  print('Is Periodic: $_isPeriodic');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.blueAccent.shade400, // Button background color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      12.0,
-                    ), // Rounded corners
+              // Send Message Button
+              SizedBox(
+                width: double.infinity, // Full width button
+                child: ElevatedButton(
+                  onPressed: () {
+                    if ((!_isUrgent&&!_isPeriodic) || _selectedState == null || _selectedLocality == null || _subjectController.text.isEmpty || _messageController.text.isEmpty ) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("يرجى تعبئة جميع الحقول المطلوبة")),
+                      );
+                      return;
+                    }
+
+                    backend.Notification newNotification = backend.Notification(
+                       receiverState:  _selectedState,
+                       receiverLocality:  _selectedLocality,
+                        sender:  employee.asSender(),
+                        title: _subjectController.text,
+                        massage: _messageController.text,
+                        isImportant:  _isUrgent,
+                        creationTime:  DateTime.now()
+                    );
+
+// TODO: Send newNotification to database (depending on: _selectedRecipient, _selectedState!, _selectedLocality!,)
+
+                    print('Send Message Tapped!');
+                    print('Recipient: $_selectedRecipient');
+                    print('State: $_selectedState');
+                    print('Locality: $_selectedLocality');
+                    print('Hospital Name: ${_hospitalNameController.text}');
+                    print('Subject: ${_subjectController.text}');
+                    print('Message: ${_messageController.text}');
+                    print('Is Urgent: $_isUrgent');
+                    print('Is Periodic: $_isPeriodic');
+                    Navigator.pop(context);
+                  },
+
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Colors.blueAccent.shade400, // Button background color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        12.0,
+                      ), // Rounded corners
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                ),
-                child: const Text(
-                  'ارسال الرسالة', // Send Message (Arabic)
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  child: const Text(
+                    'ارسال الرسالة', // Send Message (Arabic)
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
+
   Widget _buildDropdownField({
     required String hint,
     required String? value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
+    bool? isExpanded
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -274,7 +286,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
         textDirection: TextDirection.rtl,
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
-            isExpanded: true,
+            isExpanded: isExpanded == false ? false : true,
             hint: Text(hint, style: const TextStyle(color: Colors.grey)),
             value: value,
             icon: const Icon(Icons.arrow_drop_down, color: Colors.black54),
@@ -282,7 +294,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
             items: items.map<DropdownMenuItem<String>>((String item) {
               return DropdownMenuItem<String>(
                 value: item,
-                child: Text(item, textDirection: TextDirection.rtl),
+                child: Text(item),
               );
             }).toList(),
           ),
@@ -296,25 +308,22 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     required String hintText,
     int maxLines = 1,
   }) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        textAlign: TextAlign.right, // Align text to the right
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey),
-          filled: true,
-          fillColor: Colors.grey[200],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 20.0,
-          ),
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      textAlign: TextAlign.right, // Align text to the right
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: Colors.grey[200],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16.0,
+          horizontal: 20.0,
         ),
       ),
     );

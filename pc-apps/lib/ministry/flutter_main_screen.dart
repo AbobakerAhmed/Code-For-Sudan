@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:pc_apps/ministry/Backend/ministry_employee.dart'; // MinistryEmployee
 import 'package:pc_apps/ministry/flutter_notification_screen.dart';
 import 'package:pc_apps/ministry/flutter_profile_screen.dart';
 import 'package:pc_apps/ministry/flutter_settings_screen.dart';
@@ -7,224 +7,196 @@ import 'package:pc_apps/ministry/flutter_notification_sending_screen.dart';
 import 'package:pc_apps/ministry/flutter_reporting_screen.dart';
 import 'package:pc_apps/ministry/flutter_adding_hospitals_screen.dart';
 
-// DashboardScreen is a StatelessWidget as it doesn't manage mutable state.
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+// HomePage is a StatelessWidget as it doesn't manage mutable state.
+class HomePage extends StatelessWidget {
+  final MinistryEmployee employee;
+  const HomePage({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // White background for the dashboard
-      appBar: AppBar(
-        backgroundColor: Colors.white, // White app bar background
-        elevation: 0, // No shadow under the app bar
-        actions: [
-          // Settings icon button
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {
-              print('Settings tapped');
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsScreen()),
-              ); // Navigate to SettingsScreen
-            },
-          ),
-          // Profile icon button
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.black),
-            onPressed: () {
-              print('Profile tapped');
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              ); // Navigate to ProfileScreen
-            },
-          ),
-          const SizedBox(width: 16), // Horizontal space
-        ],
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white, // White background for the dashboard
+        appBar: AppBar(
+          backgroundColor: Colors.lightBlue,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          title: Text("الصفحة الرئيسية"),
+
+          elevation: 0, // No shadow under the app bar
+          actions: [
+            // Settings icon button
+            IconButton(
+              icon: const Icon(Icons.settings, size: 30),
+              onPressed: () {
+                print('Settings tapped');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsScreen()),
+                ); // Navigate to SettingsScreen
+              },
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Placeholder for the logo in the app bar.
-                const Icon(
-                  Icons.medical_services,
-                  size: 24,
-                  color: Colors.green,
-                ),
-                const Text(
-                  'جمهورية السودان',
-                  style: TextStyle(fontSize: 8, color: Colors.black87),
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.rtl,
-                ),
-                const Text(
-                  'وزارة الصحة الاتحادية',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.rtl,
-                ),
-              ],
+            // Profile icon button
+            IconButton(
+              icon: const Icon(Icons.person, size: 30),
+              onPressed: () {
+                print('Profile tapped');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen(employee:this.employee)),
+                ); // Navigate to ProfileScreen
+              },
             ),
-          ),
+            const SizedBox(width: 16), // Horizontal space
+          ],
+// put the logo here
+//          leading:
+//          leadingWidth: 150, // Adjust this based on logo size and text
         ),
-        leadingWidth: 150, // Adjust this based on logo size and text
-      ),
-      body: Column(
-        // Wrapped the body content in a Column
-        children: [
-          Expanded(
-            // Made the Padding (and thus the GridView) take up remaining space
-            child: Padding(
-              // Reduced padding to make the grid more compact and less likely to scroll
-              padding: const EdgeInsets.all(16.0),
-              child: GridView.count(
-                crossAxisCount: 2, // Two columns in the grid
-                // Reduced spacing between cards for a more compact layout
-                crossAxisSpacing: 16.0, // Horizontal spacing between cards
-                mainAxisSpacing: 16.0, // Vertical spacing between cards
-                // The GridView itself will automatically become scrollable if its content
-                // exceeds the available screen height. This layout is optimized to fit
-                // on most standard mobile screens without needing to scroll.
-                childAspectRatio:
-                    2.3, // Add this line (higher = wider, lower = taller; try 1.2 or 1.0)
-                children: <Widget>[
-                  // Dashboard Card for 'Reports'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.description,
-                    text: 'التقارير', // Reports (Arabic)
-                    onTap: () {
-                      print('Reports tapped');
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReportingScreen(),
-                        ),
-                      ); // Navigate to ReportingScreen
-                    },
-                  ),
-                  // Dashboard Card for 'Add Hospital'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.add_circle,
-                    text: 'اضافة مستشفى', // Add Hospital (Arabic)
-                    onTap: () {
-                      print('Add Hospital tapped');
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddingHospitalsScreen(),
-                        ),
-                      ); // Navigate to AddingHospitalScreen
-                    },
-                  ),
-                  // Dashboard Card for 'Notifications'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.notifications_active,
-                    text: 'الاشعارات', // Notifications (Arabic)
-                    onTap: () {
-                      print('Notifications tapped');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NotificationsScreen(),
-                        ),
-                      ); // Navigate to NotificationScreen
-                    },
-                  ),
-                  // Dashboard Card for 'Send Notifications'
-                  _buildDashboardCard(
-                    context,
-                    icon: Icons.send,
-                    text: 'ارسال الاشعارات', // Send Notifications (Arabic)
-                    onTap: () {
-                      print('Send Notifications tapped');
-
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NotificationSendingScreen(),
-                        ),
-                      ); // Navigate to notification sending screen
-                    },
+        body: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            // Wrapped the body content in a Column
+            children: [
+              Expanded(flex:2, child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text("مرحب والله ${employee.getFirstName()}", style: TextStyle(color: Colors.blueGrey, fontSize: 28, fontWeight: FontWeight.bold),),
+                  Image.asset(
+                    'assets/health_ministry_loge.jpg',
+                    alignment: Alignment.center,
+                    height: 200,
+                    width: 200,
                   ),
                 ],
+              )),
+              Expanded(
+                flex: 2,
+                child: Row(
+                      children: [
+                        Expanded(child: Text("")),
+
+                        // Dashboard Card for 'Add Hospital'
+                        _buildCard(
+                          context,
+                          icon: Icons.add_circle,
+                          text: 'اضافة مستشفى', // Add Hospital (Arabic)
+                          onTap: () {
+                            print('Add Hospital tapped');
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddingHospitalsScreen(employee: employee,),
+                              ),
+                            ); // Navigate to AddingHospitalScreen
+                          },
+                        ),
+                        // Dashboard Card for 'Reports'
+                        _buildCard(
+                          context,
+                          icon: Icons.description,
+                          text: 'التقارير', // Reports (Arabic)
+                          onTap: () {
+                            print('Reports tapped');
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReportingScreen(employee: employee),
+                              ),
+                            ); // Navigate to ReportingScreen
+                          },
+                        ),
+                        Expanded(flex:2, child: Text("")),
+
+                      ],
+                    ),
               ),
-            ),
+              Expanded(
+                flex: 2,
+                child: Row(
+                  children: [
+                    Expanded(child: Text("")),
+
+                    // Dashboard Card for 'Send Notifications'
+                    _buildCard(
+                      context,
+                      icon: Icons.send,
+                      text: 'ارسال الاشعارات', // Send Notifications (Arabic)
+                      onTap: () {
+                        print('Send Notifications tapped');
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationSendingScreen(employee: this.employee),
+                          ),
+                        ); // Navigate to notification sending screen
+                      },
+                    ),
+                    // Dashboard Card for 'Notifications'
+                    _buildCard(
+                      context,
+                      icon: Icons.notifications_active,
+                      text: 'الاشعارات', // Notifications (Arabic)
+                      onTap: () {
+                        print('Notifications tapped');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationsScreen(employee: this.employee),
+                          ),
+                        ); // Navigate to NotificationScreen
+                      },
+                    ),
+                    Expanded(flex:2, child: Text("")),
+                  ],
+                ),
+              ),
+              Expanded(child: Text("")),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   // Helper method to build a dashboard card.
-  Widget _buildDashboardCard(
+  Widget _buildCard(
     BuildContext context, {
     required IconData icon,
     required String text,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap, // Handles tap events on the card
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center, // Centers content within the card
-          children: [
-            Icon(
-              icon, // Icon for the card
-              size: 60,
-              color: Colors.blue, // Example color for icons
-            ),
-            const SizedBox(height: 16), // Vertical space
-            Text(
-              text, // Text for the card
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+    return Expanded(
+      flex: 5,
+      child: GestureDetector(
+        onTap: onTap, // Handles tap events on the card
+        child: Card(
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Centers content within the card
+            children: [
+              Icon(
+                icon, // Icon for the card
+                size: 60,
+                color: Colors.lightBlue, // Example color for icons
               ),
-              textAlign: TextAlign.center,
-              textDirection:
-                  TextDirection.rtl, // Right-to-left text direction for Arabic
-            ),
-          ],
+              const SizedBox(height: 16), // Vertical space
+              Text(
+                text, // Text for the card
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
