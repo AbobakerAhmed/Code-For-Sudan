@@ -4,8 +4,16 @@ import 'package:pc_apps/ministry/flutter_login_screen.dart'; // Ensure this file
 // Import the DashboardScreen from its dedicated file
 // Note: flutter_main_screen.dart now internally imports flutter_notification_screen.dart
 
+/* all you need to deal with database here */
+import 'package:firedart/firedart.dart'; // database package
+
+const apiKey = 'AIzaSyDQG58nyruo1dhLWcoDz2vpM3wQHjRMu5c'; // api key
+const projectId = 'health-sudan-app'; // project id
+
 // The main function that starts the Flutter application.
 void main() {
+  Firestore.initialize(projectId);
+
   runApp(const MyApp());
 }
 
@@ -25,7 +33,6 @@ class MyApp extends StatelessWidget {
       home:
           LoginScreen(), // Sets the initial screen of the app to LoginScreen (remove const if LoginScreen is not a const constructor)
       debugShowCheckedModeBanner: false,
-
     );
   }
 }
