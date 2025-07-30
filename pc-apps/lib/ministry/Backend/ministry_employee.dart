@@ -11,7 +11,6 @@ Also contains these functions:
   - toJson, fromJson those used to database connection
 */
 
-
 import 'package:flutter/material.dart';
 import 'package:pc_apps/ministry/Backend/report.dart';
 import 'person.dart'; // name, phoneNumber,and password
@@ -30,9 +29,9 @@ class MinistryEmployee extends Person {
   String getState() => this._state;
   String getLocality() => this._locality;
 
-  String asSender(){
+  String asSender() {
     String result = "${super.getName()}، مشرف وزارة الصحة";
-    if(_locality ==  "الكل") {
+    if (_locality == "الكل") {
       result += " العام";
       if (_state == "الكل") {
         return result;
@@ -41,16 +40,19 @@ class MinistryEmployee extends Person {
     }
 
     result += " بولاية ${_state}، بمحلية ${_locality}";
-  return result;
+    return result;
   }
 
+//  void addDeprtment(String name, List<String> doctors) {} // addDepartment
+//  void removeDepartment(String department){}
 
   // For Database Services
   // this function for database link to obtain epidemic reports depending on selected state, locality and hospital
-  EpidemicReport fetchEpidemicReport(String state, String locality, String hospital, DateTimeRange dateRange){
-
+  EpidemicReport fetchEpidemicReport(
+      String state, String locality, String hospital, DateTimeRange dateRange) {
     // link database here and assign the obtained value to the next list
-    List<EpidemicReport> fetchedReports = testingEpidemicReports; // replace it with the list coming form Database
+    List<EpidemicReport> fetchedReports =
+        testingEpidemicReports; // replace it with the list coming form Database
     // get the list of EpidemicReport report here
 
     if (fetchedReports.isEmpty) {
@@ -63,29 +65,42 @@ class MinistryEmployee extends Person {
 
     // Calculate Report Values
     for (final EpidemicReport report in fetchedReports) {
-
       for (final EpidemicRecord record in report.getData()) {
-
         final String epidemicName = record.getEpidemic();
 
         // If an entry for this epidemic already exists, sum the attributes
         if (mergedRecordsMap.containsKey(epidemicName)) {
-          final EpidemicRecord existingRecord = mergedRecordsMap[epidemicName]!; // obtain values of the existingRecord
+          final EpidemicRecord existingRecord =
+              mergedRecordsMap[epidemicName]!; // obtain values of the existingRecord
 
-          final int newCurrentPatientsMalesUnder5 = existingRecord.getCurrentPatientsMaleUnder5() + record.getCurrentPatientsMaleUnder5();
-          final int newCurrentPatientsFemalesUnder5 = existingRecord.getCurrentPatientsFemaleUnder5() + record.getCurrentPatientsFemaleUnder5();
-          final int newCurrentPatientsMalesAbove5 = existingRecord.getCurrentPatientsMaleAbove5() + record.getCurrentPatientsMaleAbove5();
-          final int newCurrentPatientsFemalesAbove5 = existingRecord.getCurrentPatientsFemaleAbove5() + record.getCurrentPatientsFemaleAbove5();
+          final int newCurrentPatientsMalesUnder5 =
+              existingRecord.getCurrentPatientsMaleUnder5() + record.getCurrentPatientsMaleUnder5();
+          final int newCurrentPatientsFemalesUnder5 =
+              existingRecord.getCurrentPatientsFemaleUnder5() +
+                  record.getCurrentPatientsFemaleUnder5();
+          final int newCurrentPatientsMalesAbove5 =
+              existingRecord.getCurrentPatientsMaleAbove5() + record.getCurrentPatientsMaleAbove5();
+          final int newCurrentPatientsFemalesAbove5 =
+              existingRecord.getCurrentPatientsFemaleAbove5() +
+                  record.getCurrentPatientsFemaleAbove5();
 
-          final int newNewCasesMalesUnder5 = existingRecord.getNewCasesMalesUnder5() + record.getNewCasesMalesUnder5();
-          final int newNewCasesFemalesUnder5 = existingRecord.getNewCasesFemalesUnder5() + record.getNewCasesFemalesUnder5();
-          final int newNewCasesMalesAbove5 = existingRecord.getNewCasesMalesAbove5() + record.getNewCasesMalesAbove5();
-          final int newNewCasesFemalesAbove5 = existingRecord.getNewCasesFemalesAbove5() + record.getNewCasesFemalesAbove5();
+          final int newNewCasesMalesUnder5 =
+              existingRecord.getNewCasesMalesUnder5() + record.getNewCasesMalesUnder5();
+          final int newNewCasesFemalesUnder5 =
+              existingRecord.getNewCasesFemalesUnder5() + record.getNewCasesFemalesUnder5();
+          final int newNewCasesMalesAbove5 =
+              existingRecord.getNewCasesMalesAbove5() + record.getNewCasesMalesAbove5();
+          final int newNewCasesFemalesAbove5 =
+              existingRecord.getNewCasesFemalesAbove5() + record.getNewCasesFemalesAbove5();
 
-          final int newDeathCasesMalesUnder5 = existingRecord.getDeathCasesMalesUnder5() + record.getDeathCasesMalesUnder5();
-          final int newDeathCasesFemalesUnder5 = existingRecord.getDeathCasesFemalesUnder5() + record.getDeathCasesFemalesUnder5();
-          final int newDeathCasesMalesAbove5 = existingRecord.getDeathCasesMalesAbove5() + record.getDeathCasesMalesAbove5();
-          final int newDeathCasesFemalesAbove5 = existingRecord.getDeathCasesFemalesAbove5() + record.getDeathCasesFemalesAbove5();
+          final int newDeathCasesMalesUnder5 =
+              existingRecord.getDeathCasesMalesUnder5() + record.getDeathCasesMalesUnder5();
+          final int newDeathCasesFemalesUnder5 =
+              existingRecord.getDeathCasesFemalesUnder5() + record.getDeathCasesFemalesUnder5();
+          final int newDeathCasesMalesAbove5 =
+              existingRecord.getDeathCasesMalesAbove5() + record.getDeathCasesMalesAbove5();
+          final int newDeathCasesFemalesAbove5 =
+              existingRecord.getDeathCasesFemalesAbove5() + record.getDeathCasesFemalesAbove5();
 
           // Create a new EpidemicRecord with summed values (Dart objects are immutable by default for final fields)
           mergedRecordsMap[epidemicName] = EpidemicRecord(
@@ -106,8 +121,7 @@ class MinistryEmployee extends Person {
             newDeathCasesMalesAbove5,
             newDeathCasesFemalesAbove5,
           );
-        }
-        else {
+        } else {
           // If this epidemic is new, add it directly to the map
           mergedRecordsMap[epidemicName] = record;
         }
@@ -126,10 +140,12 @@ class MinistryEmployee extends Person {
       mergedData,
     );
   } // mergeEpidemicReports
-  ClinicalReport fetchClinicalReport(String state, String locality, String hospital, DateTimeRange dateRange){
 
+  ClinicalReport fetchClinicalReport(
+      String state, String locality, String hospital, DateTimeRange dateRange) {
     // link database here and assign the obtained value to the next list
-    List<ClinicalReport> fetchedReports = testingClinicalReports; // replace it with the list coming form Database
+    List<ClinicalReport> fetchedReports =
+        testingClinicalReports; // replace it with the list coming form Database
     // get the list of EpidemicReport report here
 
     if (fetchedReports.isEmpty) {
@@ -148,10 +164,13 @@ class MinistryEmployee extends Person {
           final ClinicalRecord existingRecord = mergedRecordsMap[departmentName]!;
           final int newOutpatients = existingRecord.getOutPatients() + record.getOutPatients();
           final int newAdmissions = existingRecord.getAdmissions() + record.getAdmissions();
-          final int newInpatientCount = existingRecord.getInpatientCount() + record.getInpatientCount();
+          final int newInpatientCount =
+              existingRecord.getInpatientCount() + record.getInpatientCount();
           final int newDischarges = existingRecord.getDischarges() + record.getDischarges();
-          final int newSuccessfulSurgeries = existingRecord.getSuccessfulSurgeries() + record.getSuccessfulSurgeries();
-          final int newFailedSurgeries = existingRecord.getFailedSurgeries() + record.getFailedSurgeries();
+          final int newSuccessfulSurgeries =
+              existingRecord.getSuccessfulSurgeries() + record.getSuccessfulSurgeries();
+          final int newFailedSurgeries =
+              existingRecord.getFailedSurgeries() + record.getFailedSurgeries();
           final int newDeaths = existingRecord.getDeaths() + record.getDeaths();
 
           // Create a new ClinicalRecord with summed values (Dart objects are immutable by default for final fields)
@@ -184,7 +203,6 @@ class MinistryEmployee extends Person {
       DateTime.now(),
       mergedData,
     );
-
   } // mergeClinicalReports
 // StaffReport fetchStaffReport(String state, String locality, String hospital, DateTimeRange dateRange){}
 

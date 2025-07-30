@@ -90,7 +90,7 @@ List<Notification> testingNotifications = [
     receiverState: "الخرطوم",
     receiverLocality: "بحري",
     sender: "مستشفى بحري التعليمي",
-    title: "تنبيه صحي",
+    title: "تقرير دوري",
     massage: "تم إرفاق التقرير اليومي",
     isImportant: false,
     creationTime: DateTime.now().subtract(Duration(hours: 1)),
@@ -105,11 +105,10 @@ List<Notification> testingNotifications = [
     isImportant: true,
     creationTime: DateTime.now().subtract(Duration(hours: 2)),
   ),
-
   Notification(
-    receiverState: "الجزيرة",
-    receiverLocality: "ود مدني",
-    sender: "مستشفى ود مدني العام",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى أمدرمان",
     title: "تشخيص وبائي",
     massage: "تم تشخيص حاله بوباء ${epidemics[0]}",
     isImportant: false,
@@ -117,9 +116,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "شمال كردفان",
-    receiverLocality: "الأبيض",
-    sender: "مستشفى الأبيض المرجعي",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى أمدرمان العسكري",
     title: "تشخيص وبائي",
     massage: "تم تشخيص حاله بوباء ${epidemics[4]}",
     isImportant: false,
@@ -128,8 +127,8 @@ List<Notification> testingNotifications = [
 
   Notification(
     receiverState: "الخرطوم",
-    receiverLocality: "جبل أولياء",
-    sender: "مستشفى جبل أولياء",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى أمدرمان التعليمي",
     title: "تنبيه إداري",
     massage: "تم إرفاق التقرير اليومي",
     isImportant: false,
@@ -137,9 +136,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "كسلا",
-    receiverLocality: "كسلا",
-    sender: "مستشفى كسلا التعليمي",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى أمدرمان",
     title: "بلاغ وبائي",
     massage: "!تم تشخيص محلية أمدرمان بوباء الكوليرا",
     isImportant: true,
@@ -147,9 +146,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "النيل الأزرق",
-    receiverLocality: "الدمازين",
-    sender: "مستشفى الدمازين",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى الأمهات",
     title: "تشخيص وبائي",
     massage: "تم تشخيص حاله بوباء ${epidemics[10]}",
     isImportant: false,
@@ -157,9 +156,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "سنار",
-    receiverLocality: "سنار",
-    sender: "مستشفى سنار",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى البان جديد",
     title: "تنبيه صحي",
     massage: "تم إرفاق التقرير اليومي",
     isImportant: false,
@@ -167,9 +166,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "غرب دارفور",
-    receiverLocality: "الجنينة",
-    sender: "مستشفى الجنينة",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى أمدرمان للأطفال",
     title: "بلاغ وبائي",
     massage: "!تم تشخيص محلية أمدرمان بوباء الكوليرا",
     isImportant: true,
@@ -177,9 +176,9 @@ List<Notification> testingNotifications = [
   ),
 
   Notification(
-    receiverState: "البحر الأحمر",
-    receiverLocality: "بورتسودان",
-    sender: "مستشفى بورتسودان",
+    receiverState: "الخرطوم",
+    receiverLocality: "أمدرمان",
+    sender: "مستشفى السلاح الطبي",
     title: "تشخيص وبائي",
     massage: "تم تشخيص حاله بوباء ${epidemics[7]}",
     isImportant: false,

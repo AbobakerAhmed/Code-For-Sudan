@@ -35,11 +35,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Function to handle the login logic.
-  void _performLogin(MinistryEmployee employee) {
+  void _performLogin() {
     // In a real application, you would perform authentication here (e.g., API call).
     // For this example, we simply navigate to the DashboardScreen.
 
+    // Load Ministry Employee object here
+    MinistryEmployee employee = MinistryEmployee(
+        "محمد أحمد خالد",
+        "0123456789",
+        "123123",
+        'الكل',
+        "أمدرمان"
 
+    );
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => HomePage(employee: employee)),
@@ -167,16 +175,8 @@ Row(
       ElevatedButton(
 
         onPressed: () {
-          // Load Ministry Employee object here
-          MinistryEmployee employee = MinistryEmployee(
-              "محمد أحمد خالد",
-              "0123456789",
-              "123123",
-              'الكل',
-              "أمدرمان"
 
-          );
-          _performLogin(employee);
+          _performLogin();
         }, // Calls _performLogin when pressed
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue, // Button background color

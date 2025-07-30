@@ -1,5 +1,5 @@
 class Notification {
-  bool isRed = false;
+  bool isRed;
   late final String _reseiverState;
   late final String _reseiverLocality;
   late final String _sender;
@@ -16,7 +16,7 @@ class Notification {
     required String massage,
     required isImportant,
     required creationTime,
-    isRed
+    this.isRed = false
   }){
     this._reseiverState = receiverState;
     this._reseiverLocality = receiverLocality;

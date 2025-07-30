@@ -23,25 +23,46 @@ Issues:
 
 class ReportingScreen extends StatefulWidget {
   final MinistryEmployee employee;
-  const ReportingScreen({super.key, required this.employee});
+  const ReportingScreen({super.key, required this.employee, String? reportType, String? state,  String? locality, String? hospital, DateTimeRange? selectedDateRange});
 
   @override
   State<ReportingScreen> createState() => _ReportingScreenState(employee: employee);
 }
 
 class _ReportingScreenState extends State<ReportingScreen> {
+
   late final MinistryEmployee employee;
   String? _selectedReportType;
-  late String _selectedState = this.employee.getState();
-  late String _selectedLocality= this.employee.getLocality();
-  String _selectedHospital = 'الكل';
-  DateTime? _selectedDate;
-  DateTimeRange _dateTimeRange = DateTimeRange(start: DateTime(DateTime.now().year), end: DateTime.now());
+  late String _selectedState;
+  late String _selectedLocality;
+  late String _selectedHospital;
+  late DateTimeRange _dateTimeRange;
 
-  _ReportingScreenState({required this.employee});
+  _ReportingScreenState({
+    required this.employee,
+    String? reportType,
+    String? state,
+    String? locality,
+    String? hospital,
+    DateTimeRange? selectedDateRange
+  }){
+
+    _selectedReportType = reportType;
+    _selectedHospital  = hospital ?? 'الكل';
+    _selectedState = state ?? this.employee.getState();
+    _selectedLocality = locality ?? this.employee.getLocality();
+    _dateTimeRange = selectedDateRange ?? DateTimeRange(start: DateTime(DateTime.now().year), end: DateTime.now());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Add any additional initialization that requires context here
+  }
 
   @override
   Widget build(BuildContext context) {
+    initState();
     return  Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

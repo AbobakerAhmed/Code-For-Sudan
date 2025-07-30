@@ -1,7 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart' hide Notification;
 import 'package:pc_apps/ministry/Backend/global_var.dart';
 import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
 import 'package:pc_apps/ministry/Backend/notification.dart';
+import 'package:pc_apps/ministry/flutter_reporting_screen.dart';
 import 'global_ui.dart';
 import 'Backend/testing_data.dart';
 
@@ -34,7 +37,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   late String _selectedState = this.employee.getState();
   late String _selectedLocality= this.employee.getLocality();
   String _selectedHospital = 'الكل';
-
   DateTimeRange? _selectedDate;
 
   @override
@@ -95,12 +97,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   }
                 ), // Sort
 
-        buildDateRangeSelector( // in global_ui.dart
-          context: context,
-          selectedRange: _selectedDate,
-          onRangeSelected: (_selectedDate) {
-            print("");
-          },),
+                buildDateRangeSelector( // in global_ui.dart
+                  context: context,
+                  selectedRange: _selectedDate,
+                  onRangeSelected: (_selectedDate) {
+                    print("");
+                  },),
 
 
                 // Hospital
@@ -163,8 +165,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         setState(() {
           notification.isRed = true;
         });
-        // should take the user to the reporting page with the specific state, locality, and hospital
+
+/*
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReportingScreen(
+                employee: this.employee,
+                state: notification.getReseveirState(),
+                locality: notification.getReseveirLocality(),
+                hospital: notification.getSender(),
+                reportType: notification.isImportant ? "تقارير الأوبئة" : "التقارير الدورية",
+                selectedDateRange: DateTimeRange(start: notification.getCreationTime(), end: notification.getCreationTime())
+            ),
+          ),
+        ); // Navigate to NotificationScreen        // should take the user to the reporting page with the specific state, locality, and hospital
+*/
       },
+
       child: Container(
         color: notification.isImportant ? Colors.red : Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -183,7 +201,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      notification.getSender(),
+                      "${notification.getSender()} - ${notification.getTitle()}",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -193,6 +211,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                   ],
                 ),
+                SizedBox(width: 10),
+
                 Text(
                   "${notification
                       .getCreationTime()
@@ -231,7 +251,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      notification.getTitle(),
+                      notification.getMassage(),
                       style: TextStyle(
                         fontSize: 16,
                         color: notification.isImportant ? Colors.white : Colors

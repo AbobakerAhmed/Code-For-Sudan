@@ -82,7 +82,7 @@ class HomePage extends StatelessWidget {
               Expanded(flex:2, child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text("مرحب والله ${employee.getFirstName()}", style: TextStyle(color: Colors.blueGrey, fontSize: 28, fontWeight: FontWeight.bold),),
+                  Text(""),
                   Image.asset(
                     'assets/health_ministry_loge.jpg',
                     alignment: Alignment.center,
