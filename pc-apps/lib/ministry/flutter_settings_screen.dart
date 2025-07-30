@@ -1,10 +1,10 @@
-// import 'package:firedart/firedart.dart'; /*(use only this package to connect with database)!*/
 import 'package:flutter/material.dart';
+// import 'package:firedart/firedart.dart'; /*(use only this package to connect with database)!*/
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
-  /// example for connecting with database
+  /// example test for connecting with database
   /*
   CollectionReference advices = Firestore.instance.collection(
     "medical_advices",
