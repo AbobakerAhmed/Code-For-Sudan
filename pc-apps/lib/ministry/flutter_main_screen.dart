@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:pc_apps/ministry/Backend/ministry_employee.dart'; // MinistryEmployee
+import 'package:pc_apps/ministry/flutter_login_screen.dart';
 import 'package:pc_apps/ministry/flutter_notification_screen.dart';
 import 'package:pc_apps/ministry/flutter_profile_screen.dart';
 import 'package:pc_apps/ministry/flutter_settings_screen.dart';
 import 'package:pc_apps/ministry/flutter_notification_sending_screen.dart';
 import 'package:pc_apps/ministry/flutter_reporting_screen.dart';
 import 'package:pc_apps/ministry/flutter_adding_hospitals_screen.dart';
+
+/**
+    Issues:
+    1- the truth way is not passing the ministry employee in each page, but it is work ;)
+    2- when going to notifications, waiting screen while downloading notifications
+    3- edit the header (setting is not work and logout icon)
+ */
+
 
 // HomePage is a StatelessWidget as it doesn't manage mutable state.
 class HomePage extends StatelessWidget {
@@ -26,6 +35,16 @@ class HomePage extends StatelessWidget {
 
           elevation: 0, // No shadow under the app bar
           actions: [
+            // logout button
+            IconButton(
+              icon: const Icon(Icons.logout, size: 30),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                ); // Navigate to SettingsScreen
+              },
+            ),
             // Settings icon button
             IconButton(
               icon: const Icon(Icons.settings, size: 30),

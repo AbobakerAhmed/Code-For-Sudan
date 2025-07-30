@@ -6,8 +6,19 @@ import 'package:pc_apps/ministry/Backend/global_var.dart';
 
 /*
 Issues:
-  1- Selected Date Dialog shoule be modified to chose a range of dates too, and it should be in arabic
-  4- Epidemics will be stored in the database as EpidemicRecord s so edit the marge Epidemic fun to deal with that
+  1- link with database to obtain clinical reports and epidemic reports
+  2- make sure fields in the table are displayed in the truth way
+  3- calculate % in the epidemic report
+  5- show dashboard feature is in progress and it will have a predictor AI in the next version
+  6- try to make the row of any epidemic more that its threshold to be red
+  7- after the doctor diagnose any citizen by any epidemic, the map of epidemic cases in ministry office
+      will be incremented, and if the new count of cases >= threshold (in global var) , then send an important notification
+      to the ministry that is there is an epidemic in that locality, and show option to send notification to hospitals and citizens
+      in that locality,
+      when pressing any of these options, it will take him to sending notificaion page with setting filters, and intial values:
+        title : the (epidemic) is starting (ينتشر :')) in (locality) of state (state)
+        massage: different initial massage depending on hospitals , or citizens?
+        important notification
 */
 
 class ReportingScreen extends StatefulWidget {

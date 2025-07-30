@@ -4,6 +4,20 @@ import 'package:pc_apps/ministry/Backend/global_var.dart';
 import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
 import 'global_ui.dart';
 
+
+
+
+/**
+    Issues:
+    1- idetify hospital class
+    2- link with database to upload the new hospital
+    3- edit depatments field, make it a list of check boxes
+    4- after creating a hospital successfully, clear all fields and show the adding is done successfuly
+    4- hospital manager logic?
+ */
+
+
+
 class AddingHospitalsScreen extends StatefulWidget {
   final MinistryEmployee employee;
   const AddingHospitalsScreen({super.key, required this.employee});

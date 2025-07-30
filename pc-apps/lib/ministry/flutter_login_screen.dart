@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:pc_apps/ministry/flutter_main_screen.dart'; // Assuming your project name is my_health_app
 import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
 
-// Make sure DashboardScreen is defined in flutter_main_screen.dart or import the correct file where DashboardScreen is defined.
+/**
+Issues:
+    1- registrartion dialog box is not working
+    2- edit forget password dialog
+    3- link with database to find the ministry employee
+    4- perform login logic
+ */
 
 // LoginScreen is a StatefulWidget to manage its internal state (text controllers).
 class LoginScreen extends StatefulWidget {

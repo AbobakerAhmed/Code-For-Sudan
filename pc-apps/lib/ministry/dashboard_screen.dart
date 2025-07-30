@@ -1,3 +1,9 @@
+/**
+    Issues:
+    1- This page is not working yet
+ */
+
+
 /*
 +-------------------------------------------------------------+
 | Clinical Report – [Hospital Name] – [Date]                 |

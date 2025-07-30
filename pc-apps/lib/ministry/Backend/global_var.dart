@@ -2,6 +2,7 @@
 
 ///This is the global variables file
 ///there is some varibles that are going to be added
+/*
 final List<String> _states = [
   'الخرطوم',
   'الجزيرة',
@@ -20,7 +21,8 @@ final List<String> _states = [
   'غرب دارفور',
   'وسط دارفور',
   // Add more states as needed
-];
+]; // this is unused variable that holds all Sudan states
+*/
 
 const List<String> g_states = ['الكل', 'الخرطوم', 'الجزيرة'];
 const Map<String, List<String>> g_localities = {

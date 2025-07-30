@@ -21,8 +21,15 @@ class SettingsScreen extends StatelessWidget {
         title: const Directionality(
           textDirection: TextDirection.rtl, // Right-to-left for Arabic title
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(width: 8),
+              Icon(
+                Icons.settings,
+                color: Colors.blue,
+                size: 28,
+              ), // Settings icon
+              SizedBox(width: 8),
               Text(
                 'الاعدادات', // Settings (Arabic)
                 style: TextStyle(
@@ -32,29 +39,30 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8),
-              Icon(
-                Icons.settings,
-                color: Colors.blue,
-                size: 28,
-              ), // Settings icon
+
             ],
           ),
         ),
         titleSpacing: 0,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(Icons.settings, color: Colors.blue, size: 40),
-          SizedBox(height: 16,),
-          Text("هذه الميزة لا تعمل حاليا", style: TextStyle(
-            color: Colors.blueGrey,
-            fontSize: 28,
-            fontWeight: FontWeight.bold
-          ),)
-
-        ])
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.settings, size: 100, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              'هذه الميزة لا تعمل حاليا', // Reports (Arabic)
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.grey[400],
+                fontWeight: FontWeight.bold,
+              ),
+              textDirection: TextDirection.rtl,
+            ),
+          ],
+        ),
+      )
     );
   }
 

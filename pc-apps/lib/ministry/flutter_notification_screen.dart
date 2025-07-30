@@ -5,6 +5,16 @@ import 'package:pc_apps/ministry/Backend/notification.dart';
 import 'global_ui.dart';
 import 'Backend/testing_data.dart';
 
+/**
+    Issues:
+    1- make notifications available without network connection, use it only for updating
+    2- link with database to receive notifications
+    3- when pressing any notification button, go to the report page with setting filters on the sender hospital, and sending date
+    4- make hospitals filter show all hospitlas in the selected locality
+    5- make the color of selected date range is blue
+    6- testing to bring filters in the reports page and look if they are good here
+ */
+
 
 class NotificationsScreen extends StatefulWidget {
   NotificationsScreen({super.key, required this.employee});

@@ -3,8 +3,8 @@ import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
 
 /*
 Issues:
-  1- Edit password dialog
-  
+  1- Edit password dialog and logic and performing this change on database
+  2- is that logically to show password field here even it is empty?
 */
 
 class ProfileScreen extends StatelessWidget {
@@ -13,21 +13,20 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.lightBlue,
-          foregroundColor: Colors.white,
-          title: Text('الملف الشخصي'),
-          centerTitle: true,
-          leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back)),
-        ),
+        title: Text('الملف الشخصي'),
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.arrow_back)),
+      ),
 
-        body: SingleChildScrollView(
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-// Is that ture to show password here??
+        // Is that ture to show password here??
               _buildPasswordField(
                 context,
                 label: 'كلمة المرور:', // Password:
@@ -72,26 +71,25 @@ class ProfileScreen extends StatelessWidget {
 
 
               _buildInfoField(
-                    context,
-                    label: 'الولاية:',
-                    value: this.employee.getState(),
+                context,
+                label: 'الولاية:',
+                value: this.employee.getState(),
               ),
 
               const SizedBox(height: 10),
 
               _buildInfoField(
-                    context,
-                    label: 'المحلية:',
-                    value: this.employee.getLocality(),
-                  ),
-              const SizedBox(height: 16),
-                ],
+                context,
+                label: 'المحلية:',
+                value: this.employee.getLocality(),
               ),
-
-
+              const SizedBox(height: 16),
+            ],
           ),
-        ),
 
+
+        ),
+      ),
     );
   }
 

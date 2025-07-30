@@ -1,10 +1,14 @@
-/*
-
-*/
+/**
+    Issues:
+    1- state and locality field of notification object are used only to be sended to hospital manager. if find anther way chencle them
+    2- link with database to upload notifications
+    3- test how the ministry employee will be displayed as a sender (commented setState in onPressed fun)
+    4- after sending notification successfully, show that and clear all fields
+ */
 
 import 'package:flutter/material.dart' hide Notification;
 import 'package:pc_apps/ministry/Backend/ministry_employee.dart';
-import 'package:pc_apps/ministry/Backend/notification.dart' as backend;
+import 'package:pc_apps/ministry/Backend/notification.dart';
 import 'package:pc_apps/ministry/Backend/global_var.dart';
 import 'global_ui.dart';
 
@@ -221,7 +225,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                       return;
                     }
 
-                    backend.Notification newNotification = backend.Notification(
+                    Notification newNotification = Notification(
                        receiverState:  _selectedState,
                        receiverLocality:  _selectedLocality,
                         sender:  employee.asSender(),
@@ -230,7 +234,9 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                         isImportant:  _isUrgent,
                         creationTime:  DateTime.now()
                     );
+                    setState(() {
 
+                    });
 // TODO: Send newNotification to database (depending on: _selectedRecipient, _selectedState!, _selectedLocality!,)
 
                     print('Send Message Tapped!');
