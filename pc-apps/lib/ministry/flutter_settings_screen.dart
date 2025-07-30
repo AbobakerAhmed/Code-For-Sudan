@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+// import 'package:firedart/firedart.dart'; /*(use only this package to connect with database)!*/
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
+
+  /// example test for connecting with database
+  /*
+  CollectionReference advices = Firestore.instance.collection(
+    "medical_advices",
+  );
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +47,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8),
-
             ],
           ),
         ),
@@ -62,7 +69,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-      )
+      ),
     );
   }
 
