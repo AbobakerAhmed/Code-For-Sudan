@@ -1,6 +1,7 @@
+// import basic ui components
 import 'package:flutter/material.dart';
 
-// importing for database
+// import for database
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/firebase_options.dart';
@@ -10,16 +11,16 @@ import 'package:mobile_app/citizen/emergency_page.dart';
 import 'package:mobile_app/citizen/medical_advices.dart';
 import 'package:mobile_app/login_page.dart';
 
-// import provider to control all the app theme at once
+// import provider to control all the app theme
 import 'package:provider/provider.dart';
 import 'theme_provider.dart'; // Import your theme provider
 
 void main() async {
+  // initialize the database setup
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
   runApp(ChangeNotifierProvider(
@@ -27,7 +28,6 @@ void main() async {
 }
 
 class HealthCareSudan extends StatelessWidget {
-  // final bool isConnected;
   const HealthCareSudan({super.key});
 
   @override

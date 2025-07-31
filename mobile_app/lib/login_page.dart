@@ -1,19 +1,22 @@
-// Date: 26th of Jun 2025
-import 'dart:async';
+/* Date: 26th of Jun 2025 */
+
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
+import 'dart:async';
+import 'package:mobile_app/backend/validate_fields.dart';
+import 'package:mobile_app/firestore_services/firestore.dart';
 
+// import pages
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/doctor/doctor_home_page.dart';
 import 'package:mobile_app/regist/registrar_home_page.dart';
 import 'package:mobile_app/signup_page.dart';
-
-//import 'package:mobile_app/styles.dart';
-import 'package:mobile_app/backend/validate_fields.dart';
-import 'package:mobile_app/firestore_services/firestore.dart';
 
 // test the login page here
 void main() {
@@ -29,13 +32,14 @@ class LoginPageTest extends StatelessWidget {
       home:
           Directionality(textDirection: TextDirection.rtl, child: LoginPage()),
 
-//      routes: {      }, // no routes here because we will send registrar object to the next page
+// no routes here because we will send registrar object to the next page
 
       debugShowCheckedModeBanner: false, // hide debugging icon in the corner
     );
   } // build fun
 } //LoginPageTest
 
+// base class
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -43,9 +47,12 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
+// class
 class _LoginPageState extends State<LoginPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService =
+      FirestoreService(); // define the database objcet
 
+  // define variables
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -61,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isConnected = true;
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
+  // initialize the widget state
   @override
   void initState() {
     super.initState();
@@ -69,17 +77,20 @@ class _LoginPageState extends State<LoginPage> {
         Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
+  // clean un-used resources
   @override
   void dispose() {
     _connectivitySubscription.cancel();
     super.dispose();
   }
 
+  /// fun: check connectivty
   Future<void> _checkConnectivity() async {
     final connectivityResult = await Connectivity().checkConnectivity();
     _updateConnectionStatus(connectivityResult);
   }
 
+  /// fun: update connection status
   void _updateConnectionStatus(List<ConnectivityResult> result) {
     setState(() {
       _isConnected = (result.contains(ConnectivityResult.mobile) ||
@@ -87,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  /// this method will validate the username and password and check if it's in citizens_data.dart
+  /// fun: check citizen login
   Future<void> _checkCitizenLogin() async {
     if (_formKey.currentState!.validate()) {
       final (bool, bool) foundAndCorrectPassword = await _firestoreService
@@ -99,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   } // _checkCitizenLogin
 
-  /// this method will validate the username and password and check if it's a registrar or not
+  /// fun: check registrar login
   Future<void> _checkRegistrarLogin() async {
     if (_formKey.currentState!.validate()) {
       final (bool, bool) foundAndCorrectPassword =
@@ -112,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   } // _checkRegistrarLogin
 
-  /// this method will validate the username and password and check if it's a doctor or not
+  /// fun: check doctors login
   Future<void> _checkDoctorLogin() async {
     if (_formKey.currentState!.validate()) {
       final (bool, bool) foundAndCorrectPassword = await _firestoreService
@@ -124,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   } // _checkDoctorLogin
 
-  //build fun
+  // build  the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -143,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                 ),
               ),
-            // Guest Mode Button - top right under AppBar
+
             // Guest Mode Button - top right under AppBar
             Padding(
               padding: const EdgeInsets.only(top: 8.0, right: 8.0),
@@ -305,10 +316,6 @@ class _LoginPageState extends State<LoginPage> {
 
                         // Login Button
                         ElevatedButton(
-                          child: const Text(
-                            'تسجيل الدخول',
-                            style: TextStyle(fontSize: 18.0),
-                          ),
                           style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 16.0),
@@ -344,11 +351,8 @@ class _LoginPageState extends State<LoginPage> {
                                           ),
                                         );
                                       });
+
                                   // checking login data
-                                  //                 _login();
-                                  // if you find him a registrar, then create a registrar object and assign its data
-                                  // read it from the database
-                                  // example
                                   await _checkCitizenLogin();
                                   await _checkRegistrarLogin();
                                   await _checkDoctorLogin();
@@ -424,6 +428,10 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 }
                               : null,
+                          child: const Text(
+                            'تسجيل الدخول',
+                            style: TextStyle(fontSize: 18.0),
+                          ),
                         ),
 
                         const SizedBox(
@@ -453,10 +461,6 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             ),
                             TextButton(
-                              child: Text(
-                                'ليس لديك حساب؟ أنشئ واحداً',
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
                               onPressed: _isConnected
                                   ? () {
                                       // (it will take him to create new citizen account)
@@ -467,6 +471,10 @@ class _LoginPageState extends State<LoginPage> {
                                                   SignupPage()));
                                     }
                                   : null,
+                              child: Text(
+                                'ليس لديك حساب؟ أنشئ واحداً',
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
                             ),
                           ],
                         ),
@@ -478,5 +486,5 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ]),
         ));
-  } // build fun
+  }
 } //_LoginPageState

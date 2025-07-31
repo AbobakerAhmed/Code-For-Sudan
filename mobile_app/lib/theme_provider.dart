@@ -1,3 +1,4 @@
+// import basic ui components
 import 'package:flutter/material.dart';
 
 // public
@@ -5,8 +6,9 @@ ThemeMode _themeMode = ThemeMode.light;
 
 class ThemeProvider with ChangeNotifier {
   // Default theme mode
-
   ThemeMode get themeMode => _themeMode;
+
+  /// fun: toggle between dark and light modes
   void toggleTheme() {
     _themeMode =
         _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
@@ -21,6 +23,7 @@ class ThemeProvider with ChangeNotifier {
       primaryColorDark: Colors.blue,
       secondaryHeaderColor: Colors.blueGrey,
       brightness: Brightness.light,
+
       // Add other customizations here
       appBarTheme: AppBarTheme(
         color: Colors.lightBlue,
@@ -29,6 +32,7 @@ class ThemeProvider with ChangeNotifier {
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(fontSize: 25.0),
       ),
+
       // Define other properties like button themes, text themes, etc.
       textTheme: TextTheme(
           headlineLarge: TextStyle(
@@ -50,6 +54,7 @@ class ThemeProvider with ChangeNotifier {
               color: Colors.blueGrey,
               fontSize: 18,
               fontWeight: FontWeight.normal)),
+
       // Cards
       cardColor: Colors.grey[50],
 
@@ -74,8 +79,8 @@ class ThemeProvider with ChangeNotifier {
       primaryColorLight: Colors.lightBlue[50],
       primaryColorDark: Colors.blue,
       secondaryHeaderColor: Colors.blueGrey,
-
       brightness: Brightness.dark,
+
       // Add other customizations here
       appBarTheme: AppBarTheme(
         color: Colors.lightBlue,
@@ -84,6 +89,7 @@ class ThemeProvider with ChangeNotifier {
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(fontSize: 25.0),
       ),
+
       // Define other properties like button themes, text themes, etc.
       textTheme: TextTheme(
         headlineLarge: TextStyle(
@@ -106,6 +112,7 @@ class ThemeProvider with ChangeNotifier {
             fontSize: 18,
             fontWeight: FontWeight.normal),
       ),
+
       // Cards
       cardColor: Colors.blueGrey[900],
 
@@ -125,6 +132,7 @@ class ThemeProvider with ChangeNotifier {
   }
 }
 
+/// fun: wether the the theme is dark or not
 bool isDark() {
   return _themeMode == ThemeMode.dark;
 }

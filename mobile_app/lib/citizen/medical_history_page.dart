@@ -1,7 +1,10 @@
+// import basic ui components
 import 'package:flutter/material.dart';
-import 'package:mobile_app/backend/citizen/citizen.dart';
-import 'package:mobile_app/theme_provider.dart';
 
+// import backend files
+import 'package:mobile_app/backend/citizen/citizen.dart';
+
+// base class
 class MedicalHistoryPage extends StatelessWidget {
   final Citizen citizen;
 
@@ -11,7 +14,6 @@ class MedicalHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<String> history = citizen.medicalHistory ?? ["None"];
     final bool noHistory = history.length == 1 && history.first == "None";
-    final themeColor = Theme.of(context).primaryColor;
 
     return Directionality(
       textDirection: TextDirection.rtl,

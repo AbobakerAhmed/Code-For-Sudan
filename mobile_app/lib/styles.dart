@@ -1,4 +1,6 @@
-// Date: 21st of Jun 2025
+/* Date: 21st of Jun 2025 */
+
+// import basic ui components
 import 'package:flutter/material.dart';
 
 // union app bar style

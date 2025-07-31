@@ -1,4 +1,7 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import pages
 import 'package:mobile_app/citizen/booking_page.dart';
 import 'package:mobile_app/citizen/medical_history_page.dart';
 import 'package:mobile_app/login_page.dart';
@@ -6,12 +9,11 @@ import 'package:mobile_app/citizen/notifications_page.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/citizen_profile_page.dart';
 
+// import backend files
 import 'package:provider/provider.dart';
-//import 'package:mobile_app/styles.dart';
 import 'package:mobile_app/theme_provider.dart';
 
-bool _isDark = isDark();
-
+// base class
 class HomePage extends StatefulWidget {
   final Citizen? citizen;
   const HomePage({super.key, this.citizen});
@@ -20,9 +22,11 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+// class
 class _HomePageState extends State<HomePage> {
   bool _isDark = isDark();
 
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -44,7 +48,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 70),
               Expanded(
-                child: _HomeGrid(widget.citizen), // look at the next class
+                child: _HomeGrid(widget.citizen),
               ),
             ],
           ),
@@ -53,7 +57,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // citizen drawer
+  // custom citizen drawer
   Drawer _citizenDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -68,6 +72,8 @@ class _HomePageState extends State<HomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
+
+          // home
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('الرئيسية'), // Translated
@@ -75,6 +81,8 @@ class _HomePageState extends State<HomePage> {
               Navigator.pop(context); // Close the drawer
             },
           ),
+
+          // profile
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('الملف الشخصي'), // Translated
@@ -93,10 +101,10 @@ class _HomePageState extends State<HomePage> {
                   const SnackBar(content: Text('الرجاء تسجيل الدخول أولاً')),
                 );
               }
-
-              // got to the progile page
             },
           ),
+
+          // medical history
           ListTile(
             leading: const Icon(Icons.sticky_note_2),
             title: const Text('السجل المرضي'), // Translated
@@ -115,10 +123,10 @@ class _HomePageState extends State<HomePage> {
                   const SnackBar(content: Text('الرجاء تسجيل الدخول أولاً')),
                 );
               }
-
-              // got to the progile page
             },
           ),
+
+          // dark/light mode
           SwitchListTile(
             activeColor: Theme.of(context).primaryColor,
             title: Row(
@@ -134,10 +142,11 @@ class _HomePageState extends State<HomePage> {
             onChanged: (val) {
               _isDark = val;
               Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-              //setState(() {});
             },
           ),
           const Divider(),
+
+          // log out
           if (widget.citizen != null)
             ListTile(
               leading: const Icon(Icons.logout),
@@ -170,6 +179,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// custom widget
 class _HomeGrid extends StatelessWidget {
   final Citizen? citizen;
   const _HomeGrid(this.citizen); // Accept nullable citizen
@@ -235,6 +245,7 @@ class _HomeGrid extends StatelessWidget {
               ],
             ),
           ),
+
           // Second row: 2 cards
           Expanded(
             flex: 3,
@@ -268,7 +279,7 @@ class _HomeGrid extends StatelessWidget {
   }
 }
 
-// Componnect of the card
+// custom widget Componnents of the card
 class FeatureCard extends StatelessWidget {
   final IconData icon; // icon
   final String title; // title
@@ -314,10 +325,12 @@ class FeatureCard extends StatelessWidget {
   } // build fun
 } // FeatureCard
 
+// custom widget
 class _FeatureCardWrapper extends StatelessWidget {
   final int index;
   final Map<String, dynamic> data;
 
+  // constructor
   const _FeatureCardWrapper({
     required this.index,
     required this.data,

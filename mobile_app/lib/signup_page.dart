@@ -1,13 +1,15 @@
+// import basic ui components
 import 'package:flutter/material.dart';
 
+// import backend files
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/citizen/home_page.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
-
 import 'package:mobile_app/styles.dart';
 
+// base class
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
 
@@ -15,11 +17,17 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
+// class
 class _SignupPageState extends State<SignupPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService =
+      FirestoreService(); // define the database objcet
+
+  // define variables
   List<String> _dbStates = [];
   List<String> _dbLocalities = [];
   bool _alreadySignedUp = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   final _formKey = GlobalKey<FormState>();
   String? _userName;
@@ -33,6 +41,7 @@ class _SignupPageState extends State<SignupPage> {
   // ignore: unused_field
   String? _confirmPassword;
 
+  // text controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -40,9 +49,7 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
+  /// fun: get states from databse
   Future<void> _getStates() async {
     try {
       final statesAndLocalities =
@@ -56,6 +63,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
+  /// fun: get localities from databse
   Future<void> _getLocalities(String state) async {
     try {
       final statesAndLocalities =
@@ -69,6 +77,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
+  /// fun: check if citizen already existed in database
   Future<void> _checkCitizens() async {
     if (_formKey.currentState!.validate()) {
       final (bool, bool) foundAndCorrectPassword = await _firestoreService
@@ -79,6 +88,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   } // _login
 
+  // initialize the widgets state
   @override
   void initState() {
     // TODO: implement initState
@@ -86,6 +96,7 @@ class _SignupPageState extends State<SignupPage> {
     _getStates();
   }
 
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -101,6 +112,8 @@ class _SignupPageState extends State<SignupPage> {
                 const SizedBox(height: 40),
                 const Text('سجل حساب جديد', style: titleTextStyle),
                 const SizedBox(height: 30),
+
+                // username
                 _buildTextField(
                   'اسم المستخدم',
                   _nameController,
@@ -112,6 +125,8 @@ class _SignupPageState extends State<SignupPage> {
                     return null;
                   },
                 ),
+
+                // gender
                 _buildDropdown(
                   label: 'النوع',
                   value: _gender,
@@ -122,8 +137,11 @@ class _SignupPageState extends State<SignupPage> {
                     });
                   },
                 ),
+
+                // birth date
                 _buildDatePickerField(),
 
+                // phone
                 _buildTextField(
                   'رقم الهاتف (مثال: 0123456789)',
                   _phoneController,
@@ -140,6 +158,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
+                // state
                 _buildDropdown(
                   label: 'الولاية',
                   value: _state,
@@ -165,6 +184,7 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
 
+                // address
                 _buildTextField(
                   'ادخل الحي - المربع (مثال: الواحة - 4)',
                   direction: TextDirection.rtl,
@@ -177,6 +197,8 @@ class _SignupPageState extends State<SignupPage> {
                     return null;
                   },
                 ),
+
+                // password
                 _buildTextField(
                   'كلمة المرور',
                   _passwordController,
@@ -205,6 +227,8 @@ class _SignupPageState extends State<SignupPage> {
                     return null;
                   },
                 ),
+
+                // confirm password
                 _buildTextField(
                   'تأكيد كلمة المرور',
                   _confirmPasswordController,
@@ -232,6 +256,8 @@ class _SignupPageState extends State<SignupPage> {
                   },
                 ),
                 const SizedBox(height: 20),
+
+                // press button sign up
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -304,6 +330,7 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  // custom text field
   Widget _buildTextField(
     String label,
     TextEditingController controller,
@@ -335,6 +362,7 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  // custom dropdown
   Widget _buildDropdown({
     required String label,
     required String? value,
@@ -359,6 +387,7 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  // custom date picker
   Widget _buildDatePickerField() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),

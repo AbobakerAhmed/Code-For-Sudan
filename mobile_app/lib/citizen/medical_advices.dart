@@ -1,5 +1,7 @@
+// import basic ui components
 import 'package:flutter/material.dart';
-//import 'package:mobile_app/styles.dart';
+
+// import backend files
 import 'package:mobile_app/firestore_services/firestore.dart';
 
 void main(List<String> args) {
@@ -17,6 +19,7 @@ class MedicalAdvicesTest extends StatelessWidget {
   }
 } // MedicalAdvicesTest
 
+// base class
 class MedicalAdvicesPage extends StatefulWidget {
   const MedicalAdvicesPage({super.key});
 
@@ -24,31 +27,24 @@ class MedicalAdvicesPage extends StatefulWidget {
   _MedicalAdvicesPageState createState() => _MedicalAdvicesPageState();
 }
 
+// class
 class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService =
+      FirestoreService(); // define the database objcet
+
+  // define variables
   bool _isLoading = false;
   List<String> advices = [];
-  /*   '💧 اشرب كميات كافية من الماء يوميًا، خاصة في الأجواء الحارة.',
-    '🧼 اغسل يديك جيدًا قبل الأكل وبعد استخدام الحمام.',
-    '💊 لا تستخدم المضادات الحيوية بدون وصفة طبية.',
-    '🏃‍♂️ احرص على ممارسة الرياضة بانتظام للحفاظ على صحتك.',
-    '🍏 ابتعد عن الأطعمة الغنية بالدهون والسكريات الزائدة.',
-    '🛌 تأكد من أخذ قسط كافٍ من النوم كل ليلة.',
-    '🩺 قم بقياس ضغط الدم بانتظام إذا كنت معرضًا  للمشاكل الصحية.',
-    '🧪 احرص على فحص السكر من حين لآخر خاصة لو كان في العائلة من يعاني منه.',
-    '⚠️ لا تتجاهل الأعراض البسيطة، فقد تكون مؤشرًا لمشكلة أكبر.',
-    '🚭 تجنب التدخين تمامًا، فهو مضر بكل أجهزة الجسم.',
-    '🥶 تأكد من لبس الأغطية الدافئة في الشتاء.'
-  */
-
   int currentIndex = 0;
 
+  /// fun: show the next advice
   void showNextAdvice() async {
     setState(() {
       currentIndex = (currentIndex + 1) % advices.length;
     });
   }
 
+  /// fun: display adive
   void fetchAndDisplayAdvices() async {
     setState(() {
       _isLoading = true;
@@ -65,6 +61,7 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
     }
   }
 
+  // initialize the widget state
   @override
   void initState() {
     // TODO: implement initState
@@ -72,6 +69,7 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
     fetchAndDisplayAdvices();
   }
 
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -129,18 +127,18 @@ class _MedicalAdvicesPageState extends State<MedicalAdvicesPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: showNextAdvice,
-                            child: Text(
-                              'التالي',
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               textStyle: const TextStyle(fontSize: 16),
+                            ),
+                            child: Text(
+                              'التالي',
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

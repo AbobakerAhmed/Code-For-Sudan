@@ -1,8 +1,12 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend file
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
+// base class
 class NotificationsPage extends StatefulWidget {
   final Citizen? citizen;
   const NotificationsPage({super.key, this.citizen});
@@ -11,17 +15,23 @@ class NotificationsPage extends StatefulWidget {
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
+// class
 class _NotificationsPageState extends State<NotificationsPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService =
+      FirestoreService(); // define the database objcet
+
+  // define variables
   List<Notify> _notifications = [];
   bool _isLoading = true;
 
+  // initialize the widget state
   @override
   void initState() {
     super.initState();
     _fetchNotifications();
   }
 
+  /// fun: fetch notifications from database
   Future<void> _fetchNotifications() async {
     try {
       // Check if citizen is null before proceeding
@@ -50,6 +60,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
   }
 
+  /// fun: get icon according to the notification type
   Icon _getIcon(NotificationType type) {
     switch (type) {
       case NotificationType.booking:
@@ -62,6 +73,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
   }
 
+  // buid the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
