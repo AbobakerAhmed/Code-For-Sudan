@@ -7,9 +7,16 @@ Issues:
   2- is that logically to show password field here even it is empty?
 */
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final MinistryEmployee employee;
   const ProfileScreen({super.key, required this.employee});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +27,9 @@ class ProfileScreen extends StatelessWidget {
         title: Text('الملف الشخصي'),
         centerTitle: true,
         leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back)),
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back),
+        ),
       ),
 
       body: Directionality(
@@ -37,21 +45,22 @@ class ProfileScreen extends StatelessWidget {
               _buildInfoField(
                 context,
                 label: 'الاسم:',
-                value: this.employee.getName(),
+                value: widget.employee.getName(),
               ),
               const SizedBox(height: 16),
               _buildInfoField(
                 context,
                 label: 'رقم الهاتف:', // Mobile Number:
-                value: this.employee.getPhoneNumber(),
+                value: widget.employee.getPhoneNumber(),
               ),
               const SizedBox(height: 16),
 
-        // Is that ture to show password here??
+              // Is that ture to show password here??
               _buildPasswordField(
                 context,
                 label: 'كلمة المرور:', // Password:
-                value: '************', // Placeholder for password
+                value: widget.employee
+                    .getPassword(), // Placeholder for password
               ),
 
               const SizedBox(height: 32),
@@ -69,11 +78,10 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-
               _buildInfoField(
                 context,
                 label: 'الولاية:',
-                value: this.employee.getState(),
+                value: widget.employee.getState(),
               ),
 
               const SizedBox(height: 10),
@@ -81,13 +89,11 @@ class ProfileScreen extends StatelessWidget {
               _buildInfoField(
                 context,
                 label: 'المحلية:',
-                value: this.employee.getLocality(),
+                value: widget.employee.getLocality(),
               ),
               const SizedBox(height: 16),
             ],
           ),
-
-
         ),
       ),
     );
@@ -103,14 +109,14 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start, // Align fields to the right
         children: [
-              Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
+          ),
           const SizedBox(width: 16),
 
           Expanded(
@@ -126,108 +132,75 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
-
         ],
       ),
     );
   }
 
-// No needed here
+  // No needed here
   Widget _buildPasswordField(
-      BuildContext context, {
-    required String label,
-    required String value,
-  }) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                value,
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 16), // Space for the "Edit" button
-
-          TextButton(
-            onPressed: () {
-              print('Edit password tapped');
-            },
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero, // Remove default padding
-              minimumSize: Size.zero, // Remove minimum size constraints
-              tapTargetSize:
-                  MaterialTapTargetSize.shrinkWrap, // Shrink tap target
-            ),
-            child: TextButton(
-              child: Text('تعديل', style: TextStyle(fontSize: 14, color: Colors.blue)),
-              onPressed: (){
-// show edit password dialog here
-              }
-            ),
-          ),
-        ],
-    );
-  }
-
-
-  Widget _buildOfficeField(
     BuildContext context, {
     required String label,
     required String value,
   }) {
-    return Expanded(
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  value,
-                  style: const TextStyle(fontSize: 16, color: Colors.black87),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-          ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    textDirection: TextDirection.ltr,
+                    _isPasswordVisible ? value : '•' * value.length,
+                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16), // Space for the "Edit" button
+        TextButton(
+          onPressed: () {
+            // show edit password dialog here
+            print('Edit password tapped');
+          },
+          child: const Text(
+            'تعديل',
+            style: TextStyle(fontSize: 14, color: Colors.blue),
+          ),
+        ),
+      ],
     );
   }
 }

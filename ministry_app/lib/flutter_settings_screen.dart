@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// import 'package:ministry_app/Backend/ministry_employee.dart';
+// import 'package:ministry_app/firestore_services/firedart.dart';
 // import 'package:firedart/firedart.dart'; /*(use only this package to connect with database)!*/
 
 class SettingsScreen extends StatelessWidget {
@@ -21,7 +23,9 @@ class SettingsScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen (Dashboard)
+            Navigator.pop(
+              context,
+            ); // Go back to the previous screen (Dashboard)
           },
         ),
         title: const Directionality(
@@ -30,11 +34,19 @@ class SettingsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(width: 8),
-              Icon(Icons.settings, color: Colors.blue, size: 28), // Settings icon
+              Icon(
+                Icons.settings,
+                color: Colors.blue,
+                size: 28,
+              ), // Settings icon
               SizedBox(width: 8),
               Text(
                 'الاعدادات', // Settings (Arabic)
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
               SizedBox(width: 8),
             ],
@@ -50,7 +62,11 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'هذه الميزة لا تعمل حاليا', // Reports (Arabic)
-              style: TextStyle(fontSize: 24, color: Colors.grey[400], fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.grey[400],
+                fontWeight: FontWeight.bold,
+              ),
               textDirection: TextDirection.rtl,
             ),
           ],

@@ -15,7 +15,6 @@ import 'package:ministry_app/flutter_adding_hospitals_screen.dart';
     3- edit the header (setting is not work and logout icon)
  */
 
-
 // HomePage is a StatelessWidget as it doesn't manage mutable state.
 class HomePage extends StatelessWidget {
   final MinistryEmployee employee;
@@ -63,15 +62,17 @@ class HomePage extends StatelessWidget {
                 print('Profile tapped');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfileScreen(employee:this.employee)),
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(employee: employee),
+                  ),
                 ); // Navigate to ProfileScreen
               },
             ),
             const SizedBox(width: 16), // Horizontal space
           ],
-// put the logo here
-//          leading:
-//          leadingWidth: 150, // Adjust this based on logo size and text
+          // put the logo here
+          //          leading:
+          //          leadingWidth: 150, // Adjust this based on logo size and text
         ),
 
         body: Padding(
@@ -79,60 +80,64 @@ class HomePage extends StatelessWidget {
           child: Column(
             // Wrapped the body content in a Column
             children: [
-              Expanded(flex:2, child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(""),
-                  Image.asset(
-                    'assets/health_ministry_loge.jpg',
-                    alignment: Alignment.center,
-                    height: 200,
-                    width: 200,
-                  ),
-                ],
-              )),
               Expanded(
                 flex: 2,
                 child: Row(
-                      children: [
-                        Expanded(child: Text("")),
-
-                        // Dashboard Card for 'Add Hospital'
-                        _buildCard(
-                          context,
-                          icon: Icons.add_circle,
-                          text: 'اضافة مستشفى', // Add Hospital (Arabic)
-                          onTap: () {
-                            print('Add Hospital tapped');
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddingHospitalsScreen(employee: employee,),
-                              ),
-                            ); // Navigate to AddingHospitalScreen
-                          },
-                        ),
-                        // Dashboard Card for 'Reports'
-                        _buildCard(
-                          context,
-                          icon: Icons.description,
-                          text: 'التقارير', // Reports (Arabic)
-                          onTap: () {
-                            print('Reports tapped');
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReportingScreen(employee: employee),
-                              ),
-                            ); // Navigate to ReportingScreen
-                          },
-                        ),
-                        Expanded(flex:2, child: Text("")),
-
-                      ],
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(""),
+                    Image.asset(
+                      'assets/health_ministry_loge.jpg',
+                      alignment: Alignment.center,
+                      height: 200,
+                      width: 200,
                     ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Row(
+                  children: [
+                    Expanded(child: Text("")),
+
+                    // Dashboard Card for 'Add Hospital'
+                    _buildCard(
+                      context,
+                      icon: Icons.add_circle,
+                      text: 'اضافة مستشفى', // Add Hospital (Arabic)
+                      onTap: () {
+                        print('Add Hospital tapped');
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AddingHospitalsScreen(employee: employee),
+                          ),
+                        ); // Navigate to AddingHospitalScreen
+                      },
+                    ),
+                    // Dashboard Card for 'Reports'
+                    _buildCard(
+                      context,
+                      icon: Icons.description,
+                      text: 'التقارير', // Reports (Arabic)
+                      onTap: () {
+                        print('Reports tapped');
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ReportingScreen(employee: employee),
+                          ),
+                        ); // Navigate to ReportingScreen
+                      },
+                    ),
+                    Expanded(flex: 2, child: Text("")),
+                  ],
+                ),
               ),
               Expanded(
                 flex: 2,
@@ -151,7 +156,9 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NotificationSendingScreen(employee: this.employee),
+                            builder: (context) => NotificationSendingScreen(
+                              employee: this.employee,
+                            ),
                           ),
                         ); // Navigate to notification sending screen
                       },
@@ -166,12 +173,13 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NotificationsScreen(employee: this.employee),
+                            builder: (context) =>
+                                NotificationsScreen(employee: this.employee),
                           ),
                         ); // Navigate to NotificationScreen
                       },
                     ),
-                    Expanded(flex:2, child: Text("")),
+                    Expanded(flex: 2, child: Text("")),
                   ],
                 ),
               ),
@@ -210,7 +218,7 @@ class HomePage extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                    color: Colors.blueGrey
+                  color: Colors.blueGrey,
                 ),
                 textAlign: TextAlign.center,
               ),

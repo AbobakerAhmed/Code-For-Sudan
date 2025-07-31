@@ -12,9 +12,11 @@ const projectId = 'health-sudan-app'; // project id
 
 // The main function that starts the Flutter application.
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   Firestore.initialize(projectId);
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 // MyApp is the root widget of the application.

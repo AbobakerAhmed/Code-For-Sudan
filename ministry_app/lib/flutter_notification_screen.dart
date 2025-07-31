@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart' hide Notification;
 import 'package:ministry_app/Backend/global_var.dart';
 import 'package:ministry_app/Backend/ministry_employee.dart';
@@ -18,24 +16,23 @@ import 'Backend/testing_data.dart';
     6- testing to bring filters in the reports page and look if they are good here
  */
 
-
 class NotificationsScreen extends StatefulWidget {
   NotificationsScreen({super.key, required this.employee});
   late final MinistryEmployee employee;
 
   @override
-  State<StatefulWidget> createState() => _NotificationsScreenState(employee: employee);
+  State<StatefulWidget> createState() =>
+      _NotificationsScreenState(employee: employee);
 }
 
 // NotificationsScreen is a StatelessWidget that displays a list of notifications.
 class _NotificationsScreenState extends State<NotificationsScreen> {
-
   _NotificationsScreenState({required this.employee});
 
   late final MinistryEmployee employee;
   String? _sorting;
   late String _selectedState = this.employee.getState();
-  late String _selectedLocality= this.employee.getLocality();
+  late String _selectedLocality = this.employee.getLocality();
   String _selectedHospital = 'الكل';
   DateTimeRange? _selectedDate;
 
@@ -56,9 +53,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         title: Row(
           mainAxisAlignment:
-          MainAxisAlignment.end, // Align content to the end (right)
+              MainAxisAlignment.end, // Align content to the end (right)
           children: [
-
             Text(
               'الاشعارات', // Notifications (Arabic)
               style: TextStyle(
@@ -74,13 +70,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               size: 28,
             ), // Notification icon
             SizedBox(width: 8), // Space between text and icon
-
           ],
         ),
         titleSpacing: 0, // Remove default title spacing for custom title layout
       ),
       body: Column(
-
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -88,28 +82,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               // Distribute filter buttons evenly
               children: [
-                buildFilterDropdown( // in global_ui.dart
+                buildFilterDropdown(
+                  // in global_ui.dart
                   hint: 'ترتيب',
                   value: _sorting,
-                  items: ['الغير مقروءة', 'الأحدث', 'الأهم', ],
-                  onChanged: (selectedValue){
+                  items: ['الغير مقروءة', 'الأحدث', 'الأهم'],
+                  onChanged: (selectedValue) {
                     _sorting = selectedValue;
-                  }
+                  },
                 ), // Sort
 
-                buildDateRangeSelector( // in global_ui.dart
+                buildDateRangeSelector(
+                  // in global_ui.dart
                   context: context,
                   selectedRange: _selectedDate,
                   onRangeSelected: (_selectedDate) {
                     print("");
-                  },),
-
+                  },
+                ),
 
                 // Hospital
                 buildFilterDropdown(
                   hint: 'المستشفى...', // Hospital...
                   value: _selectedHospital,
-                  items: ["الكل", "مستشفى 1", "مستشفى 2", "وما تنسو تجيبو باقي المستشفيات من الDatabase :)"],
+                  items: [
+                    "الكل",
+                    "مستشفى 1",
+                    "مستشفى 2",
+                    "وما تنسو تجيبو باقي المستشفيات من الDatabase :)",
+                  ],
                   onChanged: (newValue) {
                     setState(() {
                       _selectedHospital = newValue!;
@@ -134,7 +135,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 buildFilterDropdown(
                   hint: 'الولاية...', // State...
                   value: _selectedState,
-                  items: this.employee.getState() == "الكل" ? g_states : [this.employee.getState()],
+                  items: this.employee.getState() == "الكل"
+                      ? g_states
+                      : [this.employee.getState()],
                   onChanged: (newValue) {
                     setState(() {
                       _selectedState = newValue!;
@@ -149,8 +152,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: ListView(
-                children: _testingNotifications() // should be removed after link with database
-// obtain notifications from database here
+                children:
+                    _testingNotifications(), // should be removed after link with database
+                // obtain notifications from database here
               ),
             ),
           ),
@@ -166,21 +170,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notification.isRed = true;
         });
 
-
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ReportingScreen(
-                employee: this.employee,
-                initialState: notification.getReseveirState(),
-                initialLocality: notification.getReseveirLocality(),
-                initialHospital: notification.getSender(),
-                initialReportType: notification.isImportant ? "تقارير الأوبئة" : "التقارير الدورية",
-                initialDateTimeRange: DateTimeRange(start: notification.getCreationTime(), end: notification.getCreationTime())
+              employee: this.employee,
+              initialState: notification.getReseveirState(),
+              initialLocality: notification.getReseveirLocality(),
+              initialHospital: notification.getSender(),
+              initialReportType: notification.isImportant
+                  ? "تقارير الأوبئة"
+                  : "التقارير الدورية",
+              initialDateTimeRange: DateTimeRange(
+                start: notification.getCreationTime(),
+                end: notification.getCreationTime(),
+              ),
             ),
           ),
         ); // Navigate to NotificationScreen        // should take the user to the reporting page with the specific state, locality, and hospital
-
       },
 
       child: Container(
@@ -194,11 +201,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Row(
                   children: [
-                    if(!notification.isRed)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Icon(Icons.circle, size: 8, color: Colors.blue),
-                    ),
+                    if (!notification.isRed)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Icon(Icons.circle, size: 8, color: Colors.blue),
+                      ),
                     SizedBox(width: 10),
                     Text(
                       "${notification.getSender()} - ${notification.getTitle()}",
@@ -214,23 +221,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 SizedBox(width: 10),
 
                 Text(
-                  "${notification
-                      .getCreationTime()
-                      .year} / ${notification
-                      .getCreationTime()
-                      .month} / ${notification
-                      .getCreationTime()
-                      .day}",
+                  "${notification.getCreationTime().year} / ${notification.getCreationTime().month} / ${notification.getCreationTime().day}",
                   style: TextStyle(
                     fontSize: 12,
-                    color: notification.isImportant ? Colors.white : Colors
-                        .grey[600],
+                    color: notification.isImportant
+                        ? Colors.white
+                        : Colors.grey[600],
                   ),
                   textAlign: TextAlign.right,
                 ),
               ],
             ),
-
 
             const SizedBox(height: 4),
 
@@ -254,8 +255,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       notification.getMassage(),
                       style: TextStyle(
                         fontSize: 16,
-                        color: notification.isImportant ? Colors.white : Colors
-                            .black,
+                        color: notification.isImportant
+                            ? Colors.white
+                            : Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.right,
@@ -267,12 +269,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   notification.timeFormatAMPM(),
                   style: TextStyle(
                     fontSize: 12,
-                    color: notification.isImportant ? Colors.white : Colors
-                        .grey[600],
+                    color: notification.isImportant
+                        ? Colors.white
+                        : Colors.grey[600],
                   ),
                   textAlign: TextAlign.right,
                 ),
-
               ],
             ),
           ],
@@ -281,10 +283,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  List<Widget> _testingNotifications(){
+  List<Widget> _testingNotifications() {
     List<Widget> result = [];
-    for(int i =0; i<testingNotifications.length ; i++)
-       result.add(_buildNotificationContainer(testingNotifications[i]));
+    for (int i = 0; i < testingNotifications.length; i++)
+      result.add(_buildNotificationContainer(testingNotifications[i]));
     return result;
   }
 }
