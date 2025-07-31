@@ -1,5 +1,7 @@
 // Date: 26th of Jun 2025
 
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
@@ -14,11 +16,35 @@ class CitizenProfilePage extends StatefulWidget {
 }
 
 class _CitizenProfilePageState extends State<CitizenProfilePage> {
-  FirestoreService _firestoreService = FirestoreService();
+  final FirestoreService _firestoreService = FirestoreService();
+  bool _isConnected = true;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  void _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    if (!mounted) return;
+    setState(() {
+      _isConnected = (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi));
+    });
   }
 
   // build fun
@@ -28,77 +54,99 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
       textDirection: TextDirection.rtl, // arabic lang
       child: Scaffold(
         appBar: AppBar(title: Text("الملف الشخصي")),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                foregroundColor: Theme.of(context).primaryColor,
-                backgroundColor: Theme.of(context).primaryColorLight,
-                radius: 50,
-                child: Text(
-                  widget.citizen.name.substring(0, 2).toUpperCase(),
-                  style: TextStyle(fontSize: 50),
-                ), // adding image or icon or anything
-              ),
-              const SizedBox(height: 16), // between image and the name
-
-              // registrar name
-              Text(
-                widget.citizen.name,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 10), // between name and the phone number
-
-              // phone number
-              ListTile(
-                leading: const Icon(Icons.phone),
-                title: const Text('رقم الهاتف'),
-                subtitle: Text(widget.citizen.phoneNumber),
-              ),
-
-              // address
-              ListTile(
-                leading: const Icon(Icons.place),
-                title: const Text('العنوان'),
-                subtitle: Text(widget.citizen.address),
-              ),
-
-              // birth date
-              ListTile(
-                  leading: const Icon(
-                    Icons.cake,
-                  ),
-                  title: const Text('الميلاد'),
-                  subtitle: Text(
-                      '${widget.citizen.birthDate.year.toString()}/${widget.citizen.birthDate.month.toString().padLeft(2, '0')}/${widget.citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
-
-              const SizedBox(height: 24), // between departments and the button
-
-              // eidting button
-              ElevatedButton.icon(
-                icon: Icon(
-                  Icons.edit,
-                  color: Theme.of(context).primaryColor,
+        body: Column(
+          children: [
+            if (!_isConnected)
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: const Text(
+                  'لا يوجد اتصال بالإنترنت. لا يمكنك تعديل بياناتك.',
+                  style: TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
                 ),
-                label: Text(
-                  'تعديل البيانات',
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
-                ),
-
-                //the method works but there is going to be problems in appointments if the citizen changed his name or phone number
-                onPressed: () async {
-                  await _showEditDialog(context, widget.citizen);
-                  setState(() {});
-                },
               ),
-            ],
-          ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      foregroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: Theme.of(context).primaryColorLight,
+                      radius: 50,
+                      child: Text(
+                        widget.citizen.name.substring(0, 2).toUpperCase(),
+                        style: TextStyle(fontSize: 50),
+                      ), // adding image or icon or anything
+                    ),
+                    const SizedBox(height: 16), // between image and the name
+
+                    // registrar name
+                    Text(
+                      widget.citizen.name,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+
+                    const SizedBox(
+                        height: 10), // between name and the phone number
+
+                    // phone number
+                    ListTile(
+                      leading: const Icon(Icons.phone),
+                      title: const Text('رقم الهاتف'),
+                      subtitle: Text(widget.citizen.phoneNumber),
+                    ),
+
+                    // address
+                    ListTile(
+                      leading: const Icon(Icons.place),
+                      title: const Text('العنوان'),
+                      subtitle: Text(widget.citizen.address),
+                    ),
+
+                    // birth date
+                    ListTile(
+                        leading: const Icon(
+                          Icons.cake,
+                        ),
+                        title: const Text('الميلاد'),
+                        subtitle: Text(
+                            '${widget.citizen.birthDate.year.toString()}/${widget.citizen.birthDate.month.toString().padLeft(2, '0')}/${widget.citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
+
+                    const SizedBox(
+                        height: 24), // between departments and the button
+
+                    // eidting button
+                    ElevatedButton.icon(
+                      icon: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      label: Text(
+                        'تعديل البيانات',
+                        style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+
+                      //the method works but there is going to be problems in appointments if the citizen changed his name or phone number
+                      onPressed: _isConnected
+                          ? () async {
+                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              //     content: Text('هذه الميزة لا تعمل حاليا')));
+                              await _showEditDialog(context, widget.citizen);
+                              setState(() {});
+                            }
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -326,58 +374,73 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final updatedData = {
-                        'name': currentCitizen.name,
-                        'phoneNumber': currentCitizen.phoneNumber,
-                        'password': currentCitizen.password,
-                        'address': currentCitizen.address,
-                        'birthDate': currentCitizen.birthDate
-                      };
+                  onPressed: _isConnected
+                      ? () async {
+                          if (_formKey.currentState!.validate()) {
+                            final updatedData = {
+                              'name': currentCitizen.name,
+                              'phoneNumber': currentCitizen.phoneNumber,
+                              'password': currentCitizen.password,
+                              'address': currentCitizen.address,
+                              'birthDate': currentCitizen.birthDate
+                            };
 
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return Material(
-                              type: MaterialType.transparency,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircularProgressIndicator(
-                                        color: Theme.of(context).primaryColor),
-                                    SizedBox(
-                                      height: 30,
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return Material(
+                                    type: MaterialType.transparency,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          SizedBox(
+                                            height: 30,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
+                                  );
+                                });
 
-                      await _firestoreService.updateCitizen(
-                          widget.citizen.phoneNumber, updatedData);
+                            try {
+                              await _firestoreService.updateCitizen(
+                                  widget.citizen.phoneNumber, updatedData);
 
-                      setState(() {
-                        widget.citizen.name = currentCitizen.name;
-                        widget.citizen.phoneNumber = currentCitizen.phoneNumber;
-                        widget.citizen.address = currentCitizen.address;
-                        widget.citizen.birthDate = currentCitizen.birthDate;
-                        widget.citizen.password = currentCitizen.password;
-                      });
+                              if (!mounted) return;
+                              // Pop loading dialog
+                              Navigator.of(context).pop();
+                              // Pop edit dialog
+                              Navigator.of(context).pop();
 
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(' تم تحديث بياناتك بنجاح!')));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
-                    }
-                  },
+                              // The parent widget will call setState after the dialog closes,
+                              // which will rebuild the UI with the updated data.
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('تم تحديث بياناتك بنجاح!')));
+                            } catch (e) {
+                              if (!mounted) return;
+                              // Pop loading dialog
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('حدث خطأ أثناء التحديث: ${e}')));
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'يرجى تعبئة جميع الحقول بشكل صحيح')));
+                          }
+                        }
+                      : null,
                 ),
               ],
             ),

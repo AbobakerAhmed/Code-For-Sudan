@@ -1,5 +1,7 @@
 // Date: 26th of Jun 2025
 
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
@@ -17,10 +19,34 @@ class RegistrarProfilePage extends StatefulWidget {
 
 class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
   final FirestoreService _firestoreService = FirestoreService();
+  bool _isConnected = true;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    if (!mounted) return;
+    setState(() {
+      _isConnected = (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi));
+    });
   }
 
   // build fun
@@ -32,77 +58,96 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
         appBar: AppBar(
           title: Text('الملف الشخصي'),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                foregroundColor: Theme.of(context).primaryColor,
-                backgroundColor: Theme.of(context).primaryColorLight,
-                radius: 50,
-                child: Text(
-                  widget.registrar.name.substring(0, 2).toUpperCase(),
-                  style: TextStyle(fontSize: 50),
-                ), // adding image or icon or anything
-              ),
-              const SizedBox(height: 16), // between image and the name
-
-              // registrar name
-              Text(
-                widget.registrar.name,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 10), // between name and the phone number
-
-              // phone number
-              ListTile(
-                leading: const Icon(Icons.phone),
-                title: const Text('رقم الهاتف'),
-                subtitle: Text(widget.registrar.phoneNumber),
-              ),
-
-              // hsopital
-              ListTile(
-                leading: const Icon(Icons.local_hospital),
-                title: const Text('المستشفى'),
-                subtitle: Text(widget.registrar.hospitalName),
-              ),
-
-              // departments
-              ListTile(
-                leading: const Icon(Icons.category),
-                title: const Text('الأقسام المسؤولة عنها'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.registrar.departmentsNames
-                      .map((dep) => Text('• $dep'))
-                      .toList(),
+        body: Column(
+          children: [
+            if (!_isConnected)
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: const Text(
+                  'لا يوجد اتصال بالإنترنت. لا يمكنك تعديل بياناتك.',
+                  style: TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
                 ),
               ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      foregroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: Theme.of(context).primaryColorLight,
+                      radius: 50,
+                      child: Text(
+                        widget.registrar.name.substring(0, 2).toUpperCase(),
+                        style: TextStyle(fontSize: 50),
+                      ), // adding image or icon or anything
+                    ),
+                    const SizedBox(height: 16), // between image and the name
 
-              const SizedBox(height: 24), // between departments and the button
+                    // registrar name
+                    Text(
+                      widget.registrar.name,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
 
-              // eidting button
-              ElevatedButton.icon(
-                icon: Icon(Icons.edit, color: Theme.of(context).primaryColor),
-                label: Text(
-                  'تعديل البيانات',
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold),
+                    const SizedBox(
+                        height: 10), // between name and the phone number
+
+                    // phone number
+                    ListTile(
+                      leading: const Icon(Icons.phone),
+                      title: const Text('رقم الهاتف'),
+                      subtitle: Text(widget.registrar.phoneNumber),
+                    ),
+
+                    // hsopital
+                    ListTile(
+                      leading: const Icon(Icons.local_hospital),
+                      title: const Text('المستشفى'),
+                      subtitle: Text(widget.registrar.hospitalName),
+                    ),
+
+                    // departments
+                    ListTile(
+                      leading: const Icon(Icons.category),
+                      title: const Text('الأقسام المسؤولة عنها'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.registrar.departmentsNames
+                            .map((dep) => Text('• $dep'))
+                            .toList(),
+                      ),
+                    ),
+
+                    const SizedBox(
+                        height: 24), // between departments and the button
+
+                    // eidting button
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.edit,
+                          color: Theme.of(context).primaryColor),
+                      label: Text(
+                        'تعديل البيانات',
+                        style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: _isConnected
+                          ? () async {
+                              await _showEditDialog(context, widget.registrar);
+                              setState(() {});
+                            }
+                          : null,
+                    ),
+                  ],
                 ),
-                onPressed: () async {
-                  await _showEditDialog(context, widget.registrar);
-                  setState(() {});
-
-// edit the registrar data (only name, phone number, password)
-                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -260,55 +305,66 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                     ),
                   ),
 
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final updatedData = {
-                        'name': currentRegistrar.name,
-                        'phoneNumber': currentRegistrar.phoneNumber,
-                        'password': currentRegistrar.password,
-                      };
+                  onPressed: _isConnected
+                      ? () async {
+                          if (_formKey.currentState!.validate()) {
+                            final updatedData = {
+                              'name': currentRegistrar.name,
+                              'phoneNumber': currentRegistrar.phoneNumber,
+                              'password': currentRegistrar.password,
+                            };
 
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return Material(
-                              type: MaterialType.transparency,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircularProgressIndicator(
-                                        color: Theme.of(context).primaryColor),
-                                    SizedBox(
-                                      height: 30,
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return Material(
+                                    type: MaterialType.transparency,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          SizedBox(
+                                            height: 30,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
+                                  );
+                                });
 
-                      await _firestoreService.updateRegistrar(
-                          widget.registrar.phoneNumber, updatedData);
+                            try {
+                              await _firestoreService.updateRegistrar(
+                                  widget.registrar.phoneNumber, updatedData);
 
-                      setState(() {
-                        widget.registrar.name = currentRegistrar.name;
-                        widget.registrar.phoneNumber =
-                            currentRegistrar.phoneNumber;
-                        widget.registrar.password = currentRegistrar.password;
-                      });
+                              if (!mounted) return;
+                              Navigator.of(context).pop(); // Pop loading dialog
+                              Navigator.of(context).pop(); // Pop edit dialog
 
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(' تم تحديث بياناتك بنجاح!')));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('يرجى تعبئة جميع الحقول بشكل صحيح')));
-                    }
-                  }, // onPress
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('تم تحديث بياناتك بنجاح!')));
+                            } catch (e) {
+                              if (!mounted) return;
+                              Navigator.of(context).pop(); // Pop loading dialog
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('حدث خطأ أثناء التحديث: ${e}')));
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'يرجى تعبئة جميع الحقول بشكل صحيح')));
+                          }
+                        }
+                      : null, // onPress
                 ),
               ],
             ),

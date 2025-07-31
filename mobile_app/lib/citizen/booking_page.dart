@@ -2,6 +2,7 @@
 
 // importing
 import 'dart:core';
+import 'dart:async';
 // import 'package:citizens_app/backend/appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
@@ -33,7 +34,7 @@ class _BookingPageState extends State<BookingPage> {
   List<String> _dbHospitals = [];
   List<String> _dbDepartments = [];
   List<String> _dbDoctors = [];
-  bool _isConnected = false;
+  bool _isConnected = true;
   bool _showMedicalHistory = false;
   int _forMe = 1;
 
@@ -41,6 +42,8 @@ class _BookingPageState extends State<BookingPage> {
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   // Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -168,30 +171,37 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  Future<bool> isConnectedToInternet() async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult[0] == ConnectivityResult.mobile ||
-        connectivityResult[0] == ConnectivityResult.wifi) {
-      return true; // Connected to either mobile data or WiFi
-    }
-    return false; // Not connected
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
   }
 
-  Future<void> _checkConnectivity() async {
-    _isConnected = await isConnectedToInternet();
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    if (!mounted) return;
+    setState(() {
+      _isConnected = (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi));
+    });
   }
 
   /// initiate state
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
     _getStates();
     // Auto-fill if for me and citizen is passed
     if (_forMe == 1 && widget.citizen != null) {
       _fillFormWithCitizenData(widget.citizen!);
     }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   /// overriding the build method

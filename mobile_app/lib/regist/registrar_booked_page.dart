@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 //import 'package:mobile_app/backend/citizen/hospital.dart';
 import 'package:mobile_app/backend/registrar/registrar.dart';
@@ -24,6 +26,8 @@ class BookedAppointmentsPage extends StatefulWidget {
 class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   final FirestoreService _firestore = FirestoreService();
   bool _isLoading = true;
+  bool _isConnected = true;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   /// this method load the appointments from the database
   /// and put all appointments in the empty _allApointments variable
@@ -55,12 +59,34 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
 
     // Post-frame callback ensures we wait until after the first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialAppointments();
     });
   } // initState
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    if (!mounted) return;
+    setState(() {
+      _isConnected = (result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.wifi));
+    });
+  }
 
   ///this fun bring doctros of each department
   List<String> _getDoctorsInSelectedDepartment() {
@@ -405,80 +431,86 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                     ),
                     // there is a problem here
                     // when adding the appointment to the same page it is not be shown directly
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        // if (appointmentDate != null && appointmentTime != null) {
-                        final fullDateTime = DateTime.utc(
-                            DateTime.now().year,
-                            DateTime.now().month,
-                            DateTime.now().day,
-                            DateTime.now().hour,
-                            DateTime.now().minute,
-                            DateTime.now().second);
-                        // DateTime inSudanTime =
-                        //     fullDateTime.add(const Duration(hours: 2));
+                    onPressed: _isConnected
+                        ? () async {
+                            if (_formKey.currentState!.validate()) {
+                              // if (appointmentDate != null && appointmentTime != null) {
+                              final fullDateTime = DateTime.utc(
+                                  DateTime.now().year,
+                                  DateTime.now().month,
+                                  DateTime.now().day,
+                                  DateTime.now().hour,
+                                  DateTime.now().minute,
+                                  DateTime.now().second);
+                              // DateTime inSudanTime =
+                              //     fullDateTime.add(const Duration(hours: 2));
 
-                        if (existingAppointment == null) {
-                          final newAppointment = Appointment(
-                              name: name,
-                              gender: gender!,
-                              age: age,
-                              address: address,
-                              phoneNumber: phoneNumber,
-                              state: widget.registrar.state,
-                              locality: widget.registrar.locality,
-                              hospital: widget.registrar.hospitalName,
-                              department: selectedDepartment,
-                              doctor: selectedDoctor!,
-                              medicalHistory: ["None"],
-                              time: fullDateTime,
-                              isLocal: true,
-                              forMe: false);
-                          bool appointmentExist = await _firestore
-                              .checkAppointmentExist(newAppointment);
+                              if (existingAppointment == null) {
+                                final newAppointment = Appointment(
+                                    name: name,
+                                    gender: gender!,
+                                    age: age,
+                                    address: address,
+                                    phoneNumber: phoneNumber,
+                                    state: widget.registrar.state,
+                                    locality: widget.registrar.locality,
+                                    hospital: widget.registrar.hospitalName,
+                                    department: selectedDepartment,
+                                    doctor: selectedDoctor!,
+                                    medicalHistory: ["None"],
+                                    time: fullDateTime,
+                                    isLocal: true,
+                                    forMe: false);
+                                bool appointmentExist = await _firestore
+                                    .checkAppointmentExist(newAppointment);
 
-                          if (!appointmentExist) {
-                            await _firestore.createAppointment(newAppointment);
-                            //newAppointment.time = inSudanTime;
-                            _allAppointments.add(newAppointment);
-                            setState(() {});
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                                if (!appointmentExist) {
+                                  await _firestore
+                                      .createAppointment(newAppointment);
+                                  //newAppointment.time = inSudanTime;
+                                  _allAppointments.add(newAppointment);
+                                  setState(() {});
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'هذا الحجز موجود بالفعل !')));
+                                }
+                              } else {
+                                await _firestore
+                                    .deleteAppointment(existingAppointment);
+                                existingAppointment.name = name;
+                                existingAppointment.gender = gender!;
+                                existingAppointment.age = age;
+                                existingAppointment.address = address;
+                                existingAppointment.phoneNumber = phoneNumber;
+                                existingAppointment.department =
+                                    selectedDepartment;
+                                existingAppointment.doctor = selectedDoctor!;
+                                existingAppointment.hospital =
+                                    widget.registrar.hospitalName;
+                                existingAppointment.time = fullDateTime;
+                                await _firestore
+                                    .createAppointment(existingAppointment);
+                                setState(() {
+                                  //existingAppointment.time = inSudanTime;
+                                  _allAppointments[_allAppointments
+                                          .indexOf(existingAppointment)] =
+                                      existingAppointment;
+                                });
+                              }
+
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('هذا الحجز موجود بالفعل !')));
+                                    content: Text(
+                                        'الرجاء التحقق من ادخال كل البيانات')),
+                              );
+                            }
                           }
-                        } else {
-                          await _firestore
-                              .deleteAppointment(existingAppointment);
-                          existingAppointment.name = name;
-                          existingAppointment.gender = gender!;
-                          existingAppointment.age = age;
-                          existingAppointment.address = address;
-                          existingAppointment.phoneNumber = phoneNumber;
-                          existingAppointment.department = selectedDepartment;
-                          existingAppointment.doctor = selectedDoctor!;
-                          existingAppointment.hospital =
-                              widget.registrar.hospitalName;
-                          existingAppointment.time = fullDateTime;
-                          await _firestore
-                              .createAppointment(existingAppointment);
-                          setState(() {
-                            //existingAppointment.time = inSudanTime;
-                            _allAppointments[_allAppointments.indexOf(
-                                existingAppointment)] = existingAppointment;
-                          });
-                        }
-
-                        Navigator.of(context).pop();
-                        setState(() {});
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('الرجاء التحقق من ادخال كل البيانات')),
-                        );
-                      }
-                    }),
+                        : null),
               ],
             ),
           );
@@ -545,290 +577,342 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
               tabs: doctors.map((d) => Tab(text: d)).toList(),
             ),
           ),
-          body: TabBarView(
-            children: doctors.map((doctor) {
-              final appts = _sortAppointmentsByTime(_allAppointments
-                  .where(
-                      (a) => a.department == selectedDept && a.doctor == doctor)
-                  .toList());
+          body: Column(
+            children: [
+              if (!_isConnected)
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.red,
+                  child: const Text(
+                    'لا يوجد اتصال بالإنترنت. لا يمكنك إدارة المواعيد.',
+                    style: TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              Expanded(
+                child: TabBarView(
+                    children: doctors.map((doctor) {
+                  final appts = _sortAppointmentsByTime(_allAppointments
+                      .where((a) =>
+                          a.department == selectedDept && a.doctor == doctor)
+                      .toList());
 
-              // checking there is appointments in the department
-              if (appts.isEmpty) {
-                return const Center(
-                    child: Text('لا توجد مواعيد حالياً.',
-                        style: TextStyle(color: Colors.grey)));
-              } // if
+                  // checking there is appointments in the department
+                  if (appts.isEmpty) {
+                    return const Center(
+                        child: Text('لا توجد مواعيد حالياً.',
+                            style: TextStyle(color: Colors.grey)));
+                  } // if
 
 // is ListView.builder is the best choice for performance later?
-              return ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: appts.length,
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: appts.length,
 // gitting the appointment from _allAppointments
-                itemBuilder: (context, appointmentsCounter) {
-                  final currentAppointment = appts[appointmentsCounter];
+                    itemBuilder: (context, appointmentsCounter) {
+                      final currentAppointment = appts[appointmentsCounter];
 
-                  final timeInSudan =
-                      currentAppointment.time.add(const Duration(hours: 2));
+                      final timeInSudan =
+                          currentAppointment.time.add(const Duration(hours: 2));
 
-                  final hourIn12HourFormat =
-                      (timeInSudan.hour % 12 != 0) ? timeInSudan.hour % 12 : 12;
-                  //we have added to hours to display the time in utc+2
-                  final String timeString =
-                      '${hourIn12HourFormat.toString().padLeft(2, '0')}:${timeInSudan.minute.toString().padLeft(2, '0')}:${timeInSudan.second.toString().padLeft(2, '0')} ${timeInSudan.hour >= 12 ? 'PM' : 'AM'}';
+                      final hourIn12HourFormat = (timeInSudan.hour % 12 != 0)
+                          ? timeInSudan.hour % 12
+                          : 12;
+                      //we have added to hours to display the time in utc+2
+                      final String timeString =
+                          '${hourIn12HourFormat.toString().padLeft(2, '0')}:${timeInSudan.minute.toString().padLeft(2, '0')}:${timeInSudan.second.toString().padLeft(2, '0')} ${timeInSudan.hour >= 12 ? 'PM' : 'AM'}';
 
-                  final String dateString =
-                      '${timeInSudan.year.toString()}/${timeInSudan.month.toString().padLeft(2, '0')}/${timeInSudan.day.toString().padLeft(2, '0')}';
+                      final String dateString =
+                          '${timeInSudan.year.toString()}/${timeInSudan.month.toString().padLeft(2, '0')}/${timeInSudan.day.toString().padLeft(2, '0')}';
 
-                  // how appointments are displayed
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: ListTile(
-                      // numbering appointments
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Theme.of(context).cardColor,
-                        child: Text(
-                          '${appointmentsCounter + 1}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                      // how appointments are displayed
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          // numbering appointments
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Theme.of(context).cardColor,
+                            child: Text(
+                              '${appointmentsCounter + 1}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
 // send the counter to the citizen how create the appointment
-                      title: Text(currentAppointment
-                          .name), // appointment name will be the title of the card
-                      subtitle: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          title: Text(currentAppointment
+                              .name), // appointment name will be the title of the card
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // how the age and nbh are displayed: (العمر: 30  |  السكن: الواحة - 12)
-                              Text(
-                                  'العمر: ${currentAppointment.age}  \nالسكن: ${currentAppointment.address}'),
-                              if (currentAppointment.phoneNumber.isNotEmpty)
-                                Text(
-                                    'هاتف: ${currentAppointment.phoneNumber}'), // phone number
-                              if (dateString != 'غير محدد')
-                                Text(
-                                  'تاريخ الإنشاء: $dateString',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // how the age and nbh are displayed: (العمر: 30  |  السكن: الواحة - 12)
+                                  Text(
+                                      'العمر: ${currentAppointment.age}  \nالسكن: ${currentAppointment.address}'),
+                                  if (currentAppointment.phoneNumber.isNotEmpty)
+                                    Text(
+                                        'هاتف: ${currentAppointment.phoneNumber}'), // phone number
+                                  if (dateString != 'غير محدد')
+                                    Text(
+                                      'تاريخ الإنشاء: $dateString',
+                                      style: const TextStyle(
+                                          fontSize: 12, color: Colors.grey),
+                                    ),
 
-                              if (timeString != 'غير محدد')
-                                Text(
-                                  'وقت الإنشاء: $timeString',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
+                                  if (timeString != 'غير محدد')
+                                    Text(
+                                      'وقت الإنشاء: $timeString',
+                                      style: const TextStyle(
+                                          fontSize: 12, color: Colors.grey),
+                                    ),
+                                ],
+                              ),
+                              Wrap(
+                                spacing: 8,
+                                direction: Axis.vertical,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  //Check-in Button
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                      iconColor:
+                                          WidgetStatePropertyAll(Colors.green),
+                                      side: WidgetStatePropertyAll(
+                                          BorderSide(color: Colors.green)),
+                                    ),
+                                    onPressed: _isConnected
+                                        ? () async {
+                                            final confirmed =
+                                                await showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                backgroundColor:
+                                                    Theme.of(context).cardColor,
+                                                title:
+                                                    const Text("تأكيد الدخول"),
+                                                content: const Text(
+                                                    "هل أنت متأكد أنك تريد قبول هذا الموعد؟"),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text("لا",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.grey)),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(false),
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text(
+                                                        "تأكيد الموعد",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.green)),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(true),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+
+                                            if (confirmed == true) {
+                                              // Send a notification to the citizen about the acceptance
+                                              final citizenNotification =
+                                                  Notify(
+                                                id: '', // Firestore will auto-generate this
+                                                title: 'تم تأكيد حجزك',
+                                                body:
+                                                    'تم تأكيد حجز المريض ${currentAppointment.name} في ${currentAppointment.hospital} مع ${currentAppointment.doctor}. يرجى التوجه إلى قسم ${currentAppointment.department} وانتظار دورك.',
+                                                type: NotificationType.booking,
+                                                timestamp: DateTime.now()
+                                                    .toUtc()
+                                                    .add(Duration(hours: 2)),
+                                                recipientId: currentAppointment
+                                                    .phoneNumber,
+                                                isRead: false,
+                                              );
+                                              await _firestore
+                                                  .createNotification(
+                                                      citizenNotification);
+
+                                              // Send notification to the doctor
+                                              final doctorPhoneNumber =
+                                                  await _firestore
+                                                      .getDoctorPhoneNumber(
+                                                currentAppointment.doctor,
+                                                currentAppointment.state,
+                                                currentAppointment.locality,
+                                                currentAppointment.hospital,
+                                              );
+
+                                              if (doctorPhoneNumber != null) {
+                                                final doctorNotification = Notify(
+                                                    id: '',
+                                                    title:
+                                                        'مريض جديد في الانتظار',
+                                                    body:
+                                                        'تم تسجيل دخول المريض ${currentAppointment.name}. يرجى الاستعداد.',
+                                                    type:
+                                                        NotificationType.alert,
+                                                    timestamp: DateTime.now()
+                                                        .toUtc()
+                                                        .add(
+                                                            Duration(hours: 2)),
+                                                    recipientId:
+                                                        doctorPhoneNumber,
+                                                    isRead: false);
+                                                await _firestore
+                                                    .createNotification(
+                                                        doctorNotification);
+                                              }
+                                              await _checkInAppointment(
+                                                  currentAppointment);
+                                              await _firestore
+                                                  .deleteAppointment(
+                                                      currentAppointment);
+                                              setState(() {
+                                                _allAppointments
+                                                    .remove(currentAppointment);
+                                              });
+                                            }
+                                          }
+                                        : null,
+                                    child: const Icon(Icons.check),
+                                  ),
+
+                                  //Cancel Button
+                                  OutlinedButton(
+                                    style: ButtonStyle(
+                                      iconColor:
+                                          WidgetStatePropertyAll(Colors.red),
+                                      side: WidgetStatePropertyAll(
+                                          BorderSide(color: Colors.red)),
+                                    ),
+                                    onPressed: _isConnected
+                                        ? () async {
+                                            final confirmed =
+                                                await showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                backgroundColor:
+                                                    Theme.of(context).cardColor,
+                                                title:
+                                                    const Text("تأكيد الإلغاء"),
+                                                content: const Text(
+                                                    "هل أنت متأكد أنك تريد إلغاء هذا الموعد؟"),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text("لا",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.grey)),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(false),
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text(
+                                                        "إلغاء الموعد",
+                                                        style: TextStyle(
+                                                            color: Colors.red)),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(true),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+
+                                            if (confirmed == true) {
+                                              // Send a notification to the citizen about the cancellation
+                                              final notification = Notify(
+                                                id: '', // Firestore will auto-generate this
+                                                title: 'إلغاء الحجز',
+                                                body:
+                                                    'تم إلغاء حجزك في ${currentAppointment.hospital}  نعتذر عن أي إزعاج.',
+                                                type: NotificationType.booking,
+                                                timestamp: DateTime.now()
+                                                    .toUtc()
+                                                    .add(Duration(hours: 2)),
+                                                recipientId: currentAppointment
+                                                    .phoneNumber,
+                                                isRead: false,
+                                              );
+                                              await _firestore
+                                                  .createNotification(
+                                                      notification);
+                                              await _firestore
+                                                  .deleteAppointment(
+                                                      currentAppointment);
+                                              setState(() {
+                                                _allAppointments
+                                                    .remove(currentAppointment);
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                    content: Text(
+                                                        '! تم إلغاء الموعد بنجاح')),
+                                              );
+                                            }
+                                          }
+                                        : null,
+                                    child: const Icon(Icons.close),
+                                  ),
+
+                                  //Edit Button (Local Appointments Only)
+                                  if (currentAppointment.isLocal != null &&
+                                      currentAppointment.isLocal == true)
+                                    OutlinedButton(
+                                      onPressed: _isConnected
+                                          ? () async {
+                                              await _showAddEditAppointmentDialog(
+                                                existingAppointment:
+                                                    currentAppointment,
+                                              );
+                                              setState(() {});
+                                            }
+                                          : null,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit,
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'تعديل',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColor),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              )
                             ],
                           ),
-                          Wrap(
-                            spacing: 8,
-                            direction: Axis.vertical,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              //Check-in Button
-                              ElevatedButton(
-                                style: ButtonStyle(
-                                  iconColor:
-                                      WidgetStatePropertyAll(Colors.green),
-                                  side: WidgetStatePropertyAll(
-                                      BorderSide(color: Colors.green)),
-                                ),
-                                onPressed: () async {
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      backgroundColor:
-                                          Theme.of(context).cardColor,
-                                      title: const Text("تأكيد الدخول"),
-                                      content: const Text(
-                                          "هل أنت متأكد أنك تريد قبول هذا الموعد؟"),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text("لا",
-                                              style: TextStyle(
-                                                  color: Colors.grey)),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                        ),
-                                        TextButton(
-                                          child: const Text("تأكيد الموعد",
-                                              style: TextStyle(
-                                                  color: Colors.green)),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(true),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-
-                                  if (confirmed == true) {
-                                    // Send a notification to the citizen about the acceptance
-                                    final citizenNotification = Notify(
-                                      id: '', // Firestore will auto-generate this
-                                      title: 'تم تأكيد حجزك',
-                                      body:
-                                          'تم تأكيد حجز المريض ${currentAppointment.name} في ${currentAppointment.hospital} مع ${currentAppointment.doctor}. يرجى التوجه إلى قسم ${currentAppointment.department} وانتظار دورك.',
-                                      type: NotificationType.booking,
-                                      timestamp: DateTime.now()
-                                          .toUtc()
-                                          .add(Duration(hours: 2)),
-                                      recipientId:
-                                          currentAppointment.phoneNumber,
-                                      isRead: false,
-                                    );
-                                    await _firestore.createNotification(
-                                        citizenNotification);
-
-                                    // Send notification to the doctor
-                                    final doctorPhoneNumber =
-                                        await _firestore.getDoctorPhoneNumber(
-                                      currentAppointment.doctor,
-                                      currentAppointment.state,
-                                      currentAppointment.locality,
-                                      currentAppointment.hospital,
-                                    );
-
-                                    if (doctorPhoneNumber != null) {
-                                      final doctorNotification = Notify(
-                                          id: '',
-                                          title: 'مريض جديد في الانتظار',
-                                          body:
-                                              'تم تسجيل دخول المريض ${currentAppointment.name}. يرجى الاستعداد.',
-                                          type: NotificationType.alert,
-                                          timestamp: DateTime.now()
-                                              .toUtc()
-                                              .add(Duration(hours: 2)),
-                                          recipientId: doctorPhoneNumber,
-                                          isRead: false);
-                                      await _firestore.createNotification(
-                                          doctorNotification);
-                                    }
-                                    await _checkInAppointment(
-                                        currentAppointment);
-                                    await _firestore
-                                        .deleteAppointment(currentAppointment);
-                                    setState(() {
-                                      _allAppointments
-                                          .remove(currentAppointment);
-                                    });
-                                  }
-                                },
-                                child: const Icon(Icons.check),
-                              ),
-
-                              //Cancel Button
-                              OutlinedButton(
-                                style: ButtonStyle(
-                                  iconColor: WidgetStatePropertyAll(Colors.red),
-                                  side: WidgetStatePropertyAll(
-                                      BorderSide(color: Colors.red)),
-                                ),
-                                onPressed: () async {
-                                  final confirmed = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      backgroundColor:
-                                          Theme.of(context).cardColor,
-                                      title: const Text("تأكيد الإلغاء"),
-                                      content: const Text(
-                                          "هل أنت متأكد أنك تريد إلغاء هذا الموعد؟"),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text("لا",
-                                              style: TextStyle(
-                                                  color: Colors.grey)),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(false),
-                                        ),
-                                        TextButton(
-                                          child: const Text("إلغاء الموعد",
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(true),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-
-                                  if (confirmed == true) {
-                                    // Send a notification to the citizen about the cancellation
-                                    final notification = Notify(
-                                      id: '', // Firestore will auto-generate this
-                                      title: 'إلغاء الحجز',
-                                      body:
-                                          'تم إلغاء حجزك في ${currentAppointment.hospital}  نعتذر عن أي إزعاج.',
-                                      type: NotificationType.booking,
-                                      timestamp: DateTime.now()
-                                          .toUtc()
-                                          .add(Duration(hours: 2)),
-                                      recipientId:
-                                          currentAppointment.phoneNumber,
-                                      isRead: false,
-                                    );
-                                    await _firestore
-                                        .createNotification(notification);
-                                    await _firestore
-                                        .deleteAppointment(currentAppointment);
-                                    setState(() {
-                                      _allAppointments
-                                          .remove(currentAppointment);
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content:
-                                              Text('! تم إلغاء الموعد بنجاح')),
-                                    );
-                                  }
-                                },
-                                child: const Icon(Icons.close),
-                              ),
-
-                              //Edit Button (Local Appointments Only)
-                              if (currentAppointment.isLocal != null &&
-                                  currentAppointment.isLocal == true)
-                                OutlinedButton(
-                                  onPressed: () async {
-                                    await _showAddEditAppointmentDialog(
-                                      existingAppointment: currentAppointment,
-                                    );
-                                    setState(() {});
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.edit,
-                                          color:
-                                              Theme.of(context).primaryColor),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'تعديل',
-                                        style: TextStyle(
-                                            color:
-                                                Theme.of(context).primaryColor),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
-                },
-              );
-            }).toList(),
+                }).toList()),
+              ),
+            ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
           // the floating button (إضافة موعد جديد)
           bottomNavigationBar: _buildBottomNavigationBar(),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () async {
-              await _showAddEditAppointmentDialog();
-              setState(() {});
-            },
+            onPressed: _isConnected
+                ? () async {
+                    await _showAddEditAppointmentDialog();
+                    setState(() {});
+                  }
+                : null,
             foregroundColor: Theme.of(context).primaryColorDark,
             backgroundColor: Theme.of(context).cardColor,
             icon: const Icon(Icons.add),

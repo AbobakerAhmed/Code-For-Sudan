@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/backend/doctor/doctor.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
@@ -16,6 +18,8 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   final FirestoreService _firestore = FirestoreService();
+  bool _isConnected = true;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   /// this method load the checked in appointments from the database
   /// and put all checked in and checked out appointments in inAppointments/outAppointments
@@ -86,8 +90,29 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
   @override
   void initState() {
     super.initState();
+    _checkConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
     _loadInitialAppointments();
     _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    if (!mounted) return;
+    setState(() => _isConnected = (result.contains(ConnectivityResult.mobile) ||
+        result.contains(ConnectivityResult.wifi)));
   }
 
   @override
@@ -139,11 +164,27 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
               tabs: appoi.map((d) => Tab(text: d)).toList(),
             ),
           ),
-          body: TabBarView(
-            controller: _tabController,
+          body: Column(
             children: [
-              _buildNewAppointmentsTab(),
-              _buildOngoingAppointmentsTab(),
+              if (!_isConnected)
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.red,
+                  child: const Text(
+                    'لا يوجد اتصال بالإنترنت. لا يمكنك إدارة المواعيد.',
+                    style: TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildNewAppointmentsTab(),
+                    _buildOngoingAppointmentsTab(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -166,39 +207,43 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.lightBlue),
-                    onPressed: () async {
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return Material(
-                              type: MaterialType.transparency,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircularProgressIndicator(
-                                        color: Theme.of(context).primaryColor),
-                                    SizedBox(
-                                      height: 30,
+                    onPressed: _isConnected
+                        ? () async {
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return Material(
+                                    type: MaterialType.transparency,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          SizedBox(
+                                            height: 30,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
+                                  );
+                                });
 
-                      await _firestore
-                          .checkOutAppointment(inAppointments[currentIndex]);
-                      await _firestore.deleteCheckedInAppointment(
-                          inAppointments[currentIndex]);
-                      setState(() {
-                        // Remove the current appointment from the screen and show the next one
-                        outAppointments.add(inAppointments[currentIndex]);
-                        currentIndex++;
-                      });
-                      Navigator.pop(context);
-                    },
+                            await _firestore.checkOutAppointment(
+                                inAppointments[currentIndex]);
+                            await _firestore.deleteCheckedInAppointment(
+                                inAppointments[currentIndex]);
+                            setState(() {
+                              // Remove the current appointment from the screen and show the next one
+                              outAppointments.add(inAppointments[currentIndex]);
+                              currentIndex++;
+                            });
+                            Navigator.pop(context);
+                          }
+                        : null,
                     child: Text(
                       "التالي",
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -294,10 +339,12 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                                 color: Colors.lightBlue,
                                 fontWeight: FontWeight.bold),
                           ),
-                          onPressed: () async {
-                            await _showEditDialog(context, appointment);
-                            setState(() {});
-                          },
+                          onPressed: _isConnected
+                              ? () async {
+                                  await _showEditDialog(context, appointment);
+                                  setState(() {});
+                                }
+                              : null,
                         ),
                       ),
                     );
@@ -334,10 +381,12 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             'تعديل',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          onPressed: () async {
-                            await _showEditDialog(context, appointment);
-                            setState(() {});
-                          },
+                          onPressed: _isConnected
+                              ? () async {
+                                  await _showEditDialog(context, appointment);
+                                  setState(() {});
+                                }
+                              : null,
                         ),
                       ),
                     );
@@ -525,103 +574,109 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                       style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.bold)),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      if (newDiagnosis != null &&
-                          newDiagnosis!.trim().isNotEmpty) {
-                        diagnoses.add(newDiagnosis!.trim());
-                      }
+                  onPressed: _isConnected
+                      ? () async {
+                          if (_formKey.currentState!.validate()) {
+                            if (newDiagnosis != null &&
+                                newDiagnosis!.trim().isNotEmpty) {
+                              diagnoses.add(newDiagnosis!.trim());
+                            }
 
-                      showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) {
-                            return Material(
-                              type: MaterialType.transparency,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircularProgressIndicator(
-                                        color: Theme.of(context).primaryColor),
-                                    SizedBox(
-                                      height: 30,
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return Material(
+                                    type: MaterialType.transparency,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                              color: Theme.of(context)
+                                                  .primaryColor),
+                                          SizedBox(
+                                            height: 30,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          });
+                                  );
+                                });
 
-                      bool didChange = false;
-                      Appointment? oldDiagnosedAppointment;
+                            bool didChange = false;
+                            Appointment? oldDiagnosedAppointment;
 
-                      final diagnosedExists = await _firestore
-                          .checkDiagnosedAppointmentExist(appointment);
+                            final diagnosedExists = await _firestore
+                                .checkDiagnosedAppointmentExist(appointment);
 
-                      if (diagnosedExists) {
-                        await _firestore
-                            .deleteDiagnosedAppointment(appointment);
+                            if (diagnosedExists) {
+                              await _firestore
+                                  .deleteDiagnosedAppointment(appointment);
 
-                        oldDiagnosedAppointment = (diagnosedAppointments
-                                    .where((appo) =>
-                                        appo.phoneNumber ==
-                                            appointment.phoneNumber &&
-                                        appo.name == appointment.name)
-                                    .isNotEmpty ==
-                                true)
-                            ? diagnosedAppointments
-                                .where((appo) =>
-                                    appo.phoneNumber ==
-                                        appointment.phoneNumber &&
-                                    appo.name == appointment.name)
-                                .first
-                            : null;
+                              oldDiagnosedAppointment = (diagnosedAppointments
+                                          .where((appo) =>
+                                              appo.phoneNumber ==
+                                                  appointment.phoneNumber &&
+                                              appo.name == appointment.name)
+                                          .isNotEmpty ==
+                                      true)
+                                  ? diagnosedAppointments
+                                      .where((appo) =>
+                                          appo.phoneNumber ==
+                                              appointment.phoneNumber &&
+                                          appo.name == appointment.name)
+                                      .first
+                                  : null;
 
-                        if (oldDiagnosedAppointment != null &&
-                            !outAppointments
-                                .contains(oldDiagnosedAppointment)) {
-                          diagnosedAppointments.remove(oldDiagnosedAppointment);
-                          didChange = true;
+                              if (oldDiagnosedAppointment != null &&
+                                  !outAppointments
+                                      .contains(oldDiagnosedAppointment)) {
+                                diagnosedAppointments
+                                    .remove(oldDiagnosedAppointment);
+                                didChange = true;
+                              }
+
+                              if (outAppointments.contains(appointment)) {
+                                await _firestore
+                                    .deleteCheckedOutAppointment(appointment);
+                                outAppointments.remove(appointment);
+                                didChange = true;
+                              }
+                            } else {
+                              await _firestore
+                                  .deleteCheckedOutAppointment(appointment);
+                              outAppointments.remove(appointment);
+                              didChange = true;
+                            }
+
+                            appointment.medicalHistory = diagnoses;
+
+                            //refreash the time of the appointment so it can be added to the today diagnosed appointment
+                            appointment.time = DateTime.now().toUtc();
+
+                            if (_addToMedicalHistory &&
+                                appointment.forMe == true) {
+                              await _firestore.updateCitizenMedicalHistory(
+                                  appointment.phoneNumber,
+                                  appointment.medicalHistory!,
+                                  deletedDiagnosis);
+                            }
+
+                            await _firestore.diagnoseAppointment(appointment);
+                            diagnosedAppointments.add(appointment);
+
+                            if (didChange) {
+                              setState(() {});
+                            }
+
+                            Navigator.pop(context); // close loading
+                            Navigator.pop(context); // close dialog
+                            _onTabTapped(1);
+                          }
                         }
-
-                        if (outAppointments.contains(appointment)) {
-                          await _firestore
-                              .deleteCheckedOutAppointment(appointment);
-                          outAppointments.remove(appointment);
-                          didChange = true;
-                        }
-                      } else {
-                        await _firestore
-                            .deleteCheckedOutAppointment(appointment);
-                        outAppointments.remove(appointment);
-                        didChange = true;
-                      }
-
-                      appointment.medicalHistory = diagnoses;
-
-                      //refreash the time of the appointment so it can be added to the today diagnosed appointment
-                      appointment.time = DateTime.now().toUtc();
-
-                      if (_addToMedicalHistory && appointment.forMe == true) {
-                        await _firestore.updateCitizenMedicalHistory(
-                            appointment.phoneNumber,
-                            appointment.medicalHistory!,
-                            deletedDiagnosis);
-                      }
-
-                      await _firestore.diagnoseAppointment(appointment);
-                      diagnosedAppointments.add(appointment);
-
-                      if (didChange) {
-                        setState(() {});
-                      }
-
-                      Navigator.pop(context); // close loading
-                      Navigator.pop(context); // close dialog
-                      _onTabTapped(1);
-                    }
-                  },
+                      : null,
                 ),
               ],
             ),
