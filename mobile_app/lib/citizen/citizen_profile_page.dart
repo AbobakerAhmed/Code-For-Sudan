@@ -208,40 +208,40 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                       const SizedBox(
                           height: 10), // between name and phone number
 
-                      // enter phone number
-                      TextFormField(
-                        cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentCitizen.phoneNumber.toString(),
-                        style: TextStyle(
-                            color: Theme.of(context).secondaryHeaderColor),
-                        decoration: InputDecoration(
-                            labelText: 'رقم الهاتف',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).secondaryHeaderColor),
-                            floatingLabelStyle: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            )),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value != null) {
-                            if (!Validate.phoneNumber(value)) {
-                              return 'رقم الهاتف غير صالح'; // Invalid phone number
-                            }
-                            return null;
-                          } else {
-                            return null;
-                          }
-                        },
-                        onChanged: (value) =>
-                            currentCitizen.phoneNumber = value,
-                      ),
+                      // // enter phone number
+                      // TextFormField(
+                      //   cursorColor: Theme.of(context).primaryColor,
+                      //   initialValue: currentCitizen.phoneNumber.toString(),
+                      //   style: TextStyle(
+                      //       color: Theme.of(context).secondaryHeaderColor),
+                      //   decoration: InputDecoration(
+                      //       labelText: 'رقم الهاتف',
+                      //       labelStyle: TextStyle(
+                      //           color: Theme.of(context).secondaryHeaderColor),
+                      //       floatingLabelStyle: TextStyle(
+                      //         color: Theme.of(context).primaryColor,
+                      //       ),
+                      //       focusedBorder: UnderlineInputBorder(
+                      //         borderSide: BorderSide(
+                      //           color: Theme.of(context).primaryColor,
+                      //         ),
+                      //       )),
+                      //   keyboardType: TextInputType.phone,
+                      //   validator: (value) {
+                      //     if (value != null) {
+                      //       if (!Validate.phoneNumber(value)) {
+                      //         return 'رقم الهاتف غير صالح'; // Invalid phone number
+                      //       }
+                      //       return null;
+                      //     } else {
+                      //       return null;
+                      //     }
+                      //   },
+                      //   onChanged: (value) =>
+                      //       currentCitizen.phoneNumber = value,
+                      // ),
 
-                      const SizedBox(height: 10), // between age and password
+                      // const SizedBox(height: 10), // between age and password
 
                       // enter password
                       TextFormField(

@@ -209,40 +209,40 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                       const SizedBox(
                           height: 10), // between name and phone number
 
-                      // enter phone number
-                      TextFormField(
-                        cursorColor: Theme.of(context).primaryColor,
-                        initialValue: currentRegistrar.phoneNumber,
-                        style: TextStyle(
-                            color: Theme.of(context).secondaryHeaderColor),
-                        decoration: InputDecoration(
-                            labelText: 'رقم الهاتف',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).secondaryHeaderColor),
-                            floatingLabelStyle: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            )),
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value != null) {
-                            if (!Validate.phoneNumber(value)) {
-                              return 'رقم الهاتف غير صالح'; // Invalid phone number
-                            }
-                            return null;
-                          } else {
-                            return null;
-                          }
-                        },
-                        onChanged: (value) =>
-                            currentRegistrar.phoneNumber = value,
-                      ),
-                      const SizedBox(
-                          height: 10), // between age and neighborhood
+                      // // enter phone number
+                      // TextFormField(
+                      //   cursorColor: Theme.of(context).primaryColor,
+                      //   initialValue: currentRegistrar.phoneNumber,
+                      //   style: TextStyle(
+                      //       color: Theme.of(context).secondaryHeaderColor),
+                      //   decoration: InputDecoration(
+                      //       labelText: 'رقم الهاتف',
+                      //       labelStyle: TextStyle(
+                      //           color: Theme.of(context).secondaryHeaderColor),
+                      //       floatingLabelStyle: TextStyle(
+                      //         color: Theme.of(context).primaryColor,
+                      //       ),
+                      //       focusedBorder: UnderlineInputBorder(
+                      //         borderSide: BorderSide(
+                      //           color: Theme.of(context).primaryColor,
+                      //         ),
+                      //       )),
+                      //   keyboardType: TextInputType.phone,
+                      //   validator: (value) {
+                      //     if (value != null) {
+                      //       if (!Validate.phoneNumber(value)) {
+                      //         return 'رقم الهاتف غير صالح'; // Invalid phone number
+                      //       }
+                      //       return null;
+                      //     } else {
+                      //       return null;
+                      //     }
+                      //   },
+                      //   onChanged: (value) =>
+                      //       currentRegistrar.phoneNumber = value,
+                      // ),
+                      // const SizedBox(
+                      //     height: 10), // between age and neighborhood
 
                       // enter password
                       TextFormField(
