@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pc_apps/login_screen.dart';
 
-
-
 void main(){
   runApp(HospitalManagerApp());
 }
-
 
 class HospitalManagerApp extends StatelessWidget{
   const HospitalManagerApp();

@@ -65,7 +65,7 @@ class MedicalDataManagementScreen extends StatelessWidget {
             // Card 1: Bookings/Reservations
             CardOption(
               icon: Icons.calendar_today, // Calendar with checkmark/cross
-              text: 'الحجوزات', // Bookings / Reservations
+              text: 'إدارة الحجوزات', // Bookings / Reservations
               onTap: () {
                 print('Bookings tapped');
                 Navigator.push(
@@ -80,9 +80,8 @@ class MedicalDataManagementScreen extends StatelessWidget {
 
             // Card 2: Medical Data
             CardOption(
-              icon: Icons
-                  .medication_liquid, // Icon for medical data (abstract molecule/data flow)
-              text: 'البيانات الطبية', // Medical Data
+              icon: Icons.bed_sharp, // Icon for medical data (abstract molecule/data flow)
+              text: 'إدارة الحالات السريرية (العنابر)', // Medical Data
               onTap: () {
                 print('Medical Data tapped');
                 Navigator.push(
@@ -99,7 +98,7 @@ class MedicalDataManagementScreen extends StatelessWidget {
             CardOption(
               icon: Icons
                   .edit_note, // Icon for registering medical data (document with pencil)
-              text: 'تسجيل البيانات الطبية', // Register Medical Data
+              text: 'تسجيل الدخولات', // Register Medical Data
               onTap: () {
                 print('Register Medical Data tapped');
                 Navigator.push(

@@ -95,6 +95,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   MainAxisAlignment.spaceAround, // Align contents to the right
                   children: [
                     buildLabel("القسم"),
+                    const SizedBox(width: 8),
                     buildFilterDropdown(
                         hint: "القسم",
                         value: _selectedDepartment,
@@ -106,8 +107,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         }
                     ),
 
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 20),
                     buildLabel("نوع الحجوزات"),
+                    const SizedBox(width: 8),
                     buildFilterDropdown(
                         hint: "نوع الحجوزات",
                         value: _selectedAppointmentsType,
@@ -119,8 +121,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         }
                     ),
 
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 20),
                     buildLabel("الفترة الزمنية"),
+                    const SizedBox(width: 8),
                     buildDateRangeSelector(
                         context: context,
                         selectedRange: _selectedDateRange,
@@ -140,31 +143,6 @@ class _BookingsScreenState extends State<BookingsScreen> {
             // Report Data
             Expanded(child: _body()),
 
-            // Dashboard Button
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    print('عرض ال DashBard tapped'); // Show Dashboard (Arabic)
-                    // Navigate back to Dashboard or show relevant data
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent.shade400,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  ),
-                  child: const Text(
-                    'عرض ال DashBard', // Show Dashboard (Arabic)
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -179,7 +157,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
             // if he dosen't chose type yet
             if( _selectedAppointmentsType == null) ... [
                 Center(
-                  child: Icon(Icons.assignment, color: Colors.blueGrey, size: 100,),
+                    child: Icon(Icons.assignment, color: Colors.blueGrey, size: 100,),
                 ),
             ]
             // new appointments

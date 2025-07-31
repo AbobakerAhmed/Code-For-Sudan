@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pc_apps/Backend/hospital.dart';
 import 'package:pc_apps/Backend/hospital_manager.dart';
 import 'package:pc_apps/employee_management_screen.dart'; // Import NotificationsScreen
@@ -76,27 +77,11 @@ class HomeScreen extends StatelessWidget {
                   // Employee Management (إدارة الموظفين)
                   _buildFeatureCard(
                     context,
-                    icon: Icons
-                        .person_add_alt_1, // A suitable icon for employee management
-                    label: 'إدارة الموظفين',
+                    icon: Icons.event_note,
+                        // .person_add_alt_1, // A suitable icon for employee management
+                    label: 'إدارة المرضى والحجوزات',
                     onTap: () {
                       print('Employee Management tapped');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EmployeeManagementScreen(hospital: manager.hospital),
-                        ),
-                      );
-                    },
-                  ),
-                  // Medical Data Management (إدارة البيانات الطبية)
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.security, // A suitable icon for data management
-                    label: 'إدارة البيانات الطبية',
-                    onTap: () {
-                      print('Medical Data Management tapped');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -106,10 +91,26 @@ class HomeScreen extends StatelessWidget {
                       );
                     },
                   ),
+                  // Medical Data Management (إدارة البيانات الطبية)
+                  _buildFeatureCard(
+                    context,
+                    icon: FontAwesomeIcons.userDoctor, // A suitable icon for data management
+                    label: 'إدارة الطاقم الطبي',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EmployeeManagementScreen(hospital: manager.hospital),
+                        ),
+                      );
+                    },
+                  ),
                   // Notifications (الاشعارات)
                   _buildFeatureCard(
                     context,
-                    icon: Icons.notifications_active,
+                    icon: Icons.notifications,
                     label: 'الاشعارات',
                     onTap: () {
                       Navigator.push(
@@ -127,8 +128,8 @@ class HomeScreen extends StatelessWidget {
                   _buildFeatureCard(
                     context,
                     icon: Icons
-                        .outbox, // A suitable icon for sending notifications
-                    label: 'ارسال الاشعارات',
+                        .send, // A suitable icon for sending notifications
+                    label: 'ارسال التقارير',
                     onTap: () {
                       print('Send Notifications tapped');
                       Navigator.push(
