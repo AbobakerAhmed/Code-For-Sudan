@@ -120,9 +120,6 @@ class HomeScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    showBadge:
-                        true, // As seen in image_99dfa4.jpg (previous dashboard)
-                    badgeCount: 3,
                   ),
                   // Send Notifications (ارسال الاشعارات)
                   _buildFeatureCard(
