@@ -44,9 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
         "محمد أحمد خالد",
         "0123456789",
         "123123",
-        'الكل',
-        "أمدرمان"
-
+        'الخرطوم',
+        "الكل"
     );
     Navigator.pushReplacement(
       context,

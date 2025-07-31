@@ -23,10 +23,31 @@ Issues:
 
 class ReportingScreen extends StatefulWidget {
   final MinistryEmployee employee;
-  const ReportingScreen({super.key, required this.employee, String? reportType, String? state,  String? locality, String? hospital, DateTimeRange? selectedDateRange});
+  String? initialReportType;
+  String? initialState;
+  String? initialLocality;
+  String? initialHospital;
+  DateTimeRange? initialDateTimeRange;
+
+  ReportingScreen({
+    super.key,
+    required this.employee,
+    this.initialReportType,
+    this.initialState,
+    this.initialLocality,
+    this.initialHospital,
+    this.initialDateTimeRange
+  });
 
   @override
-  State<ReportingScreen> createState() => _ReportingScreenState(employee: employee);
+  State<ReportingScreen> createState() => _ReportingScreenState(
+    employee: employee,
+      reportType:  this.initialReportType,
+      state:  this.initialState,
+      locality:  this.initialLocality,
+      hospital:  this.initialHospital,
+      selectedDateRange:  this.initialDateTimeRange
+  );
 }
 
 class _ReportingScreenState extends State<ReportingScreen> {
@@ -46,23 +67,21 @@ class _ReportingScreenState extends State<ReportingScreen> {
     String? hospital,
     DateTimeRange? selectedDateRange
   }){
-
     _selectedReportType = reportType;
     _selectedHospital  = hospital ?? 'الكل';
     _selectedState = state ?? this.employee.getState();
     _selectedLocality = locality ?? this.employee.getLocality();
     _dateTimeRange = selectedDateRange ?? DateTimeRange(start: DateTime(DateTime.now().year), end: DateTime.now());
+    initState();
   }
 
   @override
   void initState() {
     super.initState();
-    // Add any additional initialization that requires context here
   }
 
   @override
   Widget build(BuildContext context) {
-    initState();
     return  Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -901,5 +920,7 @@ final List<String> _hospitals = [
   'الكل',
   'مستشفى الاطباء',
   'مستشفى الخرطوم',
-  'مستشفى ام درمان',
+  'مستشفى أمدرمان',
+  'مستشفى النو التعليمي',
+  'مستشفى السلاح الطبي',
 ]; // Example hospitals

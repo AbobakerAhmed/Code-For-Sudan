@@ -118,9 +118,9 @@ List<Notification> testingNotifications = [
   Notification(
     receiverState: "الخرطوم",
     receiverLocality: "أمدرمان",
-    sender: "مستشفى أمدرمان العسكري",
-    title: "تشخيص وبائي",
-    massage: "تم تشخيص حاله بوباء ${epidemics[4]}",
+    sender: "مستشفى أمدرمان",
+    title: "تقرير دوري",
+    massage: "تم ارسال التقرير اليومي",
     isImportant: false,
     creationTime: DateTime.now().subtract(Duration(minutes: 30)),
   ),
@@ -128,8 +128,8 @@ List<Notification> testingNotifications = [
   Notification(
     receiverState: "الخرطوم",
     receiverLocality: "أمدرمان",
-    sender: "مستشفى أمدرمان التعليمي",
-    title: "تنبيه إداري",
+    sender: "مستشفى السلاح الطبي",
+    title: "تقرير دوري",
     massage: "تم إرفاق التقرير اليومي",
     isImportant: false,
     creationTime: DateTime.now().subtract(Duration(hours: 4)),
@@ -138,7 +138,7 @@ List<Notification> testingNotifications = [
   Notification(
     receiverState: "الخرطوم",
     receiverLocality: "أمدرمان",
-    sender: "مستشفى أمدرمان",
+    sender: "الكل",
     title: "بلاغ وبائي",
     massage: "!تم تشخيص محلية أمدرمان بوباء الكوليرا",
     isImportant: true,
@@ -148,7 +148,7 @@ List<Notification> testingNotifications = [
   Notification(
     receiverState: "الخرطوم",
     receiverLocality: "أمدرمان",
-    sender: "مستشفى الأمهات",
+    sender: "مستشفى النو التعليمي",
     title: "تشخيص وبائي",
     massage: "تم تشخيص حاله بوباء ${epidemics[10]}",
     isImportant: false,

@@ -27,8 +27,8 @@ final List<String> _states = [
 const List<String> g_states = ['الكل', 'الخرطوم', 'الجزيرة'];
 const Map<String, List<String>> g_localities = {
   'الكل' : ["الكل"],
-  'الخرطوم': ['بحري', 'أم درمان'],
-  'الجزيرة': ['مدني']
+  'الخرطوم': ['الكل', 'بحري', 'أمدرمان'],
+  'الجزيرة': ['الكل', 'مدني']
 };
 const List<String> g_gender = ['ذكر', 'انثى'];
 

@@ -121,7 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   hint: 'المحلية...', // Locality...
                   value: _selectedLocality,
                   items: this.employee.getLocality() == "الكل"
-                      ? (g_localities[_selectedState] ?? [])
+                      ? g_localities[_selectedState]!
                       : [this.employee.getLocality()],
                   onChanged: (newValue) {
                     setState(() {
@@ -166,21 +166,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notification.isRed = true;
         });
 
-/*
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ReportingScreen(
                 employee: this.employee,
-                state: notification.getReseveirState(),
-                locality: notification.getReseveirLocality(),
-                hospital: notification.getSender(),
-                reportType: notification.isImportant ? "تقارير الأوبئة" : "التقارير الدورية",
-                selectedDateRange: DateTimeRange(start: notification.getCreationTime(), end: notification.getCreationTime())
+                initialState: notification.getReseveirState(),
+                initialLocality: notification.getReseveirLocality(),
+                initialHospital: notification.getSender(),
+                initialReportType: notification.isImportant ? "تقارير الأوبئة" : "التقارير الدورية",
+                initialDateTimeRange: DateTimeRange(start: notification.getCreationTime(), end: notification.getCreationTime())
             ),
           ),
         ); // Navigate to NotificationScreen        // should take the user to the reporting page with the specific state, locality, and hospital
-*/
+
       },
 
       child: Container(
