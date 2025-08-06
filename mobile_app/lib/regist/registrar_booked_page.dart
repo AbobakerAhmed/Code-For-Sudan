@@ -1,17 +1,17 @@
+// import basic ui components
 import 'package:flutter/material.dart';
-//import 'package:mobile_app/backend/citizen/hospital.dart';
+
+// import backend files
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart'; // similate appointment class
 import 'package:mobile_app/backend/global_var.dart';
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
-
 import 'package:mobile_app/firestore_services/firestore.dart';
 
-// booked appointments page
+// base class
 class BookedAppointmentsPage extends StatefulWidget {
-  final Registrar
-      registrar; // which registrar (look registrar.dart in the backend folder)
+  final Registrar registrar;
   const BookedAppointmentsPage(
       {super.key, required this.registrar}); // constructor
 
@@ -20,12 +20,12 @@ class BookedAppointmentsPage extends StatefulWidget {
   State<BookedAppointmentsPage> createState() => BookedAppointmentsPageState();
 } //BookedAppointmentsPage
 
-// booked appointments content
+// class
 class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
   final FirestoreService _firestore = FirestoreService();
   bool _isLoading = true;
 
-  /// this method load the appointments from the database
+  /// fun: this method load the appointments from the database
   /// and put all appointments in the empty _allApointments variable
   Future<void> _fetchAppointments() async {
     for (final dep in widget.registrar.departmentsNames) {
@@ -37,7 +37,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     }
   }
 
-  ///this method load the appointments for the registrar
+  /// fun: this method load the appointments for the registrar
   Future<void> _loadInitialAppointments() async {
     await _fetchAppointments(); // this sets _allAppointments internally
 
@@ -62,7 +62,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     });
   } // initState
 
-  ///this fun bring doctros of each department
+  /// fun: this fun bring doctros of each department
   List<String> _getDoctorsInSelectedDepartment() {
     final selectedDept =
         widget.registrar.departmentsNames[_selectedDepartmentIndex];
@@ -72,12 +72,13 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         .doctors;
   } // _getDoctorsInSelectedDepartment
 
+  /// fun: sort appointments by time
   List<Appointment> _sortAppointmentsByTime(List<Appointment> appointments) {
     appointments.sort((a, b) => a.time.compareTo(b.time));
     return appointments;
   } // _sortAppointmentsByTime
 
-  // after an appointment go to the doctor
+  /// fun: after an appointment go to the doctor
   Future<void> _checkInAppointment(Appointment appointment) async {
     if (!_checkedInAppointments.contains(appointment)) {
       _firestore.checkInAppointment(appointment);
@@ -85,14 +86,14 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
         _checkedInAppointments.add(appointment);
       });
 
-// connect to the database here to send its data to the database
+      // connect to the database here to send its data to the database
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تم تسجيل دخول ${appointment.name}.')),
       );
     } //if
   } // _checkInAppointment
 
-  /// this is the dialog that poped up when pressing "إضافة حجز جديد" button
+  /// fun: this is the dialog that poped up when pressing "إضافة حجز جديد" button
   Future<void> _showAddEditAppointmentDialog(
       {Appointment? existingAppointment}) async {
     String selectedDepartment = (existingAppointment?.department != null)
@@ -161,7 +162,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         onChanged: (value) => name = value,
                       ),
 
-                      const SizedBox(height: 10), // between name and age
+                      const SizedBox(height: 10), // vertical space
 
                       // enter age
                       TextFormField(
@@ -182,18 +183,19 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         ),
                         keyboardType: TextInputType.number,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'الرجاء إدخال العمر';
+                          }
                           final n = int.tryParse(value);
-                          if (n == null || n <= 0 || n > 150)
+                          if (n == null || n <= 0 || n > 150) {
                             return 'الرجاء إدخال عمر صحيح';
+                          }
                           return null;
                         },
                         onChanged: (value) => age = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between age and neighborhood
+                      const SizedBox(height: 10), // vertical space
 
                       // enter address
                       TextFormField(
@@ -218,8 +220,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         onChanged: (value) => address = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between niebourhod and phone number
+                      const SizedBox(height: 10), // vertical space
 
                       // enter phone number
                       TextFormField(
@@ -248,8 +249,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         },
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
 
                       // chose gender
                       DropdownButtonFormField<String>(
@@ -292,8 +292,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         },
                       ),
 
-                      const SizedBox(
-                          height: 10), // between gender and department
+                      const SizedBox(height: 10), // vertical space
 
                       // chose the department
                       DropdownButtonFormField<String>(
@@ -340,8 +339,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                         },
                       ),
 
-                      const SizedBox(
-                          height: 10), // between department and doctor
+                      const SizedBox(height: 10), // vertical space
 
                       // choose the doctor depending on the department
                       DropdownButtonFormField<String>(
@@ -384,7 +382,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                 ),
               ),
               actions: [
-                // chencle
+                // cancel
                 TextButton(
                   child: const Text(
                     'إلغاء',
@@ -487,7 +485,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
     );
   }
 
-  // the bar in the bottom of the booked appoinments page
+  // custom widget:  the bar in the bottom of the booked appoinments page
   // it shown an icon for each department of this registrar
   Widget _buildBottomNavigationBar() {
     return BottomNavigationBar(
@@ -563,7 +561,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
               return ListView.builder(
                 padding: const EdgeInsets.all(8),
                 itemCount: appts.length,
-// gitting the appointment from _allAppointments
+// getting the appointment from _allAppointments
                 itemBuilder: (context, appointmentsCounter) {
                   final currentAppointment = appts[appointmentsCounter];
 
@@ -718,7 +716,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                 child: const Icon(Icons.check),
                               ),
 
-                              //Cancel Button
+                              // Cancel Button
                               OutlinedButton(
                                 style: ButtonStyle(
                                   iconColor: WidgetStatePropertyAll(Colors.red),
@@ -786,7 +784,7 @@ class BookedAppointmentsPageState extends State<BookedAppointmentsPage> {
                                 child: const Icon(Icons.close),
                               ),
 
-                              //Edit Button (Local Appointments Only)
+                              // Edit Button (Local Appointments Only)
                               if (currentAppointment.isLocal != null &&
                                   currentAppointment.isLocal == true)
                                 OutlinedButton(

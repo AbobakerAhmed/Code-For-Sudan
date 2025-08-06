@@ -1,10 +1,14 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
+// base class
 class BookedAppointmentsPage extends StatefulWidget {
-  final Doctor doctor; // which docotr (look doctor.dart in the backend folder)
+  final Doctor doctor;
   const BookedAppointmentsPage(
       {super.key, required this.doctor}); // constructor
 
@@ -12,12 +16,13 @@ class BookedAppointmentsPage extends StatefulWidget {
   State<BookedAppointmentsPage> createState() => _BookedAppointmentsPageState();
 }
 
+// class
 class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   final FirestoreService _firestore = FirestoreService();
 
-  /// this method load the checked in appointments from the database
+  /// fun: this method load the checked in appointments from the database
   /// and put all checked in and checked out appointments in inAppointments/outAppointments
   Future<void> _fetchAppointments() async {
     inAppointments.addAll(await _firestore.getCheckedInAppointments(
@@ -25,6 +30,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
         widget.doctor.locality,
         widget.doctor.hospitalName,
         widget.doctor.department.name));
+
     outAppointments.addAll(await _firestore.getCheckedOutAppointments(
         widget.doctor.state,
         widget.doctor.locality,
@@ -38,7 +44,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
         widget.doctor.department.name));
   }
 
-  ///this method load the checked in appointments for the doctor
+  /// fun: this method load the checked in appointments for the doctor
   Future<void> _loadInitialAppointments() async {
     await widget.doctor.fetchDepartment(); // Ensure department is loaded first
     await _fetchAppointments(); // this sets inAppointments internally
@@ -47,16 +53,16 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     }); // make sure UI updates after loading
   }
 
+  /// fun: sort appointments by time
   List<Appointment> _sortAppointmentsByTime(List<Appointment> appointments) {
     appointments.sort((a, b) => a.time.compareTo(b.time));
     return appointments;
   } // _sortAppointmentsByTime
 
+  // define variables
   List<String> appoi = ["الجديدة", "الجارية"];
-
   List<Appointment> inAppointments = [];
   List<Appointment> outAppointments = [];
-
   List<Appointment> diagnosedAppointments =
       []; // New list for diagnosed appointments
 
@@ -71,18 +77,16 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
 
   int currentIndex =
       0; // To track the currently expanded appointment in "الجديدة"
-
   late TabController _tabController; // To controll over the tabs actions
 
-  bool _addToMedicalHistory = false; // To give permission for adding or not
-
+  /// fun: control the tab events
   void _onTabTapped(int index) {
     // Change the tab index
     _tabController.index = index;
-
     setState(() {});
   }
 
+  // initialize the resources
   @override
   void initState() {
     super.initState();
@@ -90,6 +94,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  // build the app
   @override
   Widget build(BuildContext context) {
     _sortAppointmentsByTime(inAppointments);
@@ -151,6 +156,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     );
   }
 
+  /// fun: to build new appointments tab with data
   Widget _buildNewAppointmentsTab() {
     return currentIndex < inAppointments.length
         ? Column(
@@ -213,6 +219,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
           );
   }
 
+  /// fun: build the appointments details
   Widget _buildAppointmentDetails(Appointment appointment) {
     final timeInSudan = appointment.time.add(const Duration(hours: 2));
 
@@ -257,6 +264,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     );
   }
 
+  /// fun: to build the appointments (those actually went to the doctor) tab with data
   Widget _buildOngoingAppointmentsTab() {
     return Column(
       children: [
@@ -304,12 +312,15 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                   },
                 ),
         ),
+
+        // design a prety seperator
         Divider(
             color: Colors
                 .lightBlue), // Divider to separate ongoing and deleted appointments
         Text("المواعيد التي تم تشخيصها اليوم:",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Divider(color: Colors.lightBlue),
+
         Expanded(
           child: diagnosedAppointments.isEmpty
               ? Center(child: Text("لم يتم تشخيص مريض بعد"))
@@ -348,7 +359,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
     );
   }
 
-  // this is the dialog for editing the appointment medical history
+  /// fun: this is the dialog for editing the appointment medical history
   Future<void> _showEditDialog(
       BuildContext context, Appointment appointment) async {
     final _formKey = GlobalKey<FormState>();
@@ -400,6 +411,7 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
       );
     }
 
+    /// fun: delete an appointment from database
     void _removeDiagnosis(BuildContext context, int index,
         void Function(void Function()) setParent) {
       showDialog(
@@ -473,7 +485,10 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                           );
                         }),
                       ],
+
+                      // vertical space
                       const SizedBox(height: 10),
+
                       TextFormField(
                         decoration: InputDecoration(labelText: "تشخيص جديد"),
                         onChanged: (val) => newDiagnosis = val,
@@ -485,7 +500,10 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                           return null;
                         },
                       ),
+
+                      // vertical space
                       const SizedBox(height: 10),
+
                       DropdownButtonFormField<String>(
                         value: epidemic,
                         items: epidemics
@@ -498,7 +516,10 @@ class _BookedAppointmentsPageState extends State<BookedAppointmentsPage>
                             ? "الرجاء اختيار الوباء"
                             : null,
                       ),
+
+                      // vertical space
                       const SizedBox(height: 10),
+
                       if (appointment.forMe == true)
                         CheckboxListTile(
                           value: _addToMedicalHistory,

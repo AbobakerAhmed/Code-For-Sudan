@@ -1,11 +1,14 @@
-// Date: 26th of Jun 2025
+/* Date: 26th of Jun 2025 */
 
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
-
 import 'package:mobile_app/firestore_services/firestore.dart';
 
+// base class
 class RegistrarProfilePage extends StatefulWidget {
   final Registrar registrar;
 
@@ -15,15 +18,17 @@ class RegistrarProfilePage extends StatefulWidget {
   State<RegistrarProfilePage> createState() => _RegistrarProfilePageState();
 } //RegistrarProfilePage
 
+// class
 class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
   final FirestoreService _firestoreService = FirestoreService();
 
+  // this fun initalize the page
   @override
   void initState() {
     super.initState();
   }
 
-  // build fun
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -55,7 +60,7 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
 
-              const SizedBox(height: 10), // between name and the phone number
+              const SizedBox(height: 10), // vertical space
 
               // phone number
               ListTile(
@@ -83,7 +88,7 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                 ),
               ),
 
-              const SizedBox(height: 24), // between departments and the button
+              const SizedBox(height: 24), // vertical space
 
               // eidting button
               ElevatedButton.icon(
@@ -98,7 +103,7 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                   await _showEditDialog(context, widget.registrar);
                   setState(() {});
 
-// edit the registrar data (only name, phone number, password)
+/***  edit the registrar data (only name, phone number, password) ***/
                 },
               ),
             ],
@@ -108,7 +113,7 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
     );
   } // build fun
 
-// this is the dialog for editing the registrar data
+  /// fun: this is the dialog for editing the registrar data
   Future<void> _showEditDialog(
       BuildContext context, Registrar currentRegistrar) async {
     final _formKey = GlobalKey<FormState>(); // global key
@@ -161,8 +166,7 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                         onChanged: (value) => currentRegistrar.name = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between name and phone number
+                      const SizedBox(height: 10), // vertical space
 
                       // enter phone number
                       TextFormField(
@@ -196,8 +200,8 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                         onChanged: (value) =>
                             currentRegistrar.phoneNumber = value,
                       ),
-                      const SizedBox(
-                          height: 10), // between age and neighborhood
+
+                      const SizedBox(height: 10), // vertical space
 
                       // enter password
                       TextFormField(
@@ -231,14 +235,13 @@ class _RegistrarProfilePageState extends State<RegistrarProfilePage> {
                         onChanged: (value) => currentRegistrar.password = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
                     ],
                   ),
                 ),
               ),
               actions: [
-                // chencle
+                // cancel
                 TextButton(
                   child: Text(
                     'إلغاء',

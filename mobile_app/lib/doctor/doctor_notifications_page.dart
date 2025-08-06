@@ -1,12 +1,12 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
-/*
-This is the same as the doctor notification page
-*/
-
+// base class
 class DoctorNotificationsPage extends StatefulWidget {
   final Doctor doctor;
 
@@ -17,17 +17,20 @@ class DoctorNotificationsPage extends StatefulWidget {
       _DoctorNotificationsPageState();
 }
 
+// class
 class _DoctorNotificationsPageState extends State<DoctorNotificationsPage> {
   final FirestoreService _firestoreService = FirestoreService();
   List<Notify> _notifications = [];
   bool _isLoading = true;
 
+  // initialize the resources
   @override
   void initState() {
     super.initState();
     _fetchNotifications();
   }
 
+  /// fun: fetch notifications from database
   Future<void> _fetchNotifications() async {
     try {
       final notifications =
@@ -51,6 +54,7 @@ class _DoctorNotificationsPageState extends State<DoctorNotificationsPage> {
     }
   }
 
+  /// fun: get icon according to the type of the notification
   Icon _getIcon(NotificationType type) {
     switch (type) {
       case NotificationType.booking:
@@ -63,6 +67,7 @@ class _DoctorNotificationsPageState extends State<DoctorNotificationsPage> {
     }
   }
 
+  /// build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -82,7 +87,7 @@ class _DoctorNotificationsPageState extends State<DoctorNotificationsPage> {
                   const Text("كيف حالك"),
                 ],
               ))
-            : _notifications.isEmpty
+            : _notifications.isEmpty // no notifications
                 ? Center(
                     child: Text(
                       'لا توجد تنبيهات جديدة.',

@@ -1,18 +1,17 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/regist/registrar_booked_page.dart';
 import 'package:mobile_app/regist/registrar_notification_page.dart';
 import 'package:mobile_app/regist/registrar_profile_page.dart';
-//import 'package:mobile_app/styles.dart';
+
+// import pages
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-// void main(List<String> args) {
-//   // Registrar registrar = Registrar("omar", "0128599405", "1234@Registrar",
-//   //     "al-sanousy", 'الجزيرة', 'ود مدني', ["dentsit", "brain"]);
-//   runApp(RegistrarHomePageTest(registrar: registrar));
-// }
-
+// test class
 class RegistrarHomePageTest extends StatelessWidget {
   final Registrar registrar;
 
@@ -25,12 +24,11 @@ class RegistrarHomePageTest extends StatelessWidget {
       home: RegistrarHomePage(
         registrar: registrar,
       ),
-//      routes: {      }, // no routes here because we will send registrar object to the next page
     );
   }
 }
 
-// registrar home page
+// base class
 class RegistrarHomePage extends StatefulWidget {
   final Registrar registrar; // this page will be only for registrars
   const RegistrarHomePage({super.key, required this.registrar}); // constructor
@@ -39,13 +37,13 @@ class RegistrarHomePage extends StatefulWidget {
       _RegistrarHomePageState(registrar: registrar);
 } // RegistrarHomePage
 
-// home page content
+// class
 class _RegistrarHomePageState extends State<RegistrarHomePage> {
   final Registrar registrar; // required
   _RegistrarHomePageState({required this.registrar}); // constructor
   bool _isDark = isDark();
 
-  // build fun
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -54,8 +52,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
         appBar: AppBar(
           title: Text('الصفحة الرئيسية'),
         ),
-        drawer: _registrarDrawer(context), // look this fun aftre the build fun
-//        bottomNavigationBar: _RegistrarHomeBodyNavigatorBar(), // see the comment at the end of this class
+        drawer: _registrarDrawer(context),
         body: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -78,7 +75,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
     );
   } // build fun
 
-  // registrar drawer
+  // custom widget: registrar drawer
   Drawer _registrarDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -93,6 +90,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
+
+          // home
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('الرئيسية'), // Translated
@@ -100,6 +99,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               Navigator.pop(context); // Close the drawer
             },
           ),
+
+          // profile
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('الملف الشخصي'), // Translated
@@ -115,6 +116,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               );
             },
           ),
+
+          // notifications
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('الإشعارات'), // Translated
@@ -130,6 +133,8 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               );
             },
           ),
+
+          // dark/light mode
           SwitchListTile(
             activeColor: Theme.of(context).primaryColor,
             title: Row(
@@ -145,16 +150,18 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
             onChanged: (val) {
               _isDark = val;
               Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-              //setState(() {});
             },
           ),
+
           const Divider(),
+
+          // log out
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('تسجيل الخروج'), // Translated
             onTap: () {
               Navigator.pop(context); // Close the drawer
-// add logout logic here
+              // add logout logic here
               Navigator.of(context).popUntil((route) => route.isFirst);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
@@ -166,7 +173,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
     );
   } // _registrarDrawer
 
-  // registrar cards in the home page
+  // custom widget: registrar cards in the home page
   Padding _registrarHomeCards(BuildContext context) {
     // We have only 2 cards here: appointments and notifications
     return Padding(
@@ -190,7 +197,6 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(16)),
                         child: FeatureCard(
-                          //                    key:key,
                           icon: Icons.edit_calendar,
                           title: 'سجل الحجوزات',
                         ),
@@ -203,13 +209,13 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
                         },
                       )),
                 ),
+
                 // 2nd card
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: InkWell(
                       child: FeatureCard(
-                        //                          key: ,
                         icon: Icons.notifications_active,
                         title: 'التنبيهات',
                       ),
@@ -227,6 +233,7 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
               ],
             ),
           ),
+
           // space between cards and end of the screen
           Expanded(
             flex: 4,
@@ -236,45 +243,9 @@ class _RegistrarHomePageState extends State<RegistrarHomePage> {
       ),
     );
   } // build fun
-
-//        bottomNavigationBar: _RegistrarHomeBodyNavigatorBar(),
-  // registrar home navigator bar
-/*
-  BottomNavigationBar _RegistrarHomeBodyNavigatorBar() {
-    int _selectedIndex = 0; // مؤشر العنصر المحدد في شريط التنقل السفلي
-
-    // it invoked in the bottom par
-    void _onItemTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'الرئيسية', // Translated
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_today),
-          label: 'المواعيد', // Translated
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'الإشعارات', // Translated
-        ),
-      ],
-      currentIndex: _selectedIndex, // العنصر المحدد حاليا
-      selectedItemColor: Colors.blue[800], // لون العنصر المحدد
-      unselectedItemColor: Colors.grey, // لون العناصر غير المحددة
-      onTap: _onItemTapped, // الدالة التي تُستدعى عند النقر
-    );
-  } //
-*/
 } // registrar home page
 
-// Componnect of the card
+// custom widget: Componnect of the card
 class FeatureCard extends StatelessWidget {
   final IconData icon; // icon
   final String title; // title

@@ -1,7 +1,7 @@
 // import basic ui components
 import 'package:flutter/material.dart';
 
-// import backend file
+// import backend files
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';

@@ -1,11 +1,14 @@
-// Date: 18th of Jul 2025
+/* Date: 18th of Jul 2025 */
 
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
-
 import 'package:mobile_app/firestore_services/firestore.dart';
 
+// base class
 class DoctorProfilePage extends StatefulWidget {
   final Doctor doctor; // required (see doctor.dart)
 
@@ -15,9 +18,11 @@ class DoctorProfilePage extends StatefulWidget {
   State<StatefulWidget> createState() => _DoctorProfilePageState();
 }
 
+// class
 class _DoctorProfilePageState extends State<DoctorProfilePage> {
   final FirestoreService _firestoreService = FirestoreService();
 
+  // initialize the resources
   @override
   void initState() {
     super.initState();
@@ -107,7 +112,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     );
   } // build fun
 
-// this is the dialog for editing the doctor data
+  /// fun: this is the dialog for editing the doctor data
   Future<void> _showEditDialog(
       BuildContext context, Doctor currentDoctor) async {
     final _formKey = GlobalKey<FormState>(); // global key
@@ -160,8 +165,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         onChanged: (value) => currentDoctor.name = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between name and phone number
+                      const SizedBox(height: 10), // vertical space
 
                       // enter phone number
                       TextFormField(
@@ -194,8 +198,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         },
                         onChanged: (value) => currentDoctor.phoneNumber = value,
                       ),
-                      const SizedBox(
-                          height: 10), // between age and neighborhood
+
+                      const SizedBox(height: 10), // vertical space
 
                       // enter password
                       TextFormField(
@@ -229,14 +233,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         onChanged: (value) => currentDoctor.password = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
                     ],
                   ),
                 ),
               ),
               actions: [
-                // chencle
+                // cancel
                 TextButton(
                   child: Text(
                     'إلغاء',
@@ -246,6 +249,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
+
                 // connect to the database here to update the doctor info
                 ElevatedButton(
                   style:
@@ -257,6 +261,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   // there is a problem here
                   // when adding the new info to the same page it is not be shown directly
                   onPressed: () async {
@@ -282,9 +287,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                                   children: [
                                     CircularProgressIndicator(
                                         color: Theme.of(context).primaryColor),
-                                    SizedBox(
-                                      height: 30,
-                                    ),
+                                    SizedBox(height: 30),
                                   ],
                                 ),
                               ),
@@ -300,6 +303,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         widget.doctor.name = currentDoctor.name;
                         widget.doctor.phoneNumber = currentDoctor.phoneNumber;
                         widget.doctor.password = currentDoctor.password;
+                        CircularProgressIndicator(
+                            color: Theme.of(context).primaryColor);
                       });
 
                       Navigator.of(context).pop();

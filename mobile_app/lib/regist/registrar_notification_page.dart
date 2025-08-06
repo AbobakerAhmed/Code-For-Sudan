@@ -1,12 +1,12 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend files
 import 'package:mobile_app/backend/registrar/registrar.dart';
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
-/*
-This is the same as the registrar notification page
-*/
-
+// base class
 class RegistrarNotificationsPage extends StatefulWidget {
   final Registrar registrar;
 
@@ -17,18 +17,21 @@ class RegistrarNotificationsPage extends StatefulWidget {
       _RegistrarNotificationsPageState();
 }
 
+// class
 class _RegistrarNotificationsPageState
     extends State<RegistrarNotificationsPage> {
   final FirestoreService _firestoreService = FirestoreService();
   List<Notify> _notifications = [];
   bool _isLoading = true;
 
+  // this fun initalize the page
   @override
   void initState() {
     super.initState();
     _fetchNotifications();
   }
 
+  /// fun: fetch notifications from database
   Future<void> _fetchNotifications() async {
     try {
       final notifications = await _firestoreService
@@ -51,6 +54,7 @@ class _RegistrarNotificationsPageState
     }
   }
 
+  /// fun: get icon according to the notification type
   Icon _getIcon(NotificationType type) {
     switch (type) {
       case NotificationType.booking:
@@ -63,6 +67,7 @@ class _RegistrarNotificationsPageState
     }
   }
 
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -82,7 +87,7 @@ class _RegistrarNotificationsPageState
                   const Text("كيف حالك"),
                 ],
               ))
-            : _notifications.isEmpty
+            : _notifications.isEmpty // if no notifications
                 ? Center(
                     child: Text(
                       'لا توجد تنبيهات جديدة.',

@@ -1,27 +1,33 @@
-// Date: 26th of Jun 2025
+/* Date: 26th of Jun 2025 */
 
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend file
 import 'package:mobile_app/backend/citizen/citizen.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 
+// base class
 class CitizenProfilePage extends StatefulWidget {
-  final Citizen citizen; // required (see registrar.dart)
+  final Citizen citizen; // required
 
   CitizenProfilePage({super.key, required this.citizen}); // constructor
   @override
   State<CitizenProfilePage> createState() => _CitizenProfilePageState();
 }
 
+// class
 class _CitizenProfilePageState extends State<CitizenProfilePage> {
   FirestoreService _firestoreService = FirestoreService();
 
+  // initiate state
   @override
   void initState() {
     super.initState();
   }
 
-  // build fun
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -42,16 +48,17 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                   style: TextStyle(fontSize: 50),
                 ), // adding image or icon or anything
               ),
-              const SizedBox(height: 16), // between image and the name
 
-              // registrar name
+              const SizedBox(height: 16), // vertical space
+
+              // citizen name
               Text(
                 widget.citizen.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
 
-              const SizedBox(height: 10), // between name and the phone number
+              const SizedBox(height: 10), // vertical space
 
               // phone number
               ListTile(
@@ -76,7 +83,7 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                   subtitle: Text(
                       '${widget.citizen.birthDate.year.toString()}/${widget.citizen.birthDate.month.toString().padLeft(2, '0')}/${widget.citizen.birthDate.toUtc().day.toString().padLeft(2, '0')}')),
 
-              const SizedBox(height: 24), // between departments and the button
+              const SizedBox(height: 24), // vertical space
 
               // eidting button
               ElevatedButton.icon(
@@ -91,10 +98,8 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                       fontWeight: FontWeight.bold),
                 ),
 
-                //the method works but there is going to be problems in appointments if the citizen changed his name or phone number
+                // the method works but there is going to be problems in appointments if the citizen changed his name or phone number
                 onPressed: () async {
-                  // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  //     content: Text('هذه الميزة لا تعمل حاليا')));
                   await _showEditDialog(context, widget.citizen);
                   setState(() {});
                 },
@@ -106,7 +111,7 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
     );
   } // build fun
 
-// this is the dialog for editing the registrar data
+  /// fun: this is the dialog for editing the registrar data
   Future<void> _showEditDialog(
       BuildContext context, Citizen currentCitizen) async {
     final _formKey = GlobalKey<FormState>(); // global key
@@ -159,8 +164,7 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                         onChanged: (value) => currentCitizen.name = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between name and phone number
+                      const SizedBox(height: 10), // vertical space
 
                       // enter phone number
                       TextFormField(
@@ -195,7 +199,7 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                             currentCitizen.phoneNumber = value,
                       ),
 
-                      const SizedBox(height: 10), // between age and password
+                      const SizedBox(height: 10), // vertical space
 
                       // enter password
                       TextFormField(
@@ -229,9 +233,9 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                         onChanged: (value) => currentCitizen.password = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
 
+                      // choose birth date
                       TextFormField(
                         readOnly: true,
                         controller: TextEditingController(
@@ -269,10 +273,9 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                         },
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
 
-                      // enter password
+                      // enter address
                       TextFormField(
                         cursorColor: Theme.of(context).primaryColor,
                         initialValue: currentCitizen.address,
@@ -300,14 +303,13 @@ class _CitizenProfilePageState extends State<CitizenProfilePage> {
                         onChanged: (value) => currentCitizen.address = value,
                       ),
 
-                      const SizedBox(
-                          height: 10), // between phone number and gender
+                      const SizedBox(height: 10), // vertical space
                     ],
                   ),
                 ),
               ),
               actions: [
-                // chencle
+                // cancel
                 TextButton(
                   child: Text(
                     'إلغاء',

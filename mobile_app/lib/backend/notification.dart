@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Enum to represent the different types of notifications in the app.
 /// This provides better type safety than using plain strings.
 enum NotificationType {
-  /// For booking confirmations, cancellations, and updates.
+  // For booking confirmations, cancellations, and updates.
   booking,
 
-  /// For general announcements from the Ministry of Health.
+  // For general announcements from the Ministry of Health.
   ministry,
 
-  /// For other alerts, like a reminder that it's the patient's turn.
+  // For other alerts, like a reminder that it's the patient's turn.
   alert,
 }
 

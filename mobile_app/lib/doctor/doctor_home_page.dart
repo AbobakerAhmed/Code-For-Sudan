@@ -1,12 +1,17 @@
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import pages
 import 'package:mobile_app/doctor/doctor_booking_page.dart';
 import 'package:mobile_app/doctor/doctor_notifications_page.dart';
 import 'package:mobile_app/doctor/doctor_profile_page.dart';
+
+// import backend files
 import 'package:mobile_app/backend/doctor/doctor.dart';
 import 'package:mobile_app/theme_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:mobile_app/backend/doctor/doctor.dart';
 
+// base class
 class DoctorHomePageTest extends StatelessWidget {
   final Doctor doctor;
 
@@ -19,12 +24,11 @@ class DoctorHomePageTest extends StatelessWidget {
       home: DoctorHomePage(
         doctor: doctor,
       ),
-//      routes: {      }, // no routes here because we will send doctor object to the next page
     );
   }
 }
 
-// doctor home page
+// class
 class DoctorHomePage extends StatefulWidget {
   final Doctor doctor; // this page will be only for doctors
   const DoctorHomePage({super.key, required this.doctor}); // constructor
@@ -38,7 +42,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
   _doctorHomePageState({required this.doctor}); // constructor
   bool _isDark = isDark();
 
-  // build fun
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -47,8 +51,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
         appBar: AppBar(
           title: Text('الصفحة الرئيسية'),
         ),
-        drawer: _doctorDrawer(context), // look this fun aftre the build fun
-//        bottomNavigationBar: _doctorHomeBodyNavigatorBar(), // see the comment at the end of this class
+        drawer: _doctorDrawer(context),
         body: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -71,7 +74,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
     );
   } // build fun
 
-  // doctor drawer
+  // custom widget: doctor drawer
   Drawer _doctorDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -86,6 +89,8 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
+
+          // home
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('الرئيسية'), // Translated
@@ -93,6 +98,8 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               Navigator.pop(context); // Close the drawer
             },
           ),
+
+          // profile
           ListTile(
             leading: const Icon(Icons.person),
             title: const Text('الملف الشخصي'), // Translated
@@ -107,6 +114,8 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               );
             },
           ),
+
+          // notifications
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('الإشعارات'), // Translated
@@ -121,6 +130,8 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               );
             },
           ),
+
+          // dark/light mode
           SwitchListTile(
             activeColor: Theme.of(context).primaryColor,
             title: Row(
@@ -139,13 +150,16 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               //setState(() {});
             },
           ),
+
           const Divider(),
+
+          // log out
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('تسجيل الخروج'), // Translated
             onTap: () {
               Navigator.pop(context); // Close the drawer
-// add logout logic here
+              // add logout logic here
               Navigator.of(context).popUntil((route) => route.isFirst);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
@@ -157,7 +171,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
     );
   } // _doctorDrawer
 
-  // doctor cards in the home page
+  // custom widget: doctor cards in the home page
   Padding _doctorHomeCards(BuildContext context) {
     // We have only 2 cards here: appointments and notifications
     return Padding(
@@ -194,13 +208,13 @@ class _doctorHomePageState extends State<DoctorHomePage> {
                         },
                       )),
                 ),
+
                 // 2nd card
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: InkWell(
                       child: FeatureCard(
-                        //                          key: ,
                         icon: Icons.notifications_active,
                         title: 'التنبيهات',
                       ),
@@ -217,6 +231,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
               ],
             ),
           ),
+
           // space between cards and end of the screen
           Expanded(
             flex: 4,
@@ -228,7 +243,7 @@ class _doctorHomePageState extends State<DoctorHomePage> {
   } // build fun
 } // doctor home page
 
-// Componnect of the card
+// custom widget: Componnect of the card
 class FeatureCard extends StatelessWidget {
   final IconData icon; // icon
   final String title; // title

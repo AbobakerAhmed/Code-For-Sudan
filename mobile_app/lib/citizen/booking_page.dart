@@ -1,11 +1,11 @@
-// Date: 22st of Jun 2025
+/* Date: 22st of Jun 2025 */
 
-// importing
-import 'dart:core';
-// import 'package:citizens_app/backend/appointment.dart';
+// import basic ui components
 import 'package:flutter/material.dart';
+
+// import backend file
+import 'dart:core';
 import 'package:mobile_app/backend/registrar/appoinment.dart';
-//import 'package:mobile_app/styles.dart'; // appBar style
 import 'package:mobile_app/backend/notification.dart';
 import 'package:mobile_app/backend/validate_fields.dart';
 import 'package:mobile_app/backend/global_var.dart';
@@ -14,17 +14,17 @@ import 'package:mobile_app/backend/hospital.dart';
 import 'package:mobile_app/firestore_services/firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// booking page builder
+// base class
 class BookingPage extends StatefulWidget {
   final Citizen? citizen;
 
-  const BookingPage({super.key, this.citizen}); //Accept citizen as argument
+  const BookingPage({super.key, this.citizen}); // Accept citizen as argument
 
   @override
   State<BookingPage> createState() => _BookingPageState();
 } // BookingPage
 
-/// Booking page
+// class
 class _BookingPageState extends State<BookingPage> {
   // Define database object
   final FirestoreService _firestoreService = FirestoreService();
@@ -45,7 +45,7 @@ class _BookingPageState extends State<BookingPage> {
   // Testing Data (Region)
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  /// Fields:
+  // Fields:
   String? fullName;
   String? age;
   String? gender;
@@ -67,6 +67,7 @@ class _BookingPageState extends State<BookingPage> {
 
 */
 
+  /// fun: auto-fill data
   void _fillFormWithCitizenData(Citizen citizen) {
     _nameController.text = citizen.name;
     fullName = _nameController.text;
@@ -81,12 +82,14 @@ class _BookingPageState extends State<BookingPage> {
     selectedLocality = citizen.locality;
     medicalHistory = citizen.medicalHistory;
 
-    // Trigger population of localities when state is set
+    /// fun: Trigger population of localities when state is set
     _getLocalities(citizen.state).then((_) {
       setState(() {
         _dbLocalities = _dbLocalities; // refresh UI
       });
     });
+
+    /// fun: Trigger hospitals when state and locality are set
     _getHospitals(citizen.state, citizen.locality).then((_) {
       setState(() {
         _dbHospitals = _dbHospitals; // refresh UI
@@ -94,6 +97,7 @@ class _BookingPageState extends State<BookingPage> {
     });
   }
 
+  /// fun: get state from database
   Future<void> _getStates() async {
     try {
       final statesAndLocalities =
@@ -107,6 +111,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  /// fun: get localities from database according to the state
   Future<void> _getLocalities(String state) async {
     try {
       final statesAndLocalities =
@@ -120,6 +125,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  /// fun: get hospitals from database according to the state and localitiy
   Future<void> _getHospitals(String state, String locality) async {
     try {
       final hospitals = await _firestoreService
@@ -133,6 +139,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  /// fun: get departments from database according to the hospital
   Future<void> _getDepartments(
       String state, String locality, String hospitalName) async {
     try {
@@ -150,6 +157,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  /// fun: get doctors from database according to the hospital and department
   Future<void> _getDoctors(String state, String locality, String hospitalName,
       String departmentName) async {
     try {
@@ -168,6 +176,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  /// fun: check internet connection
   Future<bool> isConnectedToInternet() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult[0] == ConnectivityResult.mobile ||
@@ -177,11 +186,12 @@ class _BookingPageState extends State<BookingPage> {
     return false; // Not connected
   }
 
+  /// fun: handle the connection state
   Future<void> _checkConnectivity() async {
     _isConnected = await isConnectedToInternet();
   }
 
-  /// initiate state
+  // initiate state
   @override
   void initState() {
     // TODO: implement initState
@@ -194,7 +204,7 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  /// overriding the build method
+  // build the app
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -228,11 +238,6 @@ class _BookingPageState extends State<BookingPage> {
                               title: "حجز لي",
                               value: 1,
                               groupValue: _forMe,
-                              //   onChanged: (value) {
-                              //     setState(() {
-                              //       _forMe = value!;
-                              //     });
-                              //   }
                               onChanged: (value) {
                                 setState(() {
                                   _forMe = value!;
@@ -291,7 +296,7 @@ class _BookingPageState extends State<BookingPage> {
                         ],
                       ),
 
-                      // space between buttons and fields
+                      // vertical space
                       const SizedBox(height: 30),
 
                       // entering name
@@ -350,9 +355,7 @@ class _BookingPageState extends State<BookingPage> {
                         },
                       ),
 
-                      const SizedBox(
-                          height:
-                              20), // dividing between personal info and hospital info
+                      const SizedBox(height: 20), // vertical space
 
                       // state
                       _buildDropdown(
@@ -479,10 +482,6 @@ class _BookingPageState extends State<BookingPage> {
                             foregroundColor: Colors.green,
                             minimumSize: const Size(10, 10)),
                         onPressed: () async {
-                          /*
-  Validation of a field can be in its text field or here
-  */
-
                           if (_isFormValid() &&
                               _formKey.currentState!.validate()) {
                             Appointment appointment = Appointment(
@@ -597,6 +596,7 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
+  /// custom widget
   Widget _expanadedRadio(
       {required String title,
       required int value,
@@ -626,7 +626,7 @@ class _BookingPageState extends State<BookingPage> {
         selectedDoctor != null;
   } // _isFormValid
 
-  /// build text field has been updated to handle the validation
+  /// custom widget: build text field has been updated to handle the validation
   Widget _buildTextField(
     String label,
     TextEditingController controller,
@@ -658,7 +658,7 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-  ///
+  /// custom widget
   Widget _buildDropdown({
     required String label,
     required String? value,
