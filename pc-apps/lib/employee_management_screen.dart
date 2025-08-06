@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pc_apps/Backend/hospital.dart';
 import 'package:pc_apps/employee_data_management_screen.dart';
 import 'package:pc_apps/hospital_data_screen.dart';
+import 'package:pc_apps/send_notifications_screen.dart';
 
 class EmployeeManagementScreen extends StatelessWidget {
   Hospital hospital;
@@ -48,6 +49,23 @@ class EmployeeManagementScreen extends StatelessWidget {
             ),
             _buildManagementOption(
               context,
+              'بيانات المستشفى', // Hospital Data
+              Icons.local_hospital,
+                  () {
+                // Handle navigation to hospital data
+                print('Hospital Data tapped!');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HospitalDataScreen(hospital: hospital),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+
+            _buildManagementOption(
+              context,
               'إدارة بيانات الموظفين', // Manage Employee Data
               Icons.person,
               () {
@@ -61,18 +79,19 @@ class EmployeeManagementScreen extends StatelessWidget {
                 );
               },
             ),
+
             const SizedBox(height: 15),
             _buildManagementOption(
               context,
-              'بيانات المستشفى', // Hospital Data
-              Icons.local_hospital,
-              () {
+              'إرسال إشعار', // Hospital Data
+              Icons.send,
+                  () {
                 // Handle navigation to hospital data
                 print('Hospital Data tapped!');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HospitalDataScreen(hospital: hospital),
+                    builder: (context) => SendNotificationsScreen(),
                   ),
                 );
               },
@@ -89,37 +108,40 @@ class EmployeeManagementScreen extends StatelessWidget {
     IconData icon,
     VoidCallback onTap,
   ) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3), // changes position of shadow
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.end, // Align content to the right
-          children: [
-            Icon(
-              icon,
-              size: 30,
-              color: Colors.blue, // Adjust color as needed
-            ),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-          ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.start, // Align content to the right
+            children: [
+              Icon(
+                icon,
+                size: 30,
+                color: Colors.blue, // Adjust color as needed
+              ),
+              const SizedBox(width: 15),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
         ),
       ),
     );

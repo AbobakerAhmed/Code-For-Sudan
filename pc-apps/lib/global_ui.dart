@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
+import 'package:pc_apps/Backend/notification.dart';
 
 // Date Selector in reports page and notifications page
 
@@ -72,37 +73,39 @@ Widget buildFilterDropdown({
   required List<String> items,
   required ValueChanged<String?> onChanged,
 }) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey.shade300),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Directionality(
-      textDirection: TextDirection.rtl,
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          hint: Text(
-            hint,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+  return Expanded(
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            hint: Text(
+              hint,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            icon: const Icon(
+              Icons.arrow_drop_down,
+              size: 16,
+              color: Colors.black54,
+            ),
+            onChanged: onChanged,
+            items: items.map<DropdownMenuItem<String>>((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  textDirection: TextDirection.rtl,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              );
+            }).toList(),
           ),
-          icon: const Icon(
-            Icons.arrow_drop_down,
-            size: 16,
-            color: Colors.black54,
-          ),
-          onChanged: onChanged,
-          items: items.map<DropdownMenuItem<String>>((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(
-                item,
-                textDirection: TextDirection.rtl,
-                style: const TextStyle(fontSize: 12),
-              ),
-            );
-          }).toList(),
         ),
       ),
     ),
@@ -128,8 +131,6 @@ Widget buildLabel(String text) {
     ),
   );
 }
-
-
 
 
 

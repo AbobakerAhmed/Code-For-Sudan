@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:pc_apps/Backend/hospital.dart';
+import 'package:pc_apps/Backend/hospital_employee.dart';
+import 'package:pc_apps/Backend/testing_data.dart';
+import 'package:pc_apps/global_ui.dart';
+
+/*
+Issues:
+  1- align columns titles to center
+  2- add logic of delete and eidt employee
+  3- add logic of adding new employee
+ */
+
+
 
 class EmployeeDataManagementScreen extends StatefulWidget {
   const EmployeeDataManagementScreen({super.key});
@@ -60,180 +73,61 @@ class _EmployeeDataManagementScreenState
               color: Colors.deepPurple,
               size: 35,
             ),
+            SizedBox(width: 10), // Spacing between text and icon
           ],
         ),
         titleSpacing: 0, // Remove default title spacing
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Divider(
-              height: 1,
-              color: Colors.grey,
-            ), // Thin horizontal line below app bar
-            const SizedBox(height: 30),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Divider(
+                height: 1,
+                color: Colors.grey,
+              ), // Thin horizontal line below app bar
+              const SizedBox(height: 30),
 
-            // Job Title Dropdown
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'الوظيفة', // Job Title
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                  fontFamily: 'Cairo',
+              // Job Title Dropdown
+              Row(children: [
+                buildLabel("الوظيفة:"),
+                SizedBox(width: 8,),
+                buildFilterDropdown(
+                    hint: "الكل",
+                    value: _selectedJobTitle,
+                    items: _jobTitles,
+                    onChanged: (newValue){
+                      setState((){
+                        _selectedJobTitle = newValue;
+                      });
+                    }
                 ),
-                textDirection: TextDirection.rtl,
+              ],),
+              const SizedBox(height: 20),
+              // Department Dropdown
+              Row(
+                children: [
+                  buildLabel("القسم:"),
+                  const SizedBox(width: 8),
+                  buildFilterDropdown(
+                      hint: "الكل",
+                      value: _selectedDepartment,
+                      items: _departments,
+                      onChanged: (newValue){
+                        setState(() {
+                          _selectedDepartment = newValue;
+                        });
+                      }
+                  ),],
               ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  hint: const Text(
-                    'دكتور', // Doctor (default/selected value in image)
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontFamily: 'Cairo',
-                    ),
-                    textDirection: TextDirection.rtl,
-                  ),
-                  value: _selectedJobTitle,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedJobTitle = newValue;
-                    });
-                  },
-                  items: _jobTitles.map<DropdownMenuItem<String>>((
-                    String value,
-                  ) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          value,
-                          style: const TextStyle(fontFamily: 'Cairo'),
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  icon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: Colors.black,
-                  ), // Dropdown arrow
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
 
-            // Department Dropdown
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'القسم', // Department
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[700],
-                  fontFamily: 'Cairo',
-                ),
-                textDirection: TextDirection.rtl,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  hint: const Text(
-                    'العظام', // Orthopedics (default/selected value in image)
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontFamily: 'Cairo',
-                    ),
-                    textDirection: TextDirection.rtl,
-                  ),
-                  value: _selectedDepartment,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedDepartment = newValue;
-                    });
-                  },
-                  items: _departments.map<DropdownMenuItem<String>>((
-                    String value,
-                  ) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          value,
-                          style: const TextStyle(fontFamily: 'Cairo'),
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // Add Employee Button
-            ElevatedButton.icon(
-              onPressed: () {
-                print('Add Employee tapped');
-                // TODO: Implement add employee logic/navigation
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white, // White background
-                foregroundColor: Colors.deepPurple, // Icon and text color
-                minimumSize: const Size(
-                  double.infinity,
-                  60,
-                ), // Full width, fixed height
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15), // Rounded corners
-                ),
-                elevation: 2, // Slight shadow
-              ),
-              icon: const Icon(
-                Icons.person_add, // Person with plus icon
-                size: 30,
-              ),
-              label: const Text(
-                'اضافة موظف', // Add Employee
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Cairo',
-                ),
-                textDirection: TextDirection.rtl,
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // Current Employees List Title
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
+              // Current Employees List Title
+              Text(
                 'قائمة الموظفين الحاليين', // List of Current Employees
                 style: TextStyle(
                   fontSize: 20,
@@ -243,132 +137,149 @@ class _EmployeeDataManagementScreenState
                 ),
                 textDirection: TextDirection.rtl,
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Employee List (Using ListView.builder for scrollability and efficiency)
-            Expanded(
-              child: ListView.builder(
-                itemCount: 5, // Example count
-                itemBuilder: (context, index) {
-                  // Example data for demonstration
-                  final List<Map<String, String>> employees = [
-                    {'name': 'د. احمد علي احمد', 'phone': '+249123456789'},
-                    {'name': 'د.تسنيم هاشم الطيب', 'phone': '+249123456789'},
-                    {'name': 'د.الظاهر الطيب حسن', 'phone': '+249123456789'},
-                    {'name': 'د.تسنيم هاشم الطيب', 'phone': '+249123456789'},
-                    {'name': 'د. احمد علي احمد', 'phone': '+249123456789'},
-                  ];
-                  final employee = employees[index];
+              _dataTable(),
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Buttons (Edit and Delete)
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 80, // Fixed width for consistency
-                              height: 35,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  print('Edit ${employee['name']}');
-                                  // TODO: Implement edit logic
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue, // Blue for Edit
-                                  padding:
-                                      EdgeInsets.zero, // Remove default padding
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'تعديل', // Edit
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                  textDirection: TextDirection.rtl,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 80, // Fixed width for consistency
-                              height: 35,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  print('Delete ${employee['name']}');
-                                  // TODO: Implement delete logic
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red, // Red for Delete
-                                  padding:
-                                      EdgeInsets.zero, // Remove default padding
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'حذف الموظف', // Delete Employee
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                  textDirection: TextDirection.rtl,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Employee Phone and Name
-                        Flexible(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                employee['phone']!,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                ),
-                                textDirection:
-                                    TextDirection.ltr, // LTR for phone number
-                              ),
-                              const SizedBox(width: 15),
-                              Flexible(
-                                child: Text(
-                                  employee['name']!,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                  overflow: TextOverflow
-                                      .ellipsis, // Handle long names
-                                  textDirection:
-                                      TextDirection.rtl, // RTL for name
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+              SizedBox(height: 20,),
+              // Add Employee Button
+              ElevatedButton.icon(
+                onPressed: () {
+                  print('Add Employee tapped');
+                  // TODO: Implement add employee logic/navigation
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // White background
+                  foregroundColor: Colors.deepPurple, // Icon and text color
+                  minimumSize: const Size(
+                    double.infinity,
+                    60,
+                  ), // Full width, fixed height
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                  ),
+                  elevation: 2, // Slight shadow
+                ),
+                icon: const Icon(
+                  Icons.person_add, // Person with plus icon
+                  size: 30,
+                ),
+                label: const Text(
+                  'اضافة موظف', // Add Employee
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                  ),
+                  textDirection: TextDirection.rtl,
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 10,),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
+  _dataTable(){
+    return Expanded(child: SingleChildScrollView(
+      child: DataTable(
+        border: TableBorder.all(),
+
+          columns: [
+            DataColumn(
+              label: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.person),
+                    SizedBox(width: 8,),
+                    Text("الاسم")
+                  ],
+                ),
+              ),
+            ),
+            DataColumn(label: Center(child: Text("الوظيفة"))),
+            DataColumn( label: Center(child: Text("القسم")) ),
+            DataColumn( label: Center(child: Text("رقم الهاتف")) ),
+            DataColumn( label: Center(child: Text("")) ),
+            DataColumn( label: Center(child: Text("")) ),    ],
+          rows: _dataRows()
+      ),
+    ));
+  }
+
+  List<DataRow> _dataRows(){
+    List<HospitalEmployee> _workersList = testingEmployeers;
+    List<DataRow> rows = [];
+    for(int i = 0; i < _workersList.length; i++)
+      rows.add(_dataRow(_workersList[i]));
+    return rows;
+  }
+
+  _dataRow(HospitalEmployee employee){
+    return DataRow(cells: [
+      DataCell(Center(child: Text(employee.getName()))),
+      DataCell(Center(child: Text("Rule?"))),
+      DataCell(Center(child: Text("department"))),
+      DataCell(Center(child: Text(employee.getPhoneNumber()))),
+
+      DataCell(Center(child: SizedBox(
+        width: 80, // Fixed width for consistency
+        height: 35,
+        child: ElevatedButton(
+          onPressed: () {
+            // TODO: Implement edit logic
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue, // Blue for Edit
+            padding:
+            EdgeInsets.zero, // Remove default padding
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'تعديل', // Edit
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white,
+              fontFamily: 'Cairo',
+            ),
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+      ))),
+      DataCell(Center(child: SizedBox(
+    width: 100, // Fixed width for consistency
+    height: 35,
+    child: ElevatedButton(
+    onPressed: () {
+    // TODO: Implement delete logic
+    },
+    style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.red, // Red for Delete
+    padding:
+    EdgeInsets.zero, // Remove default padding
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8),
+    ),
+    ),
+    child: const Text(
+    'حذف الموظف', // Delete Employee
+    style: TextStyle(
+    fontSize: 14,
+    color: Colors.white,
+    fontFamily: 'Cairo',
+    ),
+    textDirection: TextDirection.rtl,
+    ),
+    ),
+    ),)),
+    ]);
+  }
 }
+
+

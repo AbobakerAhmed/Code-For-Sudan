@@ -1,7 +1,7 @@
 import 'package:pc_apps/Backend/appointment.dart';
-
+import 'hospital_employee.dart';
 import 'diagnosed_appointment.dart';
-
+import 'package:pc_apps/Backend/notification.dart';
 import 'package:pc_apps/Backend/appointment.dart';
 import 'package:pc_apps/Backend/diagnosed_appointment.dart';
 
@@ -451,4 +451,185 @@ List<DiagnosedAppointment> diagnosedAppointmentWithEpidemics = [
   ),
 ];
 
- List<Appointment> testingCanseldAppointments = [];
+List<Appointment> testingCanseldAppointments = [];
+
+
+
+
+List<Notification> incomingNotifications = [
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'أم درمان', // Omdurman
+    sender: 'مستشفى الأمل', // Hope Hospital
+    title: 'تنبيهات صحية عاجلة', // Urgent Health Alerts
+    massage:
+    'تقارير عن انتشار وباء و حالة طوارئ صحية', // Reports on epidemic spread and health emergency
+    isImportant: true,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false, // Initial state
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'بحري', // Bahri
+    sender: 'مستشفى النور', // Al-Noor Hospital
+    title: 'توجيهات إدارية', // Administrative Directives
+    massage:
+    'تحديثات على النظام الإلكتروني أو طريقة رفع البيانات', // Updates on the electronic system or data submission method
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false,
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'الخرطوم', // Khartoum
+    sender: 'مستشفى السلام', // Al-Salam Hospital
+    title: 'تحديثات تقنية', // Technical Updates
+    massage:
+    'طلب مراجعة بيانات معينة بسبب خلل تقني', // Request to review specific data due to technical glitch
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 3, 2, 45),
+    isRed: false,
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'أم درمان', // Omdurman
+    sender: 'مستشفى الحياة', // Al-Hayat Hospital
+    title: 'شكر وتقدير', // Thanks and Appreciation
+    massage:
+    'شكر على جهود الفريق بعد حالة طارئة', // Thanks for team efforts after an emergency
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false,
+  ),
+];
+
+List<Notification> outcomingNotifications = [
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'أم درمان', // Omdurman
+    sender: 'اشعار تجريبي', // Hope Hospital
+    title: 'تنبيه 1', // Urgent Health Alerts
+    massage:
+    'تقارير عن انتشار وباء و حالة طوارئ صحية', // Reports on epidemic spread and health emergency
+    isImportant: true,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false, // Initial state
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'بحري', // Bahri
+    sender: 'مستشفى النور', // Al-Noor Hospital
+    title: 'توجيهات إدارية', // Administrative Directives
+    massage:
+    'تحديثات على النظام الإلكتروني أو طريقة رفع البيانات', // Updates on the electronic system or data submission method
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false,
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'الخرطوم', // Khartoum
+    sender: 'مستشفى السلام', // Al-Salam Hospital
+    title: 'تحديثات تقنية', // Technical Updates
+    massage:
+    'طلب مراجعة بيانات معينة بسبب خلل تقني', // Request to review specific data due to technical glitch
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 3, 2, 45),
+    isRed: false,
+  ),
+  Notification(
+    receiverState: 'الخرطوم', // Khartoum
+    receiverLocality: 'أم درمان', // Omdurman
+    sender: 'مستشفى الحياة', // Al-Hayat Hospital
+    title: 'شكر وتقدير', // Thanks and Appreciation
+    massage:
+    'شكر على جهود الفريق بعد حالة طارئة', // Thanks for team efforts after an emergency
+    isImportant: false,
+    creationTime: DateTime(2025, 6, 10, 2, 45),
+    isRed: false,
+  ),
+];
+
+final testingEmployeers = [
+  HospitalEmployee(
+    'محمد أحمد',                // name
+    '+249911234567',            // phoneNumber
+    'pass1234',                 // password
+    'الخرطوم',                 // _state
+    'بحري',                    // _locality
+    'مستشفى بحري التعليمي',   // _hospitalName
+  ),
+  HospitalEmployee(
+    'سارة عبد الرحمن',
+    '+249922345678',
+    'sara@2025',
+    'الخرطوم',
+    'الخرطوم شرق',
+    'مستشفى الأمل',
+  ),
+  HospitalEmployee(
+    'محمود يوسف',
+    '+249933456789',
+    'mahmoud!12',
+    'الجزيرة',
+    'ود مدني',
+    'مستشفى ود مدني العام',
+  ),
+  HospitalEmployee(
+    'آمنة الطيب',
+    '+249944567890',
+    'amna@4321',
+    'كسلا',
+    'كسلا',
+    'مستشفى كسلا المرجعي',
+  ),
+  HospitalEmployee(
+    'حسن علي',
+    '+249955678901',
+    'hassan#123',
+    'شمال دارفور',
+    'الفاشر',
+    'مستشفى الفاشر',
+  ),
+  HospitalEmployee(
+    'علياء عبد الله',
+    '+249966789012',
+    'alya',
+    'النيل الأبيض',
+    'كوستي',
+    'مستشفى كوستي',
+  ),
+  HospitalEmployee(
+    'خالد إبراهيم',
+    '+249977890123',
+    'khalid@321',
+    'سنار',
+    'سنجة',
+    'مستشفى سنار',
+  ),
+  HospitalEmployee(
+    'نهى الزين',
+    '+249988901234',
+    'noha_5678',
+    'القضارف',
+    'القضارف',
+    'مستشفى القضارف',
+  ),
+  HospitalEmployee(
+    'عبد الباسط محمد',
+    '+249999012345',
+    'abdelb@2025',
+    'جنوب كردفان',
+    'كادوقلي',
+    'مستشفى كادوقلي',
+  ),
+  HospitalEmployee(
+    'ريم حسن',
+    '+249901123456',
+    'reem#1995',
+    'النيل الأزرق',
+    'الدمازين',
+    'مستشفى الدمازين',
+  ),
+];
+

@@ -121,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  // Send Notifications (ارسال الاشعارات)
+                  // Send Notifications (ارسال التقارير)
                   _buildFeatureCard(
                     context,
                     icon: Icons
@@ -129,12 +129,7 @@ class HomeScreen extends StatelessWidget {
                     label: 'ارسال التقارير',
                     onTap: () {
                       print('Send Notifications tapped');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SendNotificationsScreen(),
-                        ),
-                      );
+
                     },
                   ),
                 ],
