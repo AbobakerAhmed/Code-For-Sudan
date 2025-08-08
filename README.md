@@ -57,23 +57,6 @@ The system consists of three interconnected applications designed to streamline 
 - Generate reports and dashboards for decision-making.
 - Communicate with hospitals and citizens.
 
-## Technical Requirements (Still in progress)
-
-### Security 
-- Passwords stored as encoded and salted hashes.
-- HTTPS encryption for all signups and logins.
-- Automatic logout after 1 hour of inactivity (ministry app).
-
-### Performance
-- Supports up to 500 concurrent users (ministry app).
-- Dashboard loads within 5 seconds (95% of requests).
-- Mobile app size under 40 MB.
-
-### Usability
-- Arabic language support.
-- Responsive design for all screen sizes (mobile and desktop).
-- User-friendly interfaces with actions accessible within 5 clicks (desktop).
-
 ## Demo vedio to explaining how to use it
 
 https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe
@@ -109,7 +92,8 @@ https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe
 
 ## Contributors
 - Developed by the Code For Sudan Hackathon team.
+- For donations *Buy me a coffee* [buymeacoffee.com/aka_ozmo](https://buymeacoffee.com/aka_ozmo)
 
 
 ## License
-This project is licensed under [MIT]. See the `LICENSE` file for details.
+This project is licensed under [MIT].
