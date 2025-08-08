@@ -109,7 +109,7 @@ https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe
 
 ## Contributors
 - Developed by the Code For Sudan Hackathon team.
-- For inquiries, contact: [abobaker.hassan999@gmail.com].
+
 
 ## License
-This project is licensed under [insert license, e.g., MIT]. See the `LICENSE` file for details.
+This project is licensed under [MIT]. See the `LICENSE` file for details.
