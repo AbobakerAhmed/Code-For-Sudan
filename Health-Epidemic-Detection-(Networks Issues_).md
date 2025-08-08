@@ -1,8 +1,8 @@
-## 🌐 Network Reliability Strategy (Technical Solutions)
+### 🌐 Network Reliability Strategy (Technical Solutions)
 
 Given the persistent challenges with internet connectivity in many regions of Sudan, especially in rural or conflict-affected areas, our application "Nabdaa" is engineered with **resilience and offline-first capabilities** in mind.
 
-### Key Technical Approaches:
+#### Key Technical Approaches:
 
 - **Offline Mode (Local Caching):**  
   The app supports local storage of essential data such as emergency numbers, booked appointments, and previously accessed health advice. This allows users to continue using key features even without active internet.
