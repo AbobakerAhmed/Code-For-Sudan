@@ -37,11 +37,6 @@ The system consists of three interconnected applications designed to streamline 
   - Generating and exporting reports (PDF).
   - Regional data filtering (state, locality, hospital, date).
 
-
-## Demo video to explaining how to use it
-
-<video src="https://github.com/user-attachments/assets/d462139f-77fb-49cf-82bc-65f089f6d94d" />
-
 ## Installation and Setup
 
   - **Extensions**:
@@ -114,3 +109,8 @@ The system consists of three interconnected applications designed to streamline 
 
 ## License
 This project is licensed under [MIT].
+
+
+## Demo video to explaining how to use it
+
+<video src="https://github.com/user-attachments/assets/d462139f-77fb-49cf-82bc-65f089f6d94d" />
