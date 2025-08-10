@@ -50,8 +50,29 @@ The system consists of three interconnected applications designed to streamline 
     - Download [Flutter](https://docs.flutter.dev/get-started/install) least version flow the instructions.
     - Download [Gradle v 8.12](https://gradle.org/releases/#8.12) flow the instructions.
     - Download [CMake](https://cmake.org/download/) least version flow the instructions.
-    - Download [Android Studio](https://developer.android.com/studio): least version flow the instructions :
-      - 
+    - Download [Android Studio](https://developer.android.com/studio): least version flow the Instructions :
+      - In the SDK Platforms chose *Android 15.0 ("VanillaCream") aka "Android 35 SDK"*
+        - install Android 15.0 ("VanillaCream") "Android 35 SDK"
+        - install source for Android 35 aka "Android 15.0 ("VanillaCream")"
+        - ASOP ATD intel x86_64 Atom System Images
+        - Google APIs intel x86_64 Atom System Images
+      - In the SDK tools
+        - Android SDK build-tools
+          - 36.0.0
+          - 35.0.0
+          - 34.0.0
+        - NDK (Side by side)
+          - 29.0.13599879 
+          - 28.0.12674087
+          - 27.0.12077973
+          - 26.3.11579264
+        - Android SDK command line tools (choose the least)
+        - CMake
+          - 4.0.2
+          - 3.22.1
+          - 3.18.1
+        - Android Emulator hypervisor driver
+        -  Android SDK platform-tools
   
 
   - Clone the repository:
@@ -59,6 +80,8 @@ The system consists of three interconnected applications designed to streamline 
 
   - Navigate to the project directory:
   cd healthcare-sudan
+
+  - Run The throw Android studio or VScode
    
 - ### The next 2 steps still in progress
   - Download from the respective app store (link to be provided).
@@ -83,10 +106,9 @@ The system consists of three interconnected applications designed to streamline 
 
 ## Contributors
 - Developed by the Code For Sudan Hackathon team.
+- ***Vote for us in  Code For Sudan Hackathon*** [linke to vote](https://devpost.com/software/health-epidemic-detection?_gl=1*nvld8b*_gcl_au*MTM4NDMwMzAzNi4xNzUzNzg5MzMz*_ga*MTM4ODY0MjM1LjE3NTM3ODkzMzU.*_ga_0YHJK3Y10M*czE3NTQ4MTUxMzMkbzIkZzEkdDE3NTQ4MTUxNjUkajI4JGwwJGgw)
 - For donations *Buy me a coffee* [buymeacoffee.com/aka_ozmo](https://buymeacoffee.com/aka_ozmo)
-## Contributors
-- Developed by the Code For Sudan Hackathon team.
-- For donations *Buy me a coffee* [buymeacoffee.com/aka_ozmo](https://buymeacoffee.com/aka_ozmo)
+
 - team members social media:
   - "*LEADER*" Abubaker [linkedin](https://www.linkedin.com/in/abobaker-ahmed/)
   - Omar [linkedin](https://www.linkedin.com/in/omar-el-khiali-215433271/) & [twitter](https://x.com/el_khiali19)
