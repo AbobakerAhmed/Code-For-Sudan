@@ -41,6 +41,7 @@ The system consists of three interconnected applications designed to streamline 
 ## Demo video to explaining how to use it
 
 [youtube video](https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe)
+<video src="https://github.com/user-attachments/assets/d462139f-77fb-49cf-82bc-65f089f6d94d" />
 
 ## Installation and Setup
 1. **Mobile App**:
