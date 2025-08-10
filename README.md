@@ -40,11 +40,9 @@ The system consists of three interconnected applications designed to streamline 
 
 ## Demo video to explaining how to use it
 
-[youtube video](https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe)
 <video src="https://github.com/user-attachments/assets/d462139f-77fb-49cf-82bc-65f089f6d94d" />
 
 ## Installation and Setup
-1. **Mobile App**:
 
   - **Extensions**:
     - Download [Dart](https://dart.dev/get-dart) least version and flow the instructions.
@@ -59,19 +57,12 @@ The system consists of three interconnected applications designed to streamline 
         - Google APIs intel x86_64 Atom System Images
       - In the SDK tools
         - Android SDK build-tools
-          - 36.0.0
           - 35.0.0
-          - 34.0.0
         - NDK (Side by side)
-          - 29.0.13599879 
-          - 28.0.12674087
           - 27.0.12077973
-          - 26.3.11579264
         - Android SDK command line tools (choose the least)
         - CMake
           - 4.0.2
-          - 3.22.1
-          - 3.18.1
         - Android Emulator hypervisor driver
         -  Android SDK platform-tools
   
@@ -82,6 +73,20 @@ The system consists of three interconnected applications designed to streamline 
   cd healthcare-sudan
 
   - Run The through Android studio or VScode
+
+  - **Some accounts to test the mobile app**
+
+    - *A Citizen* : 
+      - number : 0118718014
+      - Password :  123456789@Yassin
+
+    - *A Registrar* : 
+      - number : 0912345678
+      - Password :  123456@Registrar
+
+    - *A Doctor* : 
+      - number : 0118718011
+      - Password :  0118718011@Saja
 
 ## For more understanding check
   - **UMLs** : 
