@@ -84,7 +84,15 @@ The system consists of three interconnected applications designed to streamline 
 ## Contributors
 - Developed by the Code For Sudan Hackathon team.
 - For donations *Buy me a coffee* [buymeacoffee.com/aka_ozmo](https://buymeacoffee.com/aka_ozmo)
-
+## Contributors
+- Developed by the Code For Sudan Hackathon team.
+- For donations *Buy me a coffee* [buymeacoffee.com/aka_ozmo](https://buymeacoffee.com/aka_ozmo)
+- team members social media:
+  - "*LEADER*" Abubaker [linkedin](https://www.linkedin.com/in/abobaker-ahmed/)
+  - Omar [linkedin](https://www.linkedin.com/in/omar-el-khiali-215433271/) & [twitter](https://x.com/el_khiali19)
+  - Wael [linkedin](https://www.linkedin.com/in/wael-monis-709104310/ ) & [twitter](https://x.com/waelmonis)
+  - AbdAlgayom [linkedin](https://www.linkedin.com/in/abdo-yassin-9a4561233/) & [twitter](https://x.com/Abdo_yassin03)
+  - Osman [linkedin](https://www.linkedin.com/in/osman-ali-25b6a9379/) & [twitter](https://x.com/aka_ozmo)
 
 ## License
 This project is licensed under [MIT].
