@@ -82,15 +82,6 @@ The system consists of three interconnected applications designed to streamline 
   cd healthcare-sudan
 
   - Run The through Android studio or VScode
-   
-- ### The next 2 steps still in progress
-  - Download from the respective app store (link to be provided).
-  - Minimum requirements: Android/iOS with 40 MB free space.
-
-2. **Desktop Apps (Still in progress)**:
-   - Download the installer from the project repository.
-   - Run the installer and follow on-screen instructions.
-   - Ensure stable internet connection for initial setup.
 
 ## For more understanding check
   - **UMLs** : 
