@@ -81,7 +81,7 @@ The system consists of three interconnected applications designed to streamline 
   - Navigate to the project directory:
   cd healthcare-sudan
 
-  - Run The throw Android studio or VScode
+  - Run The through Android studio or VScode
    
 - ### The next 2 steps still in progress
   - Download from the respective app store (link to be provided).
