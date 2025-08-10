@@ -1,4 +1,4 @@
-# Healthcare Sudan Project
+# Health Epidemic Detection
 
 ## Overview
 The Healthcare Sudan Project is a comprehensive healthcare management system developed for the Code For Sudan Hackathon. It addresses two critical challenges faced by the Sudanese population in the medical field:
@@ -37,39 +37,30 @@ The system consists of three interconnected applications designed to streamline 
   - Generating and exporting reports (PDF).
   - Regional data filtering (state, locality, hospital, date).
 
-## Key Features
 
-### For Citizens
-- Sign up and manage profiles.
-- Book appointments for themselves or others.
-- View emergency numbers and medical advice.
-- Receive appointment and epidemic notifications.
+## Demo video to explaining how to use it
 
-### For Healthcare Providers
-- **Registrars**: Manage appointments (online/offline), send notifications, and handle patient queues.
-- **Doctors**: Diagnose patients, record epidemics, and update medical histories.
-- **Hospital Managers**: Oversee staff, clinical data, and generate reports for the ministry.
-- **Health Officers**: Maintain patient records and filter appointment data.
-
-### For Ministry Employees
-- Manage hospitals, departments, and staff.
-- Monitor epidemics and send critical alerts.
-- Generate reports and dashboards for decision-making.
-- Communicate with hospitals and citizens.
-
-## Demo vedio to explaining how to use it
-
-https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe
+[youtube video](https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe)
 
 ## Installation and Setup
 1. **Mobile App**:
+
+  - **Extensions**:
+    - Download [Dart](https://dart.dev/get-dart) least version and flow the instructions.
+    - Download [Flutter](https://docs.flutter.dev/get-started/install) least version flow the instructions.
+    - Download [Gradle v 8.12](https://gradle.org/releases/#8.12) flow the instructions.
+    - Download [CMake](https://cmake.org/download/) least version flow the instructions.
+    - Download [Android Studio](https://developer.android.com/studio): least version flow the instructions :
+      - 
+  
+
   - Clone the repository:
-   git clone https://github.com/AbobakerAhmed/Code-For-Sudan.git
+   git clone [Health Epidemic Detection repo](https://github.com/AbobakerAhmed/Code-For-Sudan.git)
 
   - Navigate to the project directory:
   cd healthcare-sudan
    
-- ### The next 2 steps still in progr
+- ### The next 2 steps still in progress
   - Download from the respective app store (link to be provided).
   - Minimum requirements: Android/iOS with 40 MB free space.
 
@@ -78,7 +69,7 @@ https://youtu.be/QH7dAVxit0o?si=SFU-5j5OKijSRuIe
    - Run the installer and follow on-screen instructions.
    - Ensure stable internet connection for initial setup.
 
-## For more understading check
+## For more understanding check
   - **UMLs** : 
     data_structure/UML
   - **Data structure** : 
