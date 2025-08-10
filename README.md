@@ -74,7 +74,6 @@ The system consists of three interconnected applications designed to streamline 
         - Android Emulator hypervisor driver
         -  Android SDK platform-tools
   
-
   - Clone the repository:
    git clone [Health Epidemic Detection repo](https://github.com/AbobakerAhmed/Code-For-Sudan.git)
 
